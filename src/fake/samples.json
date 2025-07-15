@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Sample-001-Blood"
+  },
+  {
+    "id": 2,
+    "name": "Sample-002-Serum"
+  },
+  {
+    "id": 3,
+    "name": "Sample-003-Plasma"
+  },
+  {
+    "id": 4,
+    "name": "Sample-004-Tissue"
+  },
+  {
+    "id": 5,
+    "name": "Sample-005-Saliva"
+  },
+  {
+    "id": 6,
+    "name": "Sample-006-Swab"
+  },
+  {
+    "id": 7,
+    "name": "Sample-007-Urine"
+  },
+  {
+    "id": 8,
+    "name": "Sample-008-CSF"
+  },
+  {
+    "id": 9,
+    "name": "Sample-009-Stool"
+  },
+  {
+    "id": 10,
+    "name": "Sample-010-Biopsy"
+  }
+]

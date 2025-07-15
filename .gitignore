@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.idea
+.nitro
+.tanstack
+.vscode
+
+routeTree.gen.ts
+site.webmanifest
