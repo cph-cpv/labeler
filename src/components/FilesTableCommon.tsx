@@ -1,5 +1,6 @@
 import { formatDate } from "@/utils";
 import type { Fastq } from "@/types.ts";
+import { Link } from "@/components/ui/link.tsx";
 
 export interface BaseFilesTableProps {
   fastqs: Fastq[];
@@ -53,7 +54,14 @@ export function SelectAllCheckbox({
 }
 
 export function FileNameCell({ fastq }: { fastq: Fastq }) {
-  return <span className="font-medium">{fastq.name}</span>;
+  return (
+    <Link 
+      to="/files/$id" 
+      params={{ id: fastq.id.toString() }}
+    >
+      {fastq.name}
+    </Link>
+  );
 }
 
 export function RunDateCell({ fastq }: { fastq: Fastq }) {

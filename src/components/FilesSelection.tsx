@@ -23,12 +23,13 @@ export function FilesSelection({
         "left-0",
         "right-0",
         "z-50",
-        "bg-background",
-        "border-t",
+        "bg-stone-50",
+        "border-t-2",
         "shadow-lg",
         "transition-transform",
         "duration-300",
         "ease-in-out",
+        "scrollbar-gutter-stable",
         isVisible ? "translate-y-0" : "translate-y-full",
       )}
     >

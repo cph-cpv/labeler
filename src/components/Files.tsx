@@ -60,11 +60,6 @@ export function Files() {
     return filtered;
   }, [activeTab, dateRange]);
 
-  const handleAssignClick = (fileId: string) => {
-    setSelectedFileId(fileId);
-    setAssignDialogOpen(true);
-  };
-
   const handleDialogClose = () => {
     setAssignDialogOpen(false);
     setSelectedFileId(null);
