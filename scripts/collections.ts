@@ -4,7 +4,7 @@ export const virusCollection = {
   type: "base",
   fields: [
     {
-      name: "reference_id",
+      name: "uuid",
       type: "text",
       required: true,
     },
@@ -83,7 +83,14 @@ export function createSampleCollection(virusesCollectionId) {
       {
         name: "viruses",
         type: "relation",
-        required: true,
+        collectionId: virusesCollectionId,
+        cascadeDelete: false,
+        minSelect: 0,
+        maxSelect: 999,
+      },
+      {
+        name: "files",
+        type: "relation",
         collectionId: virusesCollectionId,
         cascadeDelete: false,
         minSelect: 0,

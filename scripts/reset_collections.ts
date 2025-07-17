@@ -4,7 +4,7 @@ import {
   createFilesCollection,
   createSampleCollection,
   virusCollection as virusCollectionSchema,
-} from "./collections.mjs";
+} from "./collections.js";
 
 // Basic script to create a PocketBase collection using the JS SDK
 // Usage: node create_collection.mjs [collection_name] [admin_email] [admin_password]
@@ -51,7 +51,9 @@ async function main() {
 
   try {
     // Authenticate as admin once
-    await pb.admins.authWithPassword(adminEmail, adminPassword);
+    await pb
+      .collection("_superusers")
+      .authWithPassword(adminEmail, adminPassword);
     console.log("Admin authenticated successfully");
 
     // Delete existing collections
