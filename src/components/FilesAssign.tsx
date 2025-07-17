@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface AssignProps {
   selectedCount: number;
@@ -17,9 +18,14 @@ interface AssignProps {
 
 export function FilesAssign({ selectedCount }: AssignProps) {
   const [sampleId, setSampleId] = useState<number | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useHotkeys("s", () => {
+    setOpen(true);
+  });
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-green-600 hover:bg-green-700 text-white">
           Assign <Kbd shortcut="S" variant="invert" />

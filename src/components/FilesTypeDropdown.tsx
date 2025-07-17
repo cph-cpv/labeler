@@ -6,14 +6,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import * as React from "react";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
-export function FilesTypeDropdown() {
-  const [showDsRNA, setShowDsRNA] = React.useState<Checked>(true);
-  const [showSmRNA, setShowSmRNA] = React.useState<Checked>(false);
-  const [showUnknown, setShowUnknown] = React.useState<Checked>(false);
+export type TypeFilter = {
+  dsRNA: boolean;
+  smRNA: boolean;
+  unknown: boolean;
+};
+
+type FilesTypeDropdownProps = {
+  typeFilter: TypeFilter;
+  onTypeFilterChange: (filter: TypeFilter) => void;
+};
+
+export function FilesTypeDropdown({
+  typeFilter,
+  onTypeFilterChange,
+}: FilesTypeDropdownProps) {
+  const handleFilterChange = (type: keyof TypeFilter, checked: boolean) => {
+    onTypeFilterChange({
+      ...typeFilter,
+      [type]: checked,
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -22,20 +38,26 @@ export function FilesTypeDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuCheckboxItem
-          checked={showDsRNA}
-          onCheckedChange={setShowDsRNA}
+          checked={typeFilter.dsRNA}
+          onCheckedChange={(checked) =>
+            handleFilterChange("dsRNA", checked ?? false)
+          }
         >
           dsRNA
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={showSmRNA}
-          onCheckedChange={setShowSmRNA}
+          checked={typeFilter.smRNA}
+          onCheckedChange={(checked) =>
+            handleFilterChange("smRNA", checked ?? false)
+          }
         >
           smRNA
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={showUnknown}
-          onCheckedChange={setShowUnknown}
+          checked={typeFilter.unknown}
+          onCheckedChange={(checked) =>
+            handleFilterChange("unknown", checked ?? false)
+          }
           className="text-muted-foreground italic"
         >
           Unknown

@@ -3,18 +3,20 @@
 # Usage
 
 1. Install packages:
+
    ```bash
    npm install
    ```
 
 2. Start Pocketbase:
+
    ```bash
    # @ReeceHoffmann will fill this content.
    ```
 
 3. Start the frontend server:
    ```bash
-   npm run start  
+   npm run start
    ```
 
 # Development

@@ -1,12 +1,8 @@
+import { Link } from "@/components/ui/link.tsx";
 import {
-  type BaseFilesTableProps,
-  FileCheckboxCell,
-  FileNameCell,
-  RunDateCell,
-  SampleCell,
   SelectAllCheckbox,
-  TypeCell,
-} from "@/components/FilesTableCommon.tsx";
+  SelectionCheckbox,
+} from "@/components/ui/selection-checkbox.tsx";
 import {
   Table,
   TableBody,
@@ -16,13 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
+import { UnknownText } from "@/components/ui/unknown-text.tsx";
+import type { Fastq } from "@/types.ts";
+import { formatDate } from "@/utils";
 
-export function FilesTableAnnotated({
+interface FilesTableProps {
+  fastqs: Fastq[];
+  selectedFiles: Set<string>;
+  onFileSelect: (fileId: string) => void;
+  onSelectAll: () => void;
+}
+
+export function FilesTable({
   fastqs,
   selectedFiles,
   onFileSelect,
   onSelectAll,
-}: BaseFilesTableProps) {
+}: FilesTableProps) {
   return (
     <Table className="table">
       <TableCaption>All available FASTQ files.</TableCaption>
@@ -30,8 +36,10 @@ export function FilesTableAnnotated({
         <TableRow>
           <TableHead className="w-12">
             <SelectAllCheckbox
-              selectedFiles={selectedFiles}
-              fastqs={fastqs}
+              items={fastqs}
+              isAllSelected={
+                selectedFiles.size === fastqs.length && fastqs.length > 0
+              }
               onSelectAll={onSelectAll}
             />
           </TableHead>
@@ -45,23 +53,26 @@ export function FilesTableAnnotated({
         {fastqs.map((fastq) => (
           <TableRow key={fastq.id}>
             <TableCell>
-              <FileCheckboxCell
-                fastq={fastq}
-                selectedFiles={selectedFiles}
-                onFileSelect={onFileSelect}
+              <SelectionCheckbox
+                item={fastq}
+                selectedItems={selectedFiles}
+                onItemSelect={onFileSelect}
+                getItemLabel={(item) => item.name}
               />
             </TableCell>
             <TableCell>
-              <FileNameCell fastq={fastq} />
+              <Link to="/files/$id" params={{ id: fastq.id.toString() }}>
+                {fastq.name}
+              </Link>
             </TableCell>
             <TableCell>
-              <RunDateCell fastq={fastq} />
+              <span>{formatDate(fastq.timestamp)}</span>
             </TableCell>
             <TableCell>
-              <TypeCell fastq={fastq} />
+              {fastq.type || <UnknownText>Unknown</UnknownText>}
             </TableCell>
             <TableCell>
-              <SampleCell />
+              <UnknownText>Unassigned</UnknownText>
             </TableCell>
           </TableRow>
         ))}
