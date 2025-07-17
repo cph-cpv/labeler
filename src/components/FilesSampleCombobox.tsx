@@ -16,8 +16,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import samplesData from "@/fake/samples.json";
+import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
-import { cn } from "@/utils.ts";
 
 interface FilesSampleComboboxProps {
   value?: Sample | null;

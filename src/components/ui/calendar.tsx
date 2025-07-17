@@ -1,5 +1,5 @@
 import { Button, buttonVariants } from "@/components/ui/button.tsx";
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,

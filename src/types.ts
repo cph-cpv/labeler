@@ -1,7 +1,7 @@
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
-type FastqType = "dsRNA" | "smRNA" | "Unknown";
-type VirusType = "SATELLITE" | "VIRUS" | "VIROID";
+export type FastqType = "dsRNA" | "smRNA" | "Unknown";
+export type VirusType = "Satellite" | "Virus" | "Viroid";
 
 export type Fastq = {
   id: number;
@@ -28,4 +28,4 @@ export type Virus = {
   uuid: string;
 };
 
-export { DateRange };
+export type { DateRange };

@@ -13,8 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { UnknownText } from "@/components/ui/unknown-text.tsx";
+import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
-import { formatDate } from "@/utils";
 
 interface FilesTableProps {
   fastqs: Fastq[];

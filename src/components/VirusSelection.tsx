@@ -1,5 +1,5 @@
 import { VirusTypeAssign } from "@/components/VirusTypeAssign.tsx";
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 
 interface VirusSelectionProps {
   selectedCount: number;

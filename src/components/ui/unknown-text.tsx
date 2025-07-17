@@ -1,4 +1,4 @@
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 
 interface UnknownTextProps {
   children: React.ReactNode;

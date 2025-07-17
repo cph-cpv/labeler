@@ -1,4 +1,4 @@
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import * as React from "react";
 

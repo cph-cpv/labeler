@@ -3,7 +3,7 @@ export const virusCollection = {
   name: "viruses",
   type: "base",
   fields: [
-      {
+    {
       name: "reference_id",
       type: "text",
       required: true,
@@ -56,7 +56,6 @@ export function createFilesCollection(fileAnnotationCollectionId) {
       {
         name: "date",
         type: "date",
-
       },
       {
         name: "annotations",
