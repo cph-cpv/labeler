@@ -11,7 +11,10 @@ interface FilesTypeBadgeProps {
 export function FilesTypeBadge({ type, className }: FilesTypeBadgeProps) {
   if (!type || type === "Unknown") {
     return (
-      <Badge variant="outline" className={cn("text-muted-foreground", className)}>
+      <Badge
+        variant="outline"
+        className={cn("text-muted-foreground", className)}
+      >
         Unknown
       </Badge>
     );

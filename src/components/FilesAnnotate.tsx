@@ -8,14 +8,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface AnnotateProps {
   selectedCount: number;
 }
 
 export function FilesAnnotate({ selectedCount }: AnnotateProps) {
+  const [open, setOpen] = useState(false);
+
+  useHotkeys("a", () => {
+    setOpen(true);
+  });
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-blue-600 hover:bg-blue-700 text-white">
           Annotate <Kbd shortcut="A" variant="invert" />

@@ -1,6 +1,6 @@
 import { FilesDetail } from "@/components/FilesDetail.tsx";
-import type { Fastq } from "@/types.ts";
 import data from "@/fake/fastq.json";
+import type { Fastq } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/files/$id")({
@@ -21,11 +21,5 @@ function RouteComponent() {
     navigate({ to: "/files" });
   };
 
-  return (
-    <FilesDetail
-      fastq={fastq}
-      open={true}
-      onOpenChange={handleClose}
-    />
-  );
+  return <FilesDetail fastq={fastq} open={true} onOpenChange={handleClose} />;
 }
