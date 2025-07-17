@@ -21,8 +21,11 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { SelectionBar } from "@/components/ui/selection-bar.tsx";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
+import {
+  SelectionProvider,
+  useSelectionContext,
+} from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
-import { useSelection } from "@/hooks/useSelection.ts";
 import type { Fastq } from "@/types.ts";
 import { CheckCircle, Fingerprint, TestTube, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -165,20 +168,6 @@ export function Files() {
     setCurrentPage(1);
   }, [activeTab, dateRange, typeFilter]);
 
-  const {
-    selectedItems: selectedFiles,
-    selectedCount,
-    handleItemSelect: handleFileSelect,
-    handleSelectAll,
-    clearSelection,
-  } = useSelection(paginatedFastqs);
-
-  useHotkeys("e", () => {
-    if (selectedCount > 0) {
-      setExcludeDialogOpen(true);
-    }
-  });
-
   if (loading) {
     return (
       <>
@@ -207,6 +196,63 @@ export function Files() {
     setAssignDialogOpen(false);
     setSelectedFileId(null);
   };
+
+  return (
+    <SelectionProvider items={paginatedFastqs}>
+      <FilesContent
+        fastqs={paginatedFastqs}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        excludeDialogOpen={excludeDialogOpen}
+        setExcludeDialogOpen={setExcludeDialogOpen}
+      />
+    </SelectionProvider>
+  );
+}
+
+interface FilesContentProps {
+  fastqs: Fastq[];
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  typeFilter: TypeFilter;
+  setTypeFilter: (filter: TypeFilter) => void;
+  dateRange: DateRange | undefined;
+  setDateRange: (range: DateRange | undefined) => void;
+  excludeDialogOpen: boolean;
+  setExcludeDialogOpen: (open: boolean) => void;
+}
+
+function FilesContent({
+  fastqs,
+  totalPages,
+  currentPage,
+  setCurrentPage,
+  activeTab,
+  setActiveTab,
+  typeFilter,
+  setTypeFilter,
+  dateRange,
+  setDateRange,
+  excludeDialogOpen,
+  setExcludeDialogOpen,
+}: FilesContentProps) {
+  const { selectedCount, clearSelection } = useSelectionContext<Fastq>();
+
+  useHotkeys("e", () => {
+    if (selectedCount > 0) {
+      setExcludeDialogOpen(true);
+    }
+  });
 
   return (
     <>
@@ -250,12 +296,7 @@ export function Files() {
         />
       </div>
 
-      <FilesTable
-        fastqs={paginatedFastqs}
-        selectedFiles={selectedFiles}
-        onFileSelect={handleFileSelect}
-        onSelectAll={handleSelectAll}
-      />
+      <FilesTable fastqs={fastqs} />
 
       {totalPages > 1 && (
         <Pagination className="mt-4">

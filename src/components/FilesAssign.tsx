@@ -9,16 +9,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
+import type { Fastq, Sample } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 interface AssignProps {
   selectedCount: number;
+  onAssignmentComplete?: () => void;
 }
 
-export function FilesAssign({ selectedCount }: AssignProps) {
-  const [sampleId, setSampleId] = useState<number | null>(null);
+export function FilesAssign({
+  selectedCount,
+  onAssignmentComplete,
+}: AssignProps) {
+  const { selectedItems: selectedFiles } = useSelectionContext<Fastq>();
+  const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [open, setOpen] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   useHotkeys("s", () => {
     setOpen(true);
@@ -39,7 +47,7 @@ export function FilesAssign({ selectedCount }: AssignProps) {
             {selectedCount === 1 ? "file" : "files"}.
           </DialogDescription>
         </DialogHeader>
-        <FilesSampleCombobox onValueChange={setSampleId} />
+        <FilesSampleCombobox onValueChange={setSelectedSample} />
       </DialogContent>
     </Dialog>
   );

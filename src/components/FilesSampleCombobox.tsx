@@ -10,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -34,6 +35,7 @@ export function FilesSampleCombobox({
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
   const [isCreating, setIsCreating] = React.useState(false);
+  const [firstSampleName, setFirstSampleName] = React.useState("");
 
   const { data: samples = [], refetch } =
     usePocketBaseCollection<Sample>("samples");
@@ -49,8 +51,12 @@ export function FilesSampleCombobox({
     (sample) => sample.name.toLowerCase() === searchValue.toLowerCase(),
   );
 
-  const showCreateOption =
-    searchValue && !exactMatch && filteredSamples.length === 0;
+  const showCreateOption = Boolean(
+    searchValue &&
+      searchValue.trim() &&
+      !exactMatch &&
+      filteredSamples.length === 0,
+  );
 
   const handleSelect = async (selectedValue: string) => {
     if (selectedValue === "create-new") {
@@ -88,6 +94,60 @@ export function FilesSampleCombobox({
     }
   };
 
+  const handleCreateFirstSample = async () => {
+    if (!firstSampleName.trim() || isCreating) return;
+
+    setIsCreating(true);
+    try {
+      const newSample = await pb.collection("samples").create({
+        name: firstSampleName.trim(),
+      });
+
+      await refetch();
+      onValueChange(newSample as Sample);
+      setFirstSampleName("");
+    } catch (error) {
+      console.error("Failed to create first sample:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleCreateFirstSample();
+    }
+  };
+
+  // If no samples exist, show first sample creation UI
+  if (samples.length === 0) {
+    return (
+      <div className="space-y-3">
+        <div className="text-sm text-muted-foreground">
+          No samples exist yet. Create your first sample to get started.
+        </div>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter sample name..."
+            value={firstSampleName}
+            onChange={(e) => setFirstSampleName(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isCreating}
+            className="flex-1"
+          />
+          <Button
+            onClick={handleCreateFirstSample}
+            disabled={!firstSampleName.trim() || isCreating}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isCreating ? "Creating..." : "Create"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal combobox when samples exist
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
@@ -112,25 +172,10 @@ export function FilesSampleCombobox({
             onValueChange={setSearchValue}
           />
           <CommandList>
-            <CommandEmpty>
-              {showCreateOption ? (
-                <div className="py-2">
-                  <CommandItem
-                    value="create-new"
-                    onSelect={handleSelect}
-                    className="cursor-pointer"
-                    disabled={isCreating}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {isCreating
-                      ? `Creating "${searchValue}"...`
-                      : `Create "${searchValue}"`}
-                  </CommandItem>
-                </div>
-              ) : (
-                "No samples found."
-              )}
-            </CommandEmpty>
+            {filteredSamples.length === 0 && !showCreateOption && (
+              <CommandEmpty>No samples found.</CommandEmpty>
+            )}
+
             <CommandGroup>
               {filteredSamples.map((sample) => (
                 <CommandItem
@@ -149,18 +194,19 @@ export function FilesSampleCombobox({
                 </CommandItem>
               ))}
             </CommandGroup>
-            {showCreateOption && filteredSamples.length > 0 && (
+
+            {showCreateOption && (
               <CommandGroup>
                 <CommandItem
                   value="create-new"
                   onSelect={handleSelect}
-                  className="cursor-pointer border-t"
+                  className="cursor-pointer bg-green-50 text-green-800 hover:bg-green-100 mx-2 my-1 rounded-md border-t border-green-200"
                   disabled={isCreating}
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="mr-2 h-4 w-4 text-green-600" />
                   {isCreating
                     ? `Creating "${searchValue}"...`
-                    : `Create "${searchValue}"`}
+                    : `Create new sample "${searchValue}"`}
                 </CommandItem>
               </CommandGroup>
             )}

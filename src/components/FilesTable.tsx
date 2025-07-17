@@ -13,22 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { UnknownText } from "@/components/ui/unknown-text.tsx";
+import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 
 interface FilesTableProps {
   fastqs: Fastq[];
-  selectedFiles: Set<string>;
-  onFileSelect: (fileId: string) => void;
-  onSelectAll: () => void;
 }
 
-export function FilesTable({
-  fastqs,
-  selectedFiles,
-  onFileSelect,
-  onSelectAll,
-}: FilesTableProps) {
+export function FilesTable({ fastqs }: FilesTableProps) {
+  const { selectedIds, toggleItem, selectAll, isAllSelected } =
+    useSelectionContext<Fastq>();
   return (
     <Table className="table">
       <TableCaption>All available FASTQ files.</TableCaption>
@@ -37,10 +32,8 @@ export function FilesTable({
           <TableHead className="w-12">
             <SelectAllCheckbox
               items={fastqs}
-              isAllSelected={
-                selectedFiles.size === fastqs.length && fastqs.length > 0
-              }
-              onSelectAll={onSelectAll}
+              isAllSelected={isAllSelected(fastqs)}
+              onSelectAll={() => selectAll(fastqs)}
             />
           </TableHead>
           <TableHead>Name</TableHead>
@@ -55,8 +48,8 @@ export function FilesTable({
             <TableCell>
               <SelectionCheckbox
                 item={fastq}
-                selectedItems={selectedFiles}
-                onItemSelect={onFileSelect}
+                selectedItems={selectedIds}
+                onItemSelect={() => toggleItem(fastq)}
                 getItemLabel={(item) => item.name}
               />
             </TableCell>
