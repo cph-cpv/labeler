@@ -1,23 +1,27 @@
-CPH Sample Assigner
+# CPH Sample Assigner
 
-# Running
+# Usage
 
-To run this application:
+1. Install packages:
+   ```bash
+   npm install
+   ```
+
+2. Start Pocketbase:
+   ```bash
+   # @ReeceHoffmann will fill this content.
+   ```
+
+3. Start the frontend server:
+   ```bash
+   npm run start  
+   ```
+
+# Development
+
+To run in development mode:
 
 ```bash
 npm install
-npm run start  
+npm run dev
 ```
-
-# Building
-
-To build this application for production:
-
-```bash
-npm run build
-```
-
-# Todo
-
-* Support multi-select with SHIFT in /files.
-* 
