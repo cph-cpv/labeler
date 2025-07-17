@@ -36,4 +36,4 @@ function extractDateFromFilePath(filePath){
     return `${year}-${month}-${day}`
 }
 
-populate_file(client,"src/input_data/files.txt")
+populate_file(client,"input_data/files.txt")
