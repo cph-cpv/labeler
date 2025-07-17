@@ -1,6 +1,7 @@
 import { formatDate } from "@/utils";
 import type { Fastq } from "@/types.ts";
 import { Link } from "@/components/ui/link.tsx";
+import { UnknownText } from "@/components/ui/unknown-text.tsx";
 
 export interface BaseFilesTableProps {
   fastqs: Fastq[];
@@ -71,11 +72,11 @@ export function RunDateCell({ fastq }: { fastq: Fastq }) {
 export function TypeCell({ fastq }: { fastq: Fastq }) {
   return (
     <>
-      {fastq.type || <span className="text-muted-foreground italic">Unknown</span>}
+      {fastq.type || <UnknownText>Unknown</UnknownText>}
     </>
   );
 }
 
 export function SampleCell() {
-  return <span className="text-muted-foreground italic">Unassigned</span>;
+  return <UnknownText>Unassigned</UnknownText>;
 }
