@@ -15,7 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import samplesData from "@/fake/samples.json";
+import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
+import { pb } from "@/lib/pocketbase.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
 
@@ -32,8 +33,10 @@ export function FilesSampleCombobox({
 }: FilesSampleComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
+  const [isCreating, setIsCreating] = React.useState(false);
 
-  const samples: Sample[] = samplesData;
+  const { data: samples = [], refetch } =
+    usePocketBaseCollection<Sample>("samples");
 
   const filteredSamples = React.useMemo(() => {
     if (!searchValue) return samples;
@@ -49,14 +52,27 @@ export function FilesSampleCombobox({
   const showCreateOption =
     searchValue && !exactMatch && filteredSamples.length === 0;
 
-  const handleSelect = (selectedValue: string) => {
+  const handleSelect = async (selectedValue: string) => {
     if (selectedValue === "create-new") {
-      // Create new sample with the search value
-      const newSample: Sample = {
-        id: Math.max(...samples.map((s) => s.id)) + 1, // Simple ID generation
-        name: searchValue,
-      };
-      onValueChange(newSample);
+      if (isCreating) return;
+
+      setIsCreating(true);
+      try {
+        // Create new sample in PocketBase
+        const newSample = await pb.collection("samples").create({
+          name: searchValue,
+        });
+
+        // Refetch samples to update the list
+        await refetch();
+
+        // Select the newly created sample
+        onValueChange(newSample as Sample);
+      } catch (error) {
+        console.error("Failed to create sample:", error);
+      } finally {
+        setIsCreating(false);
+      }
     } else {
       const sample = samples.find((s) => s.name === selectedValue);
       onValueChange(sample || null);
@@ -103,9 +119,12 @@ export function FilesSampleCombobox({
                     value="create-new"
                     onSelect={handleSelect}
                     className="cursor-pointer"
+                    disabled={isCreating}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Create "{searchValue}"
+                    {isCreating
+                      ? `Creating "${searchValue}"...`
+                      : `Create "${searchValue}"`}
                   </CommandItem>
                 </div>
               ) : (
@@ -136,9 +155,12 @@ export function FilesSampleCombobox({
                   value="create-new"
                   onSelect={handleSelect}
                   className="cursor-pointer border-t"
+                  disabled={isCreating}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Create "{searchValue}"
+                  {isCreating
+                    ? `Creating "${searchValue}"...`
+                    : `Create "${searchValue}"`}
                 </CommandItem>
               </CommandGroup>
             )}

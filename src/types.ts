@@ -4,7 +4,7 @@ export type FastqType = "dsRNA" | "smRNA" | "Unknown";
 export type VirusType = "Satellite" | "Virus" | "Viroid";
 
 export type Fastq = {
-  id: number;
+  id: string;
   dilutionFactor: number | null;
   name: string;
   path: string;

@@ -1,5 +1,13 @@
 import { AuthButton } from "@/components/AuthButton.tsx";
 import { AuthLogin } from "@/components/AuthLogin.tsx";
+import { DevtoolsDialog } from "@/components/DevtoolsDialog.tsx";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card.tsx";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -25,14 +33,15 @@ function AppShell() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="w-full max-w-md mx-auto p-8 bg-white rounded-lg shadow-sm">
-          <div className="text-center space-y-2 mb-6">
-            <h1 className="text-2xl font-bold">Welcome to Labeler</h1>
-            <p className="text-gray-600">Please sign in to continue</p>
-          </div>
-
-          <AuthLogin />
-        </div>
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Welcome to Labeler</CardTitle>
+            <CardDescription>Please sign in to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AuthLogin />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -73,7 +82,10 @@ function AppShell() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        <AuthButton />
+        <div className="flex items-center gap-2">
+          <DevtoolsDialog />
+          <AuthButton />
+        </div>
       </header>
       <main className="p-6">
         <Outlet />
