@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 
 interface SelectionBarProps {
   selectedCount: number;

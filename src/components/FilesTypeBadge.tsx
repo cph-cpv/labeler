@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge.tsx";
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 
 type FastqType = "dsRNA" | "smRNA" | "Unknown";
 

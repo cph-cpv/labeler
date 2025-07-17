@@ -1,4 +1,4 @@
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 import { Link as RouterLink } from "@tanstack/react-router";
 import * as React from "react";
 

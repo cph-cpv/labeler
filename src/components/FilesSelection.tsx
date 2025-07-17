@@ -2,7 +2,7 @@ import { FilesAnnotate } from "@/components/FilesAnnotate.tsx";
 import { FilesAssign } from "@/components/FilesAssign.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import { cn } from "@/utils.ts";
+import { cn } from "@/lib/utils.ts";
 import { useHotkeys } from "react-hotkeys-hook";
 
 interface FilesSelectionProps {

@@ -1,9 +1,9 @@
 import PocketBase from "pocketbase";
 import {
-  virusCollection as virusCollectionSchema,
-  createSampleCollection,
   createFileAnnotationsCollection,
   createFilesCollection,
+  createSampleCollection,
+  virusCollection as virusCollectionSchema,
 } from "./collections.mjs";
 
 // Basic script to create a PocketBase collection using the JS SDK
