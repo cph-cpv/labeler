@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge.tsx";
+import { UnknownText } from "@/components/ui/unknown-text.tsx";
 import { Circle, Hexagon, SatelliteIcon } from "lucide-react";
 
-type VirusType = "SATELLITE" | "VIRUS" | "VIROID";
+type VirusType = "Satellite" | "Virus" | "Viroid";
 
 interface VirusTypeProps {
   type: VirusType | null;
@@ -9,25 +10,25 @@ interface VirusTypeProps {
 
 export function VirusType({ type }: VirusTypeProps) {
   if (!type) {
-    return <Badge variant="outline">Unknown</Badge>;
+    return <UnknownText>Unknown</UnknownText>;
   }
 
   switch (type) {
-    case "VIRUS":
+    case "Virus":
       return (
         <Badge variant="outline">
           <Hexagon />
           Virus
         </Badge>
       );
-    case "SATELLITE":
+    case "Satellite":
       return (
         <Badge variant="outline">
           <SatelliteIcon />
           Satellite
         </Badge>
       );
-    case "VIROID":
+    case "Viroid":
       return (
         <Badge variant="outline">
           <Circle />

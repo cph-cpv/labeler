@@ -4,7 +4,7 @@
     "acronym": "TMV",
     "name": "Tobacco mosaic virus",
     "synonyms": ["Tobacco mosaic", "TMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   },
   {
@@ -12,7 +12,7 @@
     "acronym": "CMV",
     "name": "Cucumber mosaic virus",
     "synonyms": ["Cucumber mosaic", "CMV-Y"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "b2c3d4e5-f6g7-8901-bcde-f23456789012"
   },
   {
@@ -20,7 +20,7 @@
     "acronym": "PVX",
     "name": "Potato virus X",
     "synonyms": [],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "c3d4e5f6-g7h8-9012-cdef-345678901234"
   },
   {
@@ -28,7 +28,7 @@
     "acronym": "BSMV",
     "name": "Barley stripe mosaic virus",
     "synonyms": ["Barley stripe mosaic", "BSMV-ND18"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "d4e5f6g7-h8i9-0123-defg-456789012345"
   },
   {
@@ -36,7 +36,7 @@
     "acronym": "TSWV",
     "name": "Tomato spotted wilt virus",
     "synonyms": ["Tomato spotted wilt", "TSWV-L3"],
-    "type": "VIRUS",
+    "type": null,
     "uuid": "e5f6g7h8-i9j0-1234-efgh-567890123456"
   },
   {
@@ -44,7 +44,7 @@
     "acronym": "TYLCV",
     "name": "Tomato yellow leaf curl virus",
     "synonyms": ["Tomato yellow leaf curl", "TYLCV-IL"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "f6g7h8i9-j0k1-2345-fghi-678901234567"
   },
   {
@@ -52,7 +52,7 @@
     "acronym": "WMV",
     "name": "Watermelon mosaic virus",
     "synonyms": ["Watermelon mosaic", "WMV-2"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "g7h8i9j0-k1l2-3456-ghij-789012345678"
   },
   {
@@ -60,7 +60,7 @@
     "acronym": "ZYMV",
     "name": "Zucchini yellow mosaic virus",
     "synonyms": ["Zucchini yellow mosaic", "ZYMV-NAT"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "h8i9j0k1-l2m3-4567-hijk-890123456789"
   },
   {
@@ -68,7 +68,7 @@
     "acronym": "BYDV",
     "name": "Barley yellow dwarf virus",
     "synonyms": ["Barley yellow dwarf", "BYDV-PAV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "i9j0k1l2-m3n4-5678-ijkl-901234567890"
   },
   {
@@ -76,7 +76,7 @@
     "acronym": "PLRV",
     "name": "Potato leafroll virus",
     "synonyms": ["Potato leafroll", "PLRV-0"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "j0k1l2m3-n4o5-6789-jklm-012345678901"
   },
   {
@@ -84,7 +84,7 @@
     "acronym": "PSTV",
     "name": "Potato spindle tuber viroid",
     "synonyms": ["Potato spindle tuber", "PSTVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "k1l2m3n4-o5p6-7890-klmn-123456789012"
   },
   {
@@ -92,7 +92,7 @@
     "acronym": "STNV",
     "name": "Satellite tobacco necrosis virus",
     "synonyms": ["Satellite tobacco necrosis", "STNV-C"],
-    "type": "SATELLITE",
+    "type": "Satellite",
     "uuid": "l2m3n4o5-p6q7-8901-lmno-234567890123"
   },
   {
@@ -100,7 +100,7 @@
     "acronym": "GFLV",
     "name": "Grapevine fanleaf virus",
     "synonyms": ["Grapevine fanleaf", "GFLV-F13"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "m3n4o5p6-q7r8-9012-mnop-345678901234"
   },
   {
@@ -108,7 +108,7 @@
     "acronym": "BMV",
     "name": "Brome mosaic virus",
     "synonyms": ["Brome mosaic", "BMV-Russian"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "n4o5p6q7-r8s9-0123-nopq-456789012345"
   },
   {
@@ -116,7 +116,7 @@
     "acronym": "AMV",
     "name": "Alfalfa mosaic virus",
     "synonyms": ["Alfalfa mosaic", "AMV-425"],
-    "type": "VIRUS",
+    "type": null,
     "uuid": "o5p6q7r8-s9t0-1234-opqr-567890123456"
   },
   {
@@ -124,7 +124,7 @@
     "acronym": "SBMV",
     "name": "Southern bean mosaic virus",
     "synonyms": ["Southern bean mosaic", "SBMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "p6q7r8s9-t0u1-2345-pqrs-678901234567"
   },
   {
@@ -132,7 +132,7 @@
     "acronym": "CPMV",
     "name": "Cowpea mosaic virus",
     "synonyms": ["Cowpea mosaic", "CPMV-YP"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "q7r8s9t0-u1v2-3456-qrst-789012345678"
   },
   {
@@ -140,7 +140,7 @@
     "acronym": "CCV",
     "name": "Cowpea chlorotic mottle virus",
     "synonyms": ["Cowpea chlorotic mottle", "CCMV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "r8s9t0u1-v2w3-4567-rstu-890123456789"
   },
   {
@@ -148,7 +148,7 @@
     "acronym": "TNV",
     "name": "Tobacco necrosis virus",
     "synonyms": ["Tobacco necrosis", "TNV-A"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "s9t0u1v2-w3x4-5678-stuv-901234567890"
   },
   {
@@ -156,7 +156,7 @@
     "acronym": "TRSV",
     "name": "Tobacco ringspot virus",
     "synonyms": ["Tobacco ringspot", "TRSV-C3"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "t0u1v2w3-x4y5-6789-tuvw-012345678901"
   },
   {
@@ -164,7 +164,7 @@
     "acronym": "ArMV",
     "name": "Arabis mosaic virus",
     "synonyms": ["Arabis mosaic", "ArMV-S"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "u1v2w3x4-y5z6-7890-uvwx-123456789012"
   },
   {
@@ -172,7 +172,7 @@
     "acronym": "TBRV",
     "name": "Tomato black ring virus",
     "synonyms": ["Tomato black ring", "TBRV-E"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "v2w3x4y5-z6a7-8901-vwxy-234567890123"
   },
   {
@@ -180,7 +180,7 @@
     "acronym": "RRV",
     "name": "Raspberry ringspot virus",
     "synonyms": ["Raspberry ringspot", "RpRSV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "w3x4y5z6-a7b8-9012-wxyz-345678901234"
   },
   {
@@ -188,7 +188,7 @@
     "acronym": "CTV",
     "name": "Citrus tristeza virus",
     "synonyms": ["Citrus tristeza", "CTV-T36"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "x4y5z6a7-b8c9-0123-xyza-456789012345"
   },
   {
@@ -196,7 +196,7 @@
     "acronym": "BYV",
     "name": "Beet yellows virus",
     "synonyms": ["Beet yellows", "BYV-15K"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "y5z6a7b8-c9d0-1234-yzab-567890123456"
   },
   {
@@ -204,7 +204,7 @@
     "acronym": "BNYVV",
     "name": "Beet necrotic yellow vein virus",
     "synonyms": ["Beet necrotic yellow vein", "BNYVV-WB42"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "z6a7b8c9-d0e1-2345-zabc-678901234567"
   },
   {
@@ -212,7 +212,7 @@
     "acronym": "PEBV",
     "name": "Pea early browning virus",
     "synonyms": ["Pea early browning", "PEBV-PS1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "a7b8c9d0-e1f2-3456-abcd-789012345678"
   },
   {
@@ -220,7 +220,7 @@
     "acronym": "PEMV",
     "name": "Pea enation mosaic virus",
     "synonyms": ["Pea enation mosaic", "PEMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "b8c9d0e1-f2g3-4567-bcde-890123456789"
   },
   {
@@ -228,7 +228,7 @@
     "acronym": "SqMV",
     "name": "Squash mosaic virus",
     "synonyms": ["Squash mosaic", "SqMV-Cy"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "c9d0e1f2-g3h4-5678-cdef-901234567890"
   },
   {
@@ -236,7 +236,7 @@
     "acronym": "PRSV",
     "name": "Papaya ringspot virus",
     "synonyms": ["Papaya ringspot", "PRSV-P"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "d0e1f2g3-h4i5-6789-defg-012345678901"
   },
   {
@@ -244,7 +244,7 @@
     "acronym": "PVY",
     "name": "Potato virus Y",
     "synonyms": ["Potato Y virus", "PVY-O"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "e1f2g3h4-i5j6-7890-efgh-123456789012"
   },
   {
@@ -252,7 +252,7 @@
     "acronym": "PVA",
     "name": "Potato virus A",
     "synonyms": ["Potato A virus", "PVA-U"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "f2g3h4i5-j6k7-8901-fghi-234567890123"
   },
   {
@@ -260,7 +260,7 @@
     "acronym": "PVS",
     "name": "Potato virus S",
     "synonyms": ["Potato S virus", "PVS-O"],
-    "type": "VIRUS",
+    "type": null,
     "uuid": "g3h4i5j6-k7l8-9012-ghij-345678901234"
   },
   {
@@ -268,7 +268,7 @@
     "acronym": "PVM",
     "name": "Potato virus M",
     "synonyms": ["Potato M virus", "PVM-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "h4i5j6k7-l8m9-0123-hijk-456789012345"
   },
   {
@@ -276,7 +276,7 @@
     "acronym": "SeMV",
     "name": "Sesbania mosaic virus",
     "synonyms": ["Sesbania mosaic", "SeMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "i5j6k7l8-m9n0-1234-ijkl-567890123456"
   },
   {
@@ -284,7 +284,7 @@
     "acronym": "ClYVV",
     "name": "Clover yellow vein virus",
     "synonyms": ["Clover yellow vein", "ClYVV-E1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "j6k7l8m9-n0o1-2345-jklm-678901234567"
   },
   {
@@ -292,7 +292,7 @@
     "acronym": "BSV",
     "name": "Banana streak virus",
     "synonyms": ["Banana streak", "BSV-OL"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "k7l8m9n0-o1p2-3456-klmn-789012345678"
   },
   {
@@ -300,7 +300,7 @@
     "acronym": "SCMV",
     "name": "Sugarcane mosaic virus",
     "synonyms": ["Sugarcane mosaic", "SCMV-SC"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "l8m9n0o1-p2q3-4567-lmno-890123456789"
   },
   {
@@ -308,7 +308,7 @@
     "acronym": "MDMV",
     "name": "Maize dwarf mosaic virus",
     "synonyms": ["Maize dwarf mosaic", "MDMV-A"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "m9n0o1p2-q3r4-5678-mnop-901234567890"
   },
   {
@@ -316,7 +316,7 @@
     "acronym": "JGMV",
     "name": "Johnson grass mosaic virus",
     "synonyms": ["Johnson grass mosaic", "JGMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "n0o1p2q3-r4s5-6789-nopq-012345678901"
   },
   {
@@ -324,7 +324,7 @@
     "acronym": "WYMV",
     "name": "Wheat yellow mosaic virus",
     "synonyms": ["Wheat yellow mosaic", "WYMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "o1p2q3r4-s5t6-7890-opqr-123456789012"
   },
   {
@@ -332,7 +332,7 @@
     "acronym": "WSSMV",
     "name": "Wheat soil-borne mosaic virus",
     "synonyms": ["Wheat soil-borne mosaic", "WSSMV-NE"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "p2q3r4s5-t6u7-8901-pqrs-234567890123"
   },
   {
@@ -340,7 +340,7 @@
     "acronym": "WSMV",
     "name": "Wheat streak mosaic virus",
     "synonyms": ["Wheat streak mosaic", "WSMV-Sidney81"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "q3r4s5t6-u7v8-9012-qrst-345678901234"
   },
   {
@@ -348,7 +348,7 @@
     "acronym": "TriMV",
     "name": "Triticum mosaic virus",
     "synonyms": ["Triticum mosaic", "TriMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "r4s5t6u7-v8w9-0123-rstu-456789012345"
   },
   {
@@ -356,7 +356,7 @@
     "acronym": "BYSMV",
     "name": "Barley yellow striate mosaic virus",
     "synonyms": ["Barley yellow striate mosaic", "BYSMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "s5t6u7v8-w9x0-1234-stuv-567890123456"
   },
   {
@@ -364,7 +364,7 @@
     "acronym": "RYMV",
     "name": "Rice yellow mottle virus",
     "synonyms": ["Rice yellow mottle", "RYMV-CI1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "t6u7v8w9-x0y1-2345-tuvw-678901234567"
   },
   {
@@ -372,7 +372,7 @@
     "acronym": "RSV",
     "name": "Rice stripe virus",
     "synonyms": ["Rice stripe", "RSV-T"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "u7v8w9x0-y1z2-3456-uvwx-789012345678"
   },
   {
@@ -380,7 +380,7 @@
     "acronym": "RTBV",
     "name": "Rice tungro bacilliform virus",
     "synonyms": ["Rice tungro bacilliform", "RTBV-Philippines"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "v8w9x0y1-z2a3-4567-vwxy-890123456789"
   },
   {
@@ -388,7 +388,7 @@
     "acronym": "RTSV",
     "name": "Rice tungro spherical virus",
     "synonyms": ["Rice tungro spherical", "RTSV-Laguna"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "w9x0y1z2-a3b4-5678-wxyz-901234567890"
   },
   {
@@ -396,7 +396,7 @@
     "acronym": "RBSDV",
     "name": "Rice black-streaked dwarf virus",
     "synonyms": ["Rice black-streaked dwarf", "RBSDV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "x0y1z2a3-b4c5-6789-xyza-012345678901"
   },
   {
@@ -404,7 +404,7 @@
     "acronym": "RGDV",
     "name": "Rice gall dwarf virus",
     "synonyms": ["Rice gall dwarf", "RGDV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "y1z2a3b4-c5d6-7890-yzab-123456789012"
   },
   {
@@ -412,7 +412,7 @@
     "acronym": "RDV",
     "name": "Rice dwarf virus",
     "synonyms": ["Rice dwarf", "RDV-Akita"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "z2a3b4c5-d6e7-8901-zabc-234567890123"
   },
   {
@@ -420,7 +420,7 @@
     "acronym": "RHBV",
     "name": "Rice hoja blanca virus",
     "synonyms": ["Rice hoja blanca", "RHBV-Colombia"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "a3b4c5d6-e7f8-9012-abcd-345678901234"
   },
   {
@@ -428,7 +428,7 @@
     "acronym": "RRSV",
     "name": "Rice ragged stunt virus",
     "synonyms": ["Rice ragged stunt", "RRSV-Philippines"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "b4c5d6e7-f8g9-0123-bcde-456789012345"
   },
   {
@@ -436,7 +436,7 @@
     "acronym": "RBMV",
     "name": "Rice brown mosaic virus",
     "synonyms": ["Rice brown mosaic", "RBMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "c5d6e7f8-g9h0-1234-cdef-567890123456"
   },
   {
@@ -444,7 +444,7 @@
     "acronym": "MCDV",
     "name": "Maize chlorotic dwarf virus",
     "synonyms": ["Maize chlorotic dwarf", "MCDV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "d6e7f8g9-h0i1-2345-defg-678901234567"
   },
   {
@@ -452,7 +452,7 @@
     "acronym": "MRFV",
     "name": "Maize rough dwarf virus",
     "synonyms": ["Maize rough dwarf", "MRDV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "e7f8g9h0-i1j2-3456-efgh-789012345678"
   },
   {
@@ -460,7 +460,7 @@
     "acronym": "MFSV",
     "name": "Maize fine streak virus",
     "synonyms": ["Maize fine streak", "MFSV-1"],
-    "type": "VIRUS",
+    "type": null,
     "uuid": "f8g9h0i1-j2k3-4567-fghi-890123456789"
   },
   {
@@ -468,7 +468,7 @@
     "acronym": "MSV",
     "name": "Maize streak virus",
     "synonyms": ["Maize streak", "MSV-A"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "g9h0i1j2-k3l4-5678-ghij-901234567890"
   },
   {
@@ -476,7 +476,7 @@
     "acronym": "WDV",
     "name": "Wheat dwarf virus",
     "synonyms": ["Wheat dwarf", "WDV-[GPV-Ger]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "h0i1j2k3-l4m5-6789-hijk-012345678901"
   },
   {
@@ -484,7 +484,7 @@
     "acronym": "BCTV",
     "name": "Beet curly top virus",
     "synonyms": ["Beet curly top", "BCTV-Cal/Logan"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "i1j2k3l4-m5n6-7890-ijkl-123456789012"
   },
   {
@@ -492,7 +492,7 @@
     "acronym": "CaLCuV",
     "name": "Cabbage leaf curl virus",
     "synonyms": ["Cabbage leaf curl", "CaLCuV-[Faisalabad]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "j2k3l4m5-n6o7-8901-jklm-234567890123"
   },
   {
@@ -500,7 +500,7 @@
     "acronym": "ACMV",
     "name": "African cassava mosaic virus",
     "synonyms": ["African cassava mosaic", "ACMV-[KE:Kal1]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "k3l4m5n6-o7p8-9012-klmn-345678901234"
   },
   {
@@ -508,7 +508,7 @@
     "acronym": "EACMV",
     "name": "East African cassava mosaic virus",
     "synonyms": ["East African cassava mosaic", "EACMV-UG"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "l4m5n6o7-p8q9-0123-lmno-456789012345"
   },
   {
@@ -516,7 +516,7 @@
     "acronym": "ICMV",
     "name": "Indian cassava mosaic virus",
     "synonyms": ["Indian cassava mosaic", "ICMV-[IN:Tri6:04]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "m5n6o7p8-q9r0-1234-mnop-567890123456"
   },
   {
@@ -524,7 +524,7 @@
     "acronym": "SLCMV",
     "name": "Sri Lankan cassava mosaic virus",
     "synonyms": ["Sri Lankan cassava mosaic", "SLCMV-[LK:Col2:05]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "n6o7p8q9-r0s1-2345-nopq-678901234567"
   },
   {
@@ -532,7 +532,7 @@
     "acronym": "BGMV",
     "name": "Bean golden mosaic virus",
     "synonyms": ["Bean golden mosaic", "BGMV-GA"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "o7p8q9r0-s1t2-3456-opqr-789012345678"
   },
   {
@@ -540,7 +540,7 @@
     "acronym": "BCMV",
     "name": "Bean common mosaic virus",
     "synonyms": ["Bean common mosaic", "BCMV-NL1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "p8q9r0s1-t2u3-4567-pqrs-890123456789"
   },
   {
@@ -548,7 +548,7 @@
     "acronym": "BCMNV",
     "name": "Bean common mosaic necrosis virus",
     "synonyms": ["Bean common mosaic necrosis", "BCMNV-NL5"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "q9r0s1t2-u3v4-5678-qrst-901234567890"
   },
   {
@@ -556,7 +556,7 @@
     "acronym": "BYMV",
     "name": "Bean yellow mosaic virus",
     "synonyms": ["Bean yellow mosaic", "BYMV-G"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "r0s1t2u3-v4w5-6789-rstu-012345678901"
   },
   {
@@ -564,7 +564,7 @@
     "acronym": "PSbMV",
     "name": "Pea seed-borne mosaic virus",
     "synonyms": ["Pea seed-borne mosaic", "PSbMV-L1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "s1t2u3v4-w5x6-7890-stuv-123456789012"
   },
   {
@@ -572,7 +572,7 @@
     "acronym": "ClYMV",
     "name": "Clover yellow mosaic virus",
     "synonyms": ["Clover yellow mosaic", "ClYMV-No"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "t2u3v4w5-x6y7-8901-tuvw-234567890123"
   },
   {
@@ -580,7 +580,7 @@
     "acronym": "APMV",
     "name": "Apple mosaic virus",
     "synonyms": ["Apple mosaic", "ApMV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "u3v4w5x6-y7z8-9012-uvwx-345678901234"
   },
   {
@@ -588,7 +588,7 @@
     "acronym": "PNRSV",
     "name": "Prunus necrotic ringspot virus",
     "synonyms": ["Prunus necrotic ringspot", "PNRSV-CH30"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "v4w5x6y7-z8a9-0123-vwxy-456789012345"
   },
   {
@@ -596,7 +596,7 @@
     "acronym": "PDV",
     "name": "Prune dwarf virus",
     "synonyms": ["Prune dwarf", "PDV-C5"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "w5x6y7z8-a9b0-1234-wxyz-567890123456"
   },
   {
@@ -604,7 +604,7 @@
     "acronym": "CLRV",
     "name": "Cherry leaf roll virus",
     "synonyms": ["Cherry leaf roll", "CLRV-E"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "x6y7z8a9-b0c1-2345-xyza-678901234567"
   },
   {
@@ -612,7 +612,7 @@
     "acronym": "CVA",
     "name": "Cherry virus A",
     "synonyms": ["Cherry virus A", "CVA-1"],
-    "type": "VIRUS",
+    "type": null,
     "uuid": "y7z8a9b0-c1d2-3456-yzab-789012345678"
   },
   {
@@ -620,7 +620,7 @@
     "acronym": "CymMV",
     "name": "Cymbidium mosaic virus",
     "synonyms": ["Cymbidium mosaic", "CymMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "z8a9b0c1-d2e3-4567-zabc-890123456789"
   },
   {
@@ -628,7 +628,7 @@
     "acronym": "ORSV",
     "name": "Odontoglossum ringspot virus",
     "synonyms": ["Odontoglossum ringspot", "ORSV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "a9b0c1d2-e3f4-5678-abcd-901234567890"
   },
   {
@@ -636,7 +636,7 @@
     "acronym": "CMV1",
     "name": "Carnation mottle virus",
     "synonyms": ["Carnation mottle", "CarMV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "b0c1d2e3-f4g5-6789-bcde-012345678901"
   },
   {
@@ -644,7 +644,7 @@
     "acronym": "CLV",
     "name": "Carnation latent virus",
     "synonyms": ["Carnation latent", "CLV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "c1d2e3f4-g5h6-7890-cdef-123456789012"
   },
   {
@@ -652,7 +652,7 @@
     "acronym": "CRSV",
     "name": "Carnation ringspot virus",
     "synonyms": ["Carnation ringspot", "CRSV-CH"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "d2e3f4g5-h6i7-8901-defg-234567890123"
   },
   {
@@ -660,7 +660,7 @@
     "acronym": "CNV",
     "name": "Carnation necrotic fleck virus",
     "synonyms": ["Carnation necrotic fleck", "CNFV"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "e3f4g5h6-i7j8-9012-efgh-345678901234"
   },
   {
@@ -668,7 +668,7 @@
     "acronym": "CEVd",
     "name": "Citrus exocortis viroid",
     "synonyms": ["Citrus exocortis", "CEVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "f4g5h6i7-j8k9-0123-fghi-456789012345"
   },
   {
@@ -676,7 +676,7 @@
     "acronym": "HSVd",
     "name": "Hop stunt viroid",
     "synonyms": ["Hop stunt", "HSVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "g5h6i7j8-k9l0-1234-ghij-567890123456"
   },
   {
@@ -684,7 +684,7 @@
     "acronym": "CCCVd",
     "name": "Coconut cadang-cadang viroid",
     "synonyms": ["Coconut cadang-cadang", "CCCVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "h6i7j8k9-l0m1-2345-hijk-678901234567"
   },
   {
@@ -692,7 +692,7 @@
     "acronym": "CSVd",
     "name": "Chrysanthemum stunt viroid",
     "synonyms": ["Chrysanthemum stunt", "CSVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "i7j8k9l0-m1n2-3456-ijkl-789012345678"
   },
   {
@@ -700,7 +700,7 @@
     "acronym": "CLVd",
     "name": "Columnea latent viroid",
     "synonyms": ["Columnea latent", "CLVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "j8k9l0m1-n2o3-4567-jklm-890123456789"
   },
   {
@@ -708,7 +708,7 @@
     "acronym": "TCDVd",
     "name": "Tomato chlorotic dwarf viroid",
     "synonyms": ["Tomato chlorotic dwarf", "TCDVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "k9l0m1n2-o3p4-5678-klmn-901234567890"
   },
   {
@@ -716,7 +716,7 @@
     "acronym": "TASVd",
     "name": "Tomato apical stunt viroid",
     "synonyms": ["Tomato apical stunt", "TASVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "l0m1n2o3-p4q5-6789-lmno-012345678901"
   },
   {
@@ -724,7 +724,7 @@
     "acronym": "TPMVd",
     "name": "Tomato planta macho viroid",
     "synonyms": ["Tomato planta macho", "TPMVd"],
-    "type": "VIROID",
+    "type": "Viroid",
     "uuid": "m1n2o3p4-q5r6-7890-mnop-123456789012"
   },
   {
@@ -732,7 +732,7 @@
     "acronym": "STPV",
     "name": "Satellite tobacco mosaic virus",
     "synonyms": ["Satellite tobacco mosaic", "STMV"],
-    "type": "SATELLITE",
+    "type": "Satellite",
     "uuid": "n2o3p4q5-r6s7-8901-nopq-234567890123"
   },
   {
@@ -740,7 +740,7 @@
     "acronym": "STNV2",
     "name": "Satellite tobacco ringspot virus",
     "synonyms": ["Satellite tobacco ringspot", "satTRSV"],
-    "type": "SATELLITE",
+    "type": "Satellite",
     "uuid": "o3p4q5r6-s7t8-9012-opqr-345678901234"
   },
   {
@@ -748,7 +748,7 @@
     "acronym": "SPCSV",
     "name": "Sweet potato chlorotic stunt virus",
     "synonyms": ["Sweet potato chlorotic stunt", "SPCSV-EA"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "p4q5r6s7-t8u9-0123-pqrs-456789012345"
   },
   {
@@ -756,7 +756,7 @@
     "acronym": "SPFMV",
     "name": "Sweet potato feathery mottle virus",
     "synonyms": ["Sweet potato feathery mottle", "SPFMV-O"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "q5r6s7t8-u9v0-1234-qrst-567890123456"
   },
   {
@@ -764,7 +764,7 @@
     "acronym": "SPMMV",
     "name": "Sweet potato mild mottle virus",
     "synonyms": ["Sweet potato mild mottle", "SPMMV-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "r6s7t8u9-v0w1-2345-rstu-678901234567"
   },
   {
@@ -772,7 +772,7 @@
     "acronym": "SPLCV",
     "name": "Sweet potato leaf curl virus",
     "synonyms": ["Sweet potato leaf curl", "SPLCV-[ES-Al1]"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "s7t8u9v0-w1x2-3456-stuv-789012345678"
   },
   {
@@ -780,7 +780,7 @@
     "acronym": "SPVG",
     "name": "Sweet potato virus G",
     "synonyms": ["Sweet potato virus G", "SPVG-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "t8u9v0w1-x2y3-4567-tuvw-890123456789"
   },
   {
@@ -788,7 +788,7 @@
     "acronym": "SPVC",
     "name": "Sweet potato virus C",
     "synonyms": ["Sweet potato virus C", "SPVC-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "u9v0w1x2-y3z4-5678-uvwx-901234567890"
   },
   {
@@ -796,7 +796,7 @@
     "acronym": "SPV2",
     "name": "Sweet potato virus 2",
     "synonyms": ["Sweet potato virus 2", "SPV2-1"],
-    "type": "VIRUS",
+    "type": "Virus",
     "uuid": "v0w1x2y3-z4a5-6789-vwxy-012345678901"
   }
 ]
