@@ -2,15 +2,7 @@ import { FilesSelection } from "@/components/FilesSelection.tsx";
 import { FilesTableAnnotated } from "@/components/FilesTableAnnotated.tsx";
 import { FilesTableUnannotated } from "@/components/FilesTableUnannotated.tsx";
 import { FilesTypeDropdown } from "@/components/FilesTypeDropdown.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { DateRangePicker } from "@/components/ui/date-range.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
@@ -128,20 +120,6 @@ export function Files() {
           onSelectAll={handleSelectAll}
         />
       )}
-
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assign FASTQ File</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>Assigning file with ID: {selectedFileId}</p>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleDialogClose}>Assign</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

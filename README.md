@@ -1,4 +1,4 @@
-CPH Sample Labeler
+CPH Sample Assigner
 
 # Running
 

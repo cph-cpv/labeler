@@ -1,4 +1,4 @@
-import Header from "@/components/ui/header.tsx";
+import { Header } from "@/components/ui/header.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 import "../App.css";
 

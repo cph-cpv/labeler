@@ -1,3 +1,4 @@
+import { FilesSampleCombobox } from "@/components/FilesSampleCombobox.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -8,33 +9,31 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useState } from "react";
 
-interface LabelProps {
+interface AssignProps {
   selectedCount: number;
 }
 
-export function FilesLabel({ selectedCount }: LabelProps) {
+export function FilesAssign({ selectedCount }: AssignProps) {
+  const [sampleId, setSampleId] = useState<number | null>(null);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="bg-green-600 hover:bg-green-700 text-white">
-          Label <Kbd shortcut="L" variant="invert" />
+          Assign <Kbd shortcut="S" variant="invert" />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Label Files</DialogTitle>
+          <DialogTitle>Assign Files</DialogTitle>
           <DialogDescription>
-            Label {selectedCount} selected{" "}
+            Assign a sample for the {selectedCount} selected FASTQ{" "}
             {selectedCount === 1 ? "file" : "files"}.
           </DialogDescription>
         </DialogHeader>
-        {/* TODO: Add label form content here */}
-        <div className="py-4">
-          <p className="text-sm text-muted-foreground">
-            Label form will go here.
-          </p>
-        </div>
+        <FilesSampleCombobox onValueChange={setSampleId} />
       </DialogContent>
     </Dialog>
   );

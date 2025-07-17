@@ -1,5 +1,5 @@
 import { FilesAnnotate } from "@/components/FilesAnnotate.tsx";
-import { FilesLabel } from "@/components/FilesLabel.tsx";
+import { FilesAssign } from "@/components/FilesAssign.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { cn } from "@/utils.ts";
@@ -40,7 +40,7 @@ export function FilesSelection({
           </div>
           <div className="flex gap-2">
             <FilesAnnotate selectedCount={selectedCount} />
-            <FilesLabel selectedCount={selectedCount} />
+            <FilesAssign selectedCount={selectedCount} />
             <Button onClick={onExclude} variant="outline">
               Exclude <Kbd shortcut="E" />
             </Button>
