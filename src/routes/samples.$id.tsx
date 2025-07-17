@@ -1,5 +1,5 @@
 import { SamplesDetail } from "@/components/SamplesDetail.tsx";
-import data from "@/fake/samples.json";
+import { usePocketBaseRecord } from "@/hooks/usePocketBase.ts";
 import type { Sample } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
@@ -11,15 +11,23 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
 
-  const sample = data.find((s: Sample) => s.id === parseInt(id));
-
-  if (!sample) {
-    return <Navigate to="/samples" />;
-  }
+  const {
+    data: sample,
+    isLoading,
+    error,
+  } = usePocketBaseRecord<Sample>("samples", id);
 
   const handleClose = () => {
     navigate({ to: "/samples" });
   };
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading sample...</div>;
+  }
+
+  if (error || !sample) {
+    return <Navigate to="/samples" />;
+  }
 
   return (
     <SamplesDetail sample={sample} open={true} onOpenChange={handleClose} />

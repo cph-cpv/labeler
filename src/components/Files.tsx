@@ -11,24 +11,44 @@ import { DateRangePicker } from "@/components/ui/date-range.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination.tsx";
 import { SelectionBar } from "@/components/ui/selection-bar.tsx";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
+import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
 import { useSelection } from "@/hooks/useSelection.ts";
 import type { Fastq } from "@/types.ts";
-import data from "@fake/fastq.json";
 import { CheckCircle, Fingerprint, TestTube, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useHotkeys } from "react-hotkeys-hook";
 
-const fastqs: Fastq[] = data.map((datum) => {
-  return {
-    ...datum,
-    timestamp: new Date(datum.timestamp),
-  };
-});
+// PocketBase file interface
+interface PocketBaseFile {
+  id: string;
+  name: string;
+  path: string;
+  date: string;
+  quality_rating: "good" | "borderline" | "bad" | null;
+  dilution_factor: number | null;
+  type: string | null;
+  created: string;
+  updated: string;
+}
 
 export function Files() {
+  const {
+    data: pbFiles,
+    loading,
+    error,
+    refetch,
+  } = usePocketBaseCollection<PocketBaseFile>("files");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [annotateDialogOpen, setAnnotateDialogOpen] = useState(false);
@@ -40,6 +60,36 @@ export function Files() {
     smRNA: false,
     unknown: false,
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
+
+  // Convert PocketBase files to UI format
+  const fastqs: Fastq[] = useMemo(() => {
+    return pbFiles.map((file) => ({
+      id: file.id, // Use PocketBase string ID directly
+      name: file.name,
+      path: file.path,
+      timestamp: file.date ? new Date(file.date) : new Date(),
+      quality:
+        file.quality_rating === "good"
+          ? 5
+          : file.quality_rating === "borderline"
+            ? 3
+            : file.quality_rating === "bad"
+              ? 1
+              : null,
+      dilutionFactor: file.dilution_factor,
+      type:
+        file.type === "dsRNA"
+          ? "dsRNA"
+          : file.type === "smRNA"
+            ? "smRNA"
+            : file.type === "Unknown"
+              ? "Unknown"
+              : null,
+      excluded: false, // TODO: Add excluded field to PocketBase schema
+    }));
+  }, [pbFiles]);
 
   const filteredFastqs = useMemo(() => {
     let filtered = fastqs;
@@ -103,6 +153,16 @@ export function Files() {
     }
 
     return filtered;
+  }, [fastqs, activeTab, dateRange, typeFilter]);
+
+  const totalPages = Math.ceil(filteredFastqs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedFastqs = filteredFastqs.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
   }, [activeTab, dateRange, typeFilter]);
 
   const {
@@ -111,13 +171,37 @@ export function Files() {
     handleItemSelect: handleFileSelect,
     handleSelectAll,
     clearSelection,
-  } = useSelection(filteredFastqs);
+  } = useSelection(paginatedFastqs);
 
   useHotkeys("e", () => {
     if (selectedCount > 0) {
       setExcludeDialogOpen(true);
     }
   });
+
+  if (loading) {
+    return (
+      <>
+        <Header title="Files" />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading files...</div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header title="Files" />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-500">
+            Error loading files: {error.message}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   const handleDialogClose = () => {
     setAssignDialogOpen(false);
@@ -167,11 +251,53 @@ export function Files() {
       </div>
 
       <FilesTable
-        fastqs={filteredFastqs}
+        fastqs={paginatedFastqs}
         selectedFiles={selectedFiles}
         onFileSelect={handleFileSelect}
         onSelectAll={handleSelectAll}
       />
+
+      {totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  onClick={() => setCurrentPage(page)}
+                  isActive={currentPage === page}
+                  className="cursor-pointer"
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       <SelectionBar
         selectedCount={selectedCount}

@@ -1,5 +1,5 @@
 import { FilesDetail } from "@/components/FilesDetail.tsx";
-import data from "@/fake/fastq.json";
+import { usePocketBaseRecord } from "@/hooks/usePocketBase";
 import type { Fastq } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
@@ -11,10 +11,23 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
 
-  const fastq = data.find((f: Fastq) => f.id === parseInt(id));
+  const {
+    data: fastq,
+    loading,
+    error,
+    notFound,
+  } = usePocketBaseRecord<Fastq>("files", id);
 
-  if (!fastq) {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (notFound || !fastq) {
     return <Navigate to="/files" />;
+  }
+
+  if (error) {
+    return <div>Error loading file: {error.message}</div>;
   }
 
   const handleClose = () => {
