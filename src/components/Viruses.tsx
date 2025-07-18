@@ -2,6 +2,15 @@ import { VirusSelection } from "@/components/VirusSelection.tsx";
 import { VirusType } from "@/components/VirusType.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Link } from "@/components/ui/link.tsx";
+import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination.tsx";
 import {
   SelectAllCheckbox,
   SelectionCheckbox,
@@ -20,7 +29,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
+import {
+  usePocketBaseCount,
+  usePocketBasePaginated,
+} from "@/hooks/usePocketBase.ts";
 import { useSelection } from "@/hooks/useSelection.ts";
 import type { Virus } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
@@ -28,33 +40,44 @@ import { useMemo, useState } from "react";
 
 export function Viruses() {
   const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
+
+  // Get filter for current tab
+  const filter = useMemo(() => {
+    switch (activeTab) {
+      case "typed":
+        return "type != null";
+      case "untyped":
+        return "type = null";
+      default:
+        return "";
+    }
+  }, [activeTab]);
 
   const {
     data: viruses = [],
     loading,
     error,
-  } = usePocketBaseCollection<Virus>("viruses", {
+    totalPages,
+    totalItems,
+    refetch,
+  } = usePocketBasePaginated<Virus>("viruses", {
     sort: "name",
+    page: currentPage,
+    perPage: itemsPerPage,
+    filter,
   });
 
-  const { allViruses, typedViruses, untypedViruses } = useMemo(() => {
-    return {
-      allViruses: viruses,
-      typedViruses: viruses.filter((virus) => virus.type !== null),
-      untypedViruses: viruses.filter((virus) => virus.type === null),
-    };
-  }, [viruses]);
+  // Get counts for badges
+  const { count: allCount } = usePocketBaseCount("viruses");
+  const { count: typedCount } = usePocketBaseCount("viruses", "type != null");
+  const { count: untypedCount } = usePocketBaseCount("viruses", "type = null");
 
-  const currentViruses = useMemo(() => {
-    switch (activeTab) {
-      case "typed":
-        return typedViruses;
-      case "untyped":
-        return untypedViruses;
-      default:
-        return allViruses;
-    }
-  }, [activeTab, allViruses, typedViruses, untypedViruses]);
+  // Reset to page 1 when tab changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const {
     selectedItems: selectedViruses,
@@ -63,7 +86,7 @@ export function Viruses() {
     handleItemSelect: handleVirusSelect,
     handleSelectAll,
     clearSelection,
-  } = useSelection(currentViruses);
+  } = useSelection(viruses);
 
   const renderVirusTable = (virusList: typeof viruses) => (
     <Table>
@@ -103,17 +126,6 @@ export function Viruses() {
     </Table>
   );
 
-  if (loading) {
-    return (
-      <div>
-        <header>
-          <h1 className="font-bold text-2xl">Viruses</h1>
-          <p className="font-medium text-gray-500">Loading viruses...</p>
-        </header>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div>
@@ -136,35 +148,95 @@ export function Viruses() {
             Viruses from the Virtool reference.
           </p>
         </header>
-        <Tabs defaultValue="all" className="mt-4" onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">
-              All{" "}
-              <Badge variant={activeTab === "all" ? "default" : "outline"}>
-                {allViruses.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="typed">
-              Typed{" "}
-              <Badge variant={activeTab === "typed" ? "default" : "outline"}>
-                {typedViruses.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="untyped">
-              Untyped{" "}
-              <Badge variant={activeTab === "untyped" ? "default" : "outline"}>
-                {untypedViruses.length}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="all">{renderVirusTable(allViruses)}</TabsContent>
-          <TabsContent value="typed">
-            {renderVirusTable(typedViruses)}
-          </TabsContent>
-          <TabsContent value="untyped">
-            {renderVirusTable(untypedViruses)}
-          </TabsContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="all">
+                All{" "}
+                <Badge variant={activeTab === "all" ? "default" : "outline"}>
+                  {allCount}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="typed">
+                Typed{" "}
+                <Badge variant={activeTab === "typed" ? "default" : "outline"}>
+                  {typedCount}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="untyped">
+                Untyped{" "}
+                <Badge
+                  variant={activeTab === "untyped" ? "default" : "outline"}
+                >
+                  {untypedCount}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+            {loading && <LoadingIndicator />}
+          </div>
+          <TabsContent value="all">{renderVirusTable(viruses)}</TabsContent>
+          <TabsContent value="typed">{renderVirusTable(viruses)}</TabsContent>
+          <TabsContent value="untyped">{renderVirusTable(viruses)}</TabsContent>
         </Tabs>
+
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  className={
+                    currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+
+              {(() => {
+                const maxVisiblePages = 5;
+                const halfVisible = Math.floor(maxVisiblePages / 2);
+                let startPage = Math.max(1, currentPage - halfVisible);
+                let endPage = Math.min(
+                  totalPages,
+                  startPage + maxVisiblePages - 1,
+                );
+
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+
+                return Array.from(
+                  { length: endPage - startPage + 1 },
+                  (_, i) => startPage + i,
+                ).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(page)}
+                      isActive={currentPage === page}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ));
+              })()}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
 
       <VirusSelection

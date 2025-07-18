@@ -64,13 +64,18 @@ export function FilesAnnotate({
     setOpen(true);
   });
 
-  const filteredViruses = viruses.filter((virus) =>
-    virus.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-    virus.acronym?.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredViruses = viruses.filter(
+    (virus) =>
+      virus.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      virus.acronym?.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const handleAnnotate = async () => {
-    if (!selectedVirus || !selectedAnnotationType || selectedFiles.length === 0) {
+    if (
+      !selectedVirus ||
+      !selectedAnnotationType ||
+      selectedFiles.length === 0
+    ) {
       return;
     }
 
@@ -89,7 +94,7 @@ export function FilesAnnotate({
           await pb.collection("files").update(file.id, {
             annotations: annotation.id,
           });
-        })
+        }),
       );
 
       // Clear selection and close dialog
@@ -122,7 +127,7 @@ export function FilesAnnotate({
   };
 
   const selectedTypeData = annotationTypes.find(
-    (t) => t.value === selectedAnnotationType
+    (t) => t.value === selectedAnnotationType,
   );
 
   return (
@@ -140,7 +145,7 @@ export function FilesAnnotate({
             {selectedCount === 1 ? "file" : "files"}.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Virus</label>
@@ -194,7 +199,7 @@ export function FilesAnnotate({
                               "mr-2 h-4 w-4",
                               selectedVirus?.id === virus.id
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           <div className="flex items-center gap-2">
@@ -247,7 +252,7 @@ export function FilesAnnotate({
                               "mr-2 h-4 w-4",
                               selectedAnnotationType === type.value
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           {type.label}
