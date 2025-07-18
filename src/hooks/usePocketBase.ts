@@ -149,9 +149,25 @@ export function usePocketBasePaginated<T = any>(
         if (options.filter && options.filter.trim() !== "")
           queryOptions.filter = options.filter;
 
+        console.log("usePocketBasePaginated fetchData:", {
+          collection,
+          filter: options.filter,
+          queryOptions,
+          page: options.page || 1,
+          perPage: options.perPage || 25,
+        });
+
         const result = await pb
           .collection(collection)
           .getList<T>(options.page || 1, options.perPage || 25, queryOptions);
+
+        console.log("usePocketBasePaginated result:", {
+          collection,
+          filter: options.filter,
+          resultItems: result.items.length,
+          totalItems: result.totalItems,
+          totalPages: result.totalPages,
+        });
 
         if (!isCancelled) {
           setData(result.items);
@@ -159,6 +175,12 @@ export function usePocketBasePaginated<T = any>(
           setTotalPages(result.totalPages);
         }
       } catch (err) {
+        console.log("usePocketBasePaginated error:", {
+          collection,
+          filter: options.filter,
+          error: err instanceof Error ? err.message : "Unknown error",
+          errorObject: err,
+        });
         if (!isCancelled) {
           // Only show error if it's not an auto-cancellation
           const errorMessage =

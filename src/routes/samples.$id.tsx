@@ -13,7 +13,7 @@ function RouteComponent() {
 
   const {
     data: sample,
-    isLoading,
+    loading,
     error,
   } = usePocketBaseRecord<Sample>("samples", id);
 
@@ -21,7 +21,7 @@ function RouteComponent() {
     navigate({ to: "/samples" });
   };
 
-  if (isLoading) {
+  if (loading) {
     return <div className="text-center py-8">Loading sample...</div>;
   }
 

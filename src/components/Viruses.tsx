@@ -29,11 +29,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs.tsx";
-import {
-  usePocketBaseCount,
-  usePocketBasePaginated,
-} from "@/hooks/usePocketBase.ts";
+import { usePocketBasePaginated } from "@/hooks/usePocketBase.ts";
 import { useSelection } from "@/hooks/useSelection.ts";
+import { useVirusCounts } from "@/hooks/useVirusCounts.ts";
 import type { Virus } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -43,7 +41,6 @@ export function Viruses() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
 
-  // Get filter for current tab
   const filter = useMemo(() => {
     switch (activeTab) {
       case "typed":
@@ -57,11 +54,9 @@ export function Viruses() {
 
   const {
     data: viruses = [],
-    loading,
+    loading: virusesLoading,
     error,
     totalPages,
-    totalItems,
-    refetch,
   } = usePocketBasePaginated<Virus>("viruses", {
     sort: "name",
     page: currentPage,
@@ -69,19 +64,13 @@ export function Viruses() {
     filter,
   });
 
-  // Debug logging
-  console.log("Viruses component:", {
-    activeTab,
-    filter,
-    loading,
-    viruses: viruses.length,
-    totalItems,
-  });
-
   // Get counts for badges
-  const { count: allCount } = usePocketBaseCount("viruses");
-  const { count: typedCount } = usePocketBaseCount("viruses", "type != null");
-  const { count: untypedCount } = usePocketBaseCount("viruses", "type = null");
+  const {
+    allCount,
+    typedCount,
+    untypedCount,
+    loading: countsLoading,
+  } = useVirusCounts();
 
   // Reset to page 1 when tab changes
   useEffect(() => {
@@ -181,71 +170,69 @@ export function Viruses() {
                 </Badge>
               </TabsTrigger>
             </TabsList>
-            {loading && <LoadingIndicator />}
+            {(virusesLoading || countsLoading) && <LoadingIndicator />}
           </div>
           <TabsContent value="all">{renderVirusTable(viruses)}</TabsContent>
           <TabsContent value="typed">{renderVirusTable(viruses)}</TabsContent>
           <TabsContent value="untyped">{renderVirusTable(viruses)}</TabsContent>
         </Tabs>
 
-        {totalPages > 1 && (
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  className={
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              {(() => {
-                const maxVisiblePages = 5;
-                const halfVisible = Math.floor(maxVisiblePages / 2);
-                let startPage = Math.max(1, currentPage - halfVisible);
-                let endPage = Math.min(
-                  totalPages,
-                  startPage + maxVisiblePages - 1,
-                );
-
-                if (endPage - startPage + 1 < maxVisiblePages) {
-                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
                 }
+              />
+            </PaginationItem>
 
-                return Array.from(
-                  { length: endPage - startPage + 1 },
-                  (_, i) => startPage + i,
-                ).map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      onClick={() => setCurrentPage(page)}
-                      isActive={currentPage === page}
-                      className="cursor-pointer"
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ));
-              })()}
+            {(() => {
+              const maxVisiblePages = 5;
+              const halfVisible = Math.floor(maxVisiblePages / 2);
+              let startPage = Math.max(1, currentPage - halfVisible);
+              let endPage = Math.min(
+                totalPages,
+                startPage + maxVisiblePages - 1,
+              );
 
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
-                  }
-                  className={
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+              if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+              }
+
+              return Array.from(
+                { length: endPage - startPage + 1 },
+                (_, i) => startPage + i,
+              ).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ));
+            })()}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
 
       <VirusSelection
