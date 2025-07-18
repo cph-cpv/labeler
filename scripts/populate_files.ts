@@ -1,4 +1,3 @@
-import { parse } from "csv-parse/sync";
 import * as dotenv from "dotenv";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -8,26 +7,6 @@ dotenv.config({ path: ".env.local" });
 
 const adminEmail = process.env.POCKETBASE_ADMIN_EMAIL || "admin@example.com";
 const adminPassword = process.env.POCKETBASE_ADMIN_PASSWORD || "password123";
-
-export async function populate_viruses(pb: Pocketbase, file_path: string) {
-  const input = await fs.readFile(file_path, "utf8");
-  const data = parse(input);
-
-  for (const virus of data) {
-    console.log(virus);
-    console.log({
-      uuid: virus[0],
-      acronym: virus[1],
-      name: virus[2],
-    });
-    const record = await pb.collection("viruses").create({
-      uuid: virus[0],
-      acronym: virus[1],
-      name: virus[2],
-    });
-    console.log("Created record:", record.id, "for file:", virus[2]);
-  }
-}
 
 export async function populate_files(pb: Pocketbase, file_path: string) {
   const input = await fs.readFile(file_path, "utf8");
@@ -64,7 +43,6 @@ async function main() {
     .collection("_superusers")
     .authWithPassword(adminEmail, adminPassword);
   await populate_files(client, "input_data/files.txt");
-  await populate_viruses(client, "input_data/reference_info.csv");
 }
 
 main().catch(console.error);
