@@ -84,6 +84,7 @@ export function FilesAssign({
           value={selectedSample}
           onValueChange={setSelectedSample}
         />
+        <div className="mb-4" />
         <DialogFooter>
           <Button
             onClick={handleAssign}
