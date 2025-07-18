@@ -1,10 +1,13 @@
 import { parse } from "csv-parse/sync";
+import * as dotenv from "dotenv";
 import * as fs from "fs/promises";
 import * as path from "path";
 import Pocketbase from "pocketbase";
 
-const adminEmail = process.argv[2] || "admin@example.com";
-const adminPassword = process.argv[3] || "password123";
+dotenv.config({ path: ".env.local" });
+
+const adminEmail = process.env.POCKETBASE_ADMIN_EMAIL || "admin@example.com";
+const adminPassword = process.env.POCKETBASE_ADMIN_PASSWORD || "password123";
 
 export async function populate_viruses(pb: Pocketbase, file_path: string) {
   const input = await fs.readFile(file_path, "utf8");
@@ -55,7 +58,8 @@ function extractDateFromFilePath(filePath: string) {
 }
 
 async function main() {
-  const client = new Pocketbase("http://localhost:80");
+  const pbUrl = process.env.VITE_POCKETBASE_URL || "http://localhost:8080";
+  const client = new Pocketbase(pbUrl);
   await client
     .collection("_superusers")
     .authWithPassword(adminEmail, adminPassword);
