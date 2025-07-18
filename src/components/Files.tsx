@@ -10,6 +10,7 @@ import {
 import { DateRangePicker } from "@/components/ui/date-range.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
   Pagination,
   PaginationContent,
@@ -25,7 +26,7 @@ import {
   SelectionProvider,
   useSelectionContext,
 } from "@/contexts/SelectionContext.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
+import { usePocketBasePaginated } from "@/hooks/usePocketBase.ts";
 import type { Fastq, Sample } from "@/types.ts";
 import { CheckCircle, Fingerprint, TestTube, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -50,14 +51,6 @@ interface PocketBaseFile {
 }
 
 export function Files() {
-  const {
-    data: pbFiles,
-    loading,
-    error,
-    refetch,
-  } = usePocketBaseCollection<PocketBaseFile>("files", {
-    expand: "sample",
-  });
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [annotateDialogOpen, setAnnotateDialogOpen] = useState(false);
@@ -70,6 +63,65 @@ export function Files() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
+
+  // Build PocketBase filter expression
+  const filter = useMemo(() => {
+    const conditions: string[] = [];
+
+    // Tab filtering
+    if (activeTab === "unannotated") {
+      // Missing one of type, quality, or dilution factor, and not excluded
+      conditions.push(
+        "(excluded = null || excluded = false) && (type = null || quality_rating = null || dilution_factor = null)",
+      );
+    } else if (activeTab === "unassigned") {
+      // Not assigned to a sample, and not excluded
+      conditions.push(
+        "(excluded = null || excluded = false) && (sample = null || sample = '')",
+      );
+    } else if (activeTab === "excluded") {
+      conditions.push("excluded = true");
+    } else if (activeTab === "done") {
+      // Has type, quality, dilution factor, and is assigned to a sample, and not excluded
+      conditions.push(
+        "(excluded = null || excluded = false) && type != null && quality_rating != null && dilution_factor != null && sample != null && sample != ''",
+      );
+    }
+
+    // Type filtering
+    const hasTypeFilters =
+      typeFilter.dsRNA || typeFilter.smRNA || typeFilter.unknown;
+    if (hasTypeFilters) {
+      const typeConditions: string[] = [];
+      if (typeFilter.dsRNA) typeConditions.push("type = 'dsRNA'");
+      if (typeFilter.smRNA) typeConditions.push("type = 'smRNA'");
+      if (typeFilter.unknown)
+        typeConditions.push("(type = 'Unknown' || type = null)");
+      conditions.push(`(${typeConditions.join(" || ")})`);
+    }
+
+    // Date range filtering
+    if (dateRange?.from) {
+      const fromDate = dateRange.from.toISOString();
+      const toDate = (dateRange.to || dateRange.from).toISOString();
+      conditions.push(`date >= '${fromDate}' && date <= '${toDate}'`);
+    }
+
+    return conditions.join(" && ");
+  }, [activeTab, dateRange, typeFilter]);
+
+  const {
+    data: pbFiles,
+    loading,
+    error,
+    totalPages,
+    refetch,
+  } = usePocketBasePaginated<PocketBaseFile>("files", {
+    expand: "sample",
+    page: currentPage,
+    perPage: itemsPerPage,
+    filter,
+  });
 
   // Convert PocketBase files to UI format
   const fastqs: Fastq[] = useMemo(() => {
@@ -100,86 +152,10 @@ export function Files() {
     }));
   }, [pbFiles]);
 
-  const filteredFastqs = useMemo(() => {
-    let filtered = fastqs;
-
-    // Filter by tab selection
-    if (activeTab === "unannotated") {
-      // Missing one of type, quality, or dilution factor, and not excluded
-      filtered = filtered.filter(
-        (fastq) =>
-          !fastq.excluded &&
-          (fastq.type === null ||
-            fastq.quality === null ||
-            fastq.dilutionFactor === null),
-      );
-    } else if (activeTab === "unassigned") {
-      // Not assigned to a sample, and not excluded (regardless of annotation status)
-      filtered = filtered.filter((fastq) => !fastq.excluded && !fastq.sample);
-    } else if (activeTab === "excluded") {
-      filtered = filtered.filter((fastq) => fastq.excluded);
-    } else if (activeTab === "done") {
-      // Has type, quality, dilution factor, and is assigned to a sample, and not excluded
-      filtered = filtered.filter(
-        (fastq) =>
-          !fastq.excluded &&
-          fastq.type !== null &&
-          fastq.quality !== null &&
-          fastq.dilutionFactor !== null &&
-          fastq.sample !== null,
-      );
-    }
-
-    // Filter by type if any types are selected
-    const hasTypeFilters =
-      typeFilter.dsRNA || typeFilter.smRNA || typeFilter.unknown;
-    if (hasTypeFilters) {
-      filtered = filtered.filter((fastq) => {
-        if (typeFilter.dsRNA && fastq.type === "dsRNA") return true;
-        if (typeFilter.smRNA && fastq.type === "smRNA") return true;
-        if (
-          typeFilter.unknown &&
-          (fastq.type === "Unknown" || fastq.type === null)
-        )
-          return true;
-        return false;
-      });
-    }
-
-    // Filter by date range if specified
-    if (dateRange?.from) {
-      filtered = filtered.filter((fastq) => {
-        const timestamp = fastq.timestamp;
-        const fromDate = dateRange.from!;
-        const toDate = dateRange.to || dateRange.from;
-
-        return timestamp >= fromDate && timestamp <= toDate;
-      });
-    }
-
-    return filtered;
-  }, [fastqs, activeTab, dateRange, typeFilter]);
-
-  const totalPages = Math.ceil(filteredFastqs.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedFastqs = filteredFastqs.slice(startIndex, endIndex);
-
   // Reset to page 1 when filters change
   useMemo(() => {
     setCurrentPage(1);
   }, [activeTab, dateRange, typeFilter]);
-
-  if (loading) {
-    return (
-      <>
-        <Header title="Files" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading files...</div>
-        </div>
-      </>
-    );
-  }
 
   if (error) {
     return (
@@ -201,9 +177,9 @@ export function Files() {
 
   return (
     <FilesProvider refetchFiles={refetch}>
-      <SelectionProvider items={paginatedFastqs}>
+      <SelectionProvider items={fastqs}>
         <FilesContent
-          fastqs={paginatedFastqs}
+          fastqs={fastqs}
           totalPages={totalPages}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -214,6 +190,7 @@ export function Files() {
           dateRange={dateRange}
           setDateRange={setDateRange}
           onRefetch={refetch}
+          loading={loading}
         />
       </SelectionProvider>
     </FilesProvider>
@@ -232,6 +209,7 @@ interface FilesContentProps {
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
   onRefetch: () => void;
+  loading: boolean;
 }
 
 function FilesContent({
@@ -246,6 +224,7 @@ function FilesContent({
   dateRange,
   setDateRange,
   onRefetch,
+  loading,
 }: FilesContentProps) {
   const { selectedCount, clearSelection } = useSelectionContext<Fastq>();
 
@@ -275,6 +254,7 @@ function FilesContent({
           </TabsList>
         </Tabs>
 
+        {loading && <LoadingIndicator />}
         <FilesHelp />
       </div>
 
@@ -307,17 +287,34 @@ function FilesContent({
               />
             </PaginationItem>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  onClick={() => setCurrentPage(page)}
-                  isActive={currentPage === page}
-                  className="cursor-pointer"
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
+            {(() => {
+              const maxVisiblePages = 5;
+              const halfVisible = Math.floor(maxVisiblePages / 2);
+              let startPage = Math.max(1, currentPage - halfVisible);
+              let endPage = Math.min(
+                totalPages,
+                startPage + maxVisiblePages - 1,
+              );
+
+              if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+              }
+
+              return Array.from(
+                { length: endPage - startPage + 1 },
+                (_, i) => startPage + i,
+              ).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ));
+            })()}
 
             <PaginationItem>
               <PaginationNext

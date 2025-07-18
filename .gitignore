@@ -5,11 +5,15 @@ dist-ssr
 .env
 .idea
 .nitro
-.tanstack
 .vscode
 input
 input_data
 pb_data
 
+# Tanstack
+.tanstack
 routeTree.gen.ts
 site.webmanifest
+
+# Playwright
+/playwright

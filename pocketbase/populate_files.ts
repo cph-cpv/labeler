@@ -1,12 +1,8 @@
-import * as dotenv from "dotenv";
 import * as fs from "fs/promises";
 import * as path from "path";
 import Pocketbase from "pocketbase";
-
-dotenv.config({ path: ".env.local" });
-
-const adminEmail = process.env.POCKETBASE_ADMIN_EMAIL || "admin@example.com";
-const adminPassword = process.env.POCKETBASE_ADMIN_PASSWORD || "password123";
+import { createAuthenticatedClient } from "./client";
+import { isMainModule } from "./utils";
 
 export async function populate_files(pb: Pocketbase, file_path: string) {
   const input = await fs.readFile(file_path, "utf8");
@@ -36,13 +32,9 @@ function extractDateFromFilePath(filePath: string) {
   return `${year}-${month}-${day}`;
 }
 
-async function main() {
-  const pbUrl = process.env.VITE_POCKETBASE_URL || "http://localhost:8080";
-  const client = new Pocketbase(pbUrl);
-  await client
-    .collection("_superusers")
-    .authWithPassword(adminEmail, adminPassword);
-  await populate_files(client, "input_data/files.txt");
+if (isMainModule()) {
+  await populate_files(
+    await createAuthenticatedClient(),
+    "input_data/files.txt",
+  );
 }
-
-main().catch(console.error);

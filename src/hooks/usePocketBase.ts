@@ -49,11 +49,16 @@ export function usePocketBaseCollection<T = any>(
         setLoading(true);
         setError(null);
 
-        const records = await pb.collection(collection).getFullList<T>({
-          filter: options.filter,
-          sort: options.sort,
-          expand: options.expand,
-        });
+        const queryOptions: Record<string, any> = {};
+
+        if (options.sort) queryOptions.sort = options.sort;
+        if (options.expand) queryOptions.expand = options.expand;
+        if (options.filter && options.filter.trim() !== "")
+          queryOptions.filter = options.filter;
+
+        const records = await pb
+          .collection(collection)
+          .getFullList<T>(queryOptions);
 
         if (!isCancelled) {
           setData(records);
@@ -88,11 +93,16 @@ export function usePocketBaseCollection<T = any>(
       setLoading(true);
       setError(null);
 
-      const records = await pb.collection(collection).getFullList<T>({
-        filter: options.filter,
-        sort: options.sort,
-        expand: options.expand,
-      });
+      const queryOptions: Record<string, any> = {};
+
+      if (options.sort) queryOptions.sort = options.sort;
+      if (options.expand) queryOptions.expand = options.expand;
+      if (options.filter && options.filter.trim() !== "")
+        queryOptions.filter = options.filter;
+
+      const records = await pb
+        .collection(collection)
+        .getFullList<T>(queryOptions);
 
       setData(records);
     } catch (err) {
@@ -132,13 +142,16 @@ export function usePocketBasePaginated<T = any>(
         setLoading(true);
         setError(null);
 
+        const queryOptions: Record<string, any> = {};
+
+        if (options.sort) queryOptions.sort = options.sort;
+        if (options.expand) queryOptions.expand = options.expand;
+        if (options.filter && options.filter.trim() !== "")
+          queryOptions.filter = options.filter;
+
         const result = await pb
           .collection(collection)
-          .getList<T>(options.page || 1, options.perPage || 25, {
-            filter: options.filter,
-            sort: options.sort,
-            expand: options.expand,
-          });
+          .getList<T>(options.page || 1, options.perPage || 25, queryOptions);
 
         if (!isCancelled) {
           setData(result.items);
@@ -182,13 +195,16 @@ export function usePocketBasePaginated<T = any>(
       setLoading(true);
       setError(null);
 
+      const queryOptions: Record<string, any> = {};
+
+      if (options.sort) queryOptions.sort = options.sort;
+      if (options.expand) queryOptions.expand = options.expand;
+      if (options.filter && options.filter.trim() !== "")
+        queryOptions.filter = options.filter;
+
       const result = await pb
         .collection(collection)
-        .getList<T>(options.page || 1, options.perPage || 25, {
-          filter: options.filter,
-          sort: options.sort,
-          expand: options.expand,
-        });
+        .getList<T>(options.page || 1, options.perPage || 25, queryOptions);
 
       setData(result.items);
       setTotalItems(result.totalItems);
@@ -219,9 +235,13 @@ export function usePocketBaseCount(collection: string, filter?: string) {
         setLoading(true);
         setError(null);
 
-        const result = await pb.collection(collection).getList(1, 1, {
-          filter,
-        });
+        const queryOptions: Record<string, any> = {};
+
+        if (filter && filter.trim() !== "") queryOptions.filter = filter;
+
+        const result = await pb
+          .collection(collection)
+          .getList(1, 1, queryOptions);
 
         if (!isCancelled) {
           setCount(result.totalItems);

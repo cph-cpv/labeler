@@ -36,7 +36,7 @@ import {
 import { useSelection } from "@/hooks/useSelection.ts";
 import type { Virus } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function Viruses() {
   const [activeTab, setActiveTab] = useState("all");
@@ -69,13 +69,22 @@ export function Viruses() {
     filter,
   });
 
+  // Debug logging
+  console.log("Viruses component:", {
+    activeTab,
+    filter,
+    loading,
+    viruses: viruses.length,
+    totalItems,
+  });
+
   // Get counts for badges
   const { count: allCount } = usePocketBaseCount("viruses");
   const { count: typedCount } = usePocketBaseCount("viruses", "type != null");
   const { count: untypedCount } = usePocketBaseCount("viruses", "type = null");
 
   // Reset to page 1 when tab changes
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
 
@@ -89,7 +98,7 @@ export function Viruses() {
   } = useSelection(viruses);
 
   const renderVirusTable = (virusList: typeof viruses) => (
-    <Table>
+    <Table data-testid="viruses-table">
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">
