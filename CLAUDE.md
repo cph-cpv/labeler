@@ -7,3 +7,5 @@
 - Look up docs for specific libraries and tools in Context7 MCP.
 - Use `type` over `interface` wherever possible.
 - Run playwright with --reporter=line so you don't get stuck serving the results over HTTP.
+- Don't use testid.
+- You can use Playwright MCP to debug in the browser.

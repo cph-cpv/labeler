@@ -98,7 +98,7 @@ export function Viruses() {
   } = useSelection(viruses);
 
   const renderVirusTable = (virusList: typeof viruses) => (
-    <Table data-testid="viruses-table">
+    <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">

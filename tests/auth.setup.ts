@@ -23,6 +23,9 @@ setup("authenticate", async ({ page }) => {
   // Should see authenticated app content (navigation)
   await expect(page.getByRole("navigation")).toBeVisible();
 
+  // Wait a bit more to ensure PocketBase auth store is properly updated
+  await page.waitForTimeout(1000);
+
   // Save the authenticated state
   await page.context().storageState({ path: authFile });
 });

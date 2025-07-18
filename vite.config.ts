@@ -12,7 +12,14 @@ export default defineConfig({
   ],
   server: {
     watch: {
-      ignored: ["**/tests/**", "input", "playwright", "pocketbase"],
+      ignored: [
+        "**/tests/**",
+        "CLAUDE.md",
+        "input",
+        "README.md",
+        "playwright",
+        "pocketbase",
+      ],
     },
   },
   resolve: {

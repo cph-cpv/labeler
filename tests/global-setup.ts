@@ -37,12 +37,26 @@ async function globalSetup() {
   await enableBatch(pb);
   console.log("Enabled batch requests");
 
-  await pb.collection("users").create({
-    email: "test@example.com",
-    password: "testpassword123",
-    passwordConfirm: "testpassword123",
-  });
-  console.log("Created test user");
+  try {
+    await pb.collection("users").create({
+      email: "test@example.com",
+      password: "testpassword123",
+      passwordConfirm: "testpassword123",
+    });
+    console.log("Created test user");
+  } catch (error) {
+    console.log("Error creating test user:", error);
+    // User might already exist, try to fetch it
+    try {
+      const existingUser = await pb
+        .collection("users")
+        .getFirstListItem('email = "test@example.com"');
+      console.log("Test user already exists:", existingUser.email);
+    } catch (fetchError) {
+      console.log("User doesn't exist and couldn't be created:", fetchError);
+      throw error;
+    }
+  }
 
   await resetCollections(pb);
   await populateViruses(pb, "input/viruses.csv");
