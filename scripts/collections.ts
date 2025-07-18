@@ -1,5 +1,14 @@
 // Collection definitions
+const ACCESS_ALL_USERS = {
+  createRule: "@request.auth.id != ''",
+  updateRule: "@request.auth.id != ''",
+  listRule: "@request.auth.id != ''",
+  deleteRule: "@request.auth.id != ''",
+  viewRule: "@request.auth.id != ''",
+};
+
 export const virusCollection = {
+  ...ACCESS_ALL_USERS,
   name: "viruses",
   type: "base",
   fields: [
@@ -21,11 +30,21 @@ export const virusCollection = {
       name: "synonyms",
       type: "text",
     },
+    {
+      name: "type",
+      type: "select",
+      maxSelect: 1,
+      values: ["Satellite", "Virus", "Viroid"],
+    },
   ],
 };
 
-export function createFilesCollection(fileAnnotationCollectionId) {
+export function createFilesCollection(
+  fileAnnotationCollectionId: string,
+  samplesCollectionId: string,
+) {
   return {
+    ...ACCESS_ALL_USERS,
     name: "files",
     type: "base",
     fields: [
@@ -58,6 +77,19 @@ export function createFilesCollection(fileAnnotationCollectionId) {
         type: "date",
       },
       {
+        name: "excluded",
+        type: "bool",
+      },
+      {
+        name: "sample",
+        type: "relation",
+        collectionId: samplesCollectionId,
+        cascadeDelete: false,
+        required: false,
+        minSelect: 0,
+        maxSelect: 1,
+      },
+      {
         name: "annotations",
         type: "relation",
         collectionId: fileAnnotationCollectionId,
@@ -70,8 +102,9 @@ export function createFilesCollection(fileAnnotationCollectionId) {
   };
 }
 
-export function createSampleCollection(virusesCollectionId) {
+export function createSampleCollection(virusesCollectionId: string) {
   return {
+    ...ACCESS_ALL_USERS,
     name: "samples",
     type: "base",
     fields: [
@@ -88,20 +121,13 @@ export function createSampleCollection(virusesCollectionId) {
         minSelect: 0,
         maxSelect: 999,
       },
-      {
-        name: "files",
-        type: "relation",
-        collectionId: virusesCollectionId,
-        cascadeDelete: false,
-        minSelect: 0,
-        maxSelect: 999,
-      },
     ],
   };
 }
 
-export function createFileAnnotationsCollection(virusesCollectionId) {
+export function createFileAnnotationsCollection(virusesCollectionId: string) {
   return {
+    ...ACCESS_ALL_USERS,
     name: "annotations",
     type: "base",
     fields: [

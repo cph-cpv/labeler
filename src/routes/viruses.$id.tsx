@@ -5,8 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
+import { usePocketBaseRecord } from "@/hooks/usePocketBase.ts";
 import type { Virus } from "@/types.ts";
-import data from "@fake/viruses.json";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/viruses/$id")({
@@ -17,9 +17,26 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
 
-  const virus = data.find((v: Virus) => v.id === parseInt(id));
+  const {
+    data: virus,
+    loading,
+    error,
+    notFound,
+  } = usePocketBaseRecord<Virus>("viruses", id);
 
-  if (!virus) {
+  if (loading) {
+    return (
+      <Dialog open={true} onOpenChange={() => navigate({ to: "/viruses" })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Loading virus...</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error || notFound || !virus) {
     return <Navigate to="/viruses" />;
   }
 
@@ -47,10 +64,13 @@ function RouteComponent() {
           <div>
             <strong>Synonyms:</strong>
           </div>
-          {virus.synonyms.length ? (
+          {virus.synonyms && virus.synonyms.length ? (
             <div>
               <ul>
-                {virus.synonyms.map((synonym, index) => (
+                {(typeof virus.synonyms === "string"
+                  ? virus.synonyms.split(",").map((s) => s.trim())
+                  : virus.synonyms
+                ).map((synonym, index) => (
                   <li key={index}>{synonym}</li>
                 ))}
               </ul>

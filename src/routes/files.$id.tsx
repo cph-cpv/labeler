@@ -1,4 +1,5 @@
 import { FilesDetail } from "@/components/FilesDetail.tsx";
+import { FilesProvider } from "@/contexts/FilesContext.tsx";
 import { usePocketBaseRecord } from "@/hooks/usePocketBase";
 import type { Fastq } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ function RouteComponent() {
     loading,
     error,
     notFound,
+    refetch,
   } = usePocketBaseRecord<Fastq>("files", id);
 
   if (loading) {
@@ -34,5 +36,9 @@ function RouteComponent() {
     navigate({ to: "/files" });
   };
 
-  return <FilesDetail fastq={fastq} open={true} onOpenChange={handleClose} />;
+  return (
+    <FilesProvider refetchFiles={refetch}>
+      <FilesDetail fastq={fastq} open={true} onOpenChange={handleClose} />
+    </FilesProvider>
+  );
 }

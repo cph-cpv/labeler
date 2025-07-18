@@ -1,3 +1,4 @@
+import * as dotenv from "dotenv";
 import PocketBase from "pocketbase";
 import {
   createFileAnnotationsCollection,
@@ -6,12 +7,11 @@ import {
   virusCollection as virusCollectionSchema,
 } from "./collections.js";
 
-// Basic script to create a PocketBase collection using the JS SDK
-// Usage: node create_collection.mjs [collection_name] [admin_email] [admin_password]
+dotenv.config({ path: ".env.local" });
 
-const adminEmail = process.argv[2] || "admin@example.com";
-const adminPassword = process.argv[3] || "password123";
-const pbUrl = process.argv[4] || "http://localhost";
+const adminEmail = process.env.POCKETBASE_ADMIN_EMAIL || "admin@example.com";
+const adminPassword = process.env.POCKETBASE_ADMIN_PASSWORD || "password123";
+const pbUrl = process.env.VITE_POCKETBASE_URL || "http://localhost:8080";
 
 async function createCollection(pb, collectionConfig) {
   try {
@@ -56,23 +56,26 @@ async function main() {
       .authWithPassword(adminEmail, adminPassword);
     console.log("Admin authenticated successfully");
 
-    // Delete existing collections
-    await deleteCollection(pb, "samples");
+    // Delete existing collections in dependency order (dependent collections first)
     await deleteCollection(pb, "files");
     await deleteCollection(pb, "annotations");
+    await deleteCollection(pb, "samples");
     await deleteCollection(pb, "viruses");
 
     // Create new collections
     const virusCollection = await createCollection(pb, virusCollectionSchema);
+    const sampleCollection = await createCollection(
+      pb,
+      createSampleCollection(virusCollection.id),
+    );
     const fileAnnotationCollection = await createCollection(
       pb,
       createFileAnnotationsCollection(virusCollection.id),
     );
     await createCollection(
       pb,
-      createFilesCollection(fileAnnotationCollection.id),
+      createFilesCollection(fileAnnotationCollection.id, sampleCollection.id),
     );
-    await createCollection(pb, createSampleCollection(virusCollection.id));
 
     console.log("All collections created successfully with relations!");
   } catch (error) {

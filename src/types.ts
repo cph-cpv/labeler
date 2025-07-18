@@ -12,6 +12,7 @@ export type Fastq = {
   timestamp: Date;
   type: FastqType | null;
   excluded: boolean;
+  sample: string | null;
 };
 
 export type Sample = {

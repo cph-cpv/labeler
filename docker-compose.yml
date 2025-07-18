@@ -2,7 +2,23 @@ services:
   pocketbase:
     build: ./pocketbase/
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
-      - ./pocketbase/pb_data:/pb/pb_data
+      - pb_data:/pb/pb_data
     restart: unless-stopped
+
+  pocketbase-init:
+    build: ./pocketbase/
+    depends_on:
+      - pocketbase
+    volumes:
+      - pb_data:/pb/pb_data
+      - ./pocketbase/create_superuser.sh:/create_superuser.sh
+    environment:
+      - POCKETBASE_ADMIN_EMAIL=${POCKETBASE_ADMIN_EMAIL:-admin@example.com}
+      - POCKETBASE_ADMIN_PASSWORD=${POCKETBASE_ADMIN_PASSWORD:-password123}
+    command: /bin/sh /create_superuser.sh
+    restart: "no"
+
+volumes:
+  pb_data: null

@@ -1,16 +1,15 @@
 import { FilesAnnotate } from "@/components/FilesAnnotate.tsx";
 import { FilesAssign } from "@/components/FilesAssign.tsx";
+import { FilesExclude } from "@/components/FilesExclude.tsx";
 import { FilesHelp } from "@/components/FilesHelp.tsx";
 import { FilesTable } from "@/components/FilesTable.tsx";
 import {
   FilesTypeDropdown,
   type TypeFilter,
 } from "@/components/FilesTypeDropdown.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { DateRangePicker } from "@/components/ui/date-range.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Kbd } from "@/components/ui/kbd.tsx";
 import {
   Pagination,
   PaginationContent,
@@ -21,13 +20,16 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { SelectionBar } from "@/components/ui/selection-bar.tsx";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
+import { FilesProvider } from "@/contexts/FilesContext.tsx";
+import {
+  SelectionProvider,
+  useSelectionContext,
+} from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
-import { useSelection } from "@/hooks/useSelection.ts";
-import type { Fastq } from "@/types.ts";
+import type { Fastq, Sample } from "@/types.ts";
 import { CheckCircle, Fingerprint, TestTube, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { useHotkeys } from "react-hotkeys-hook";
 
 // PocketBase file interface
 interface PocketBaseFile {
@@ -38,8 +40,13 @@ interface PocketBaseFile {
   quality_rating: "good" | "borderline" | "bad" | null;
   dilution_factor: number | null;
   type: string | null;
+  excluded: boolean | null;
+  sample: string | null;
   created: string;
   updated: string;
+  expand?: {
+    sample?: Sample;
+  };
 }
 
 export function Files() {
@@ -48,11 +55,12 @@ export function Files() {
     loading,
     error,
     refetch,
-  } = usePocketBaseCollection<PocketBaseFile>("files");
+  } = usePocketBaseCollection<PocketBaseFile>("files", {
+    expand: "sample",
+  });
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [annotateDialogOpen, setAnnotateDialogOpen] = useState(false);
-  const [excludeDialogOpen, setExcludeDialogOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [activeTab, setActiveTab] = useState("unannotated");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>({
@@ -87,7 +95,8 @@ export function Files() {
             : file.type === "Unknown"
               ? "Unknown"
               : null,
-      excluded: false, // TODO: Add excluded field to PocketBase schema
+      sample: file.expand?.sample?.name || null,
+      excluded: file.excluded || false,
     }));
   }, [pbFiles]);
 
@@ -106,11 +115,7 @@ export function Files() {
       );
     } else if (activeTab === "unassigned") {
       // Not assigned to a sample, and not excluded (regardless of annotation status)
-      filtered = filtered.filter(
-        (fastq) => !fastq.excluded,
-        // TODO: Add sample assignment check when sample field is added
-        // For now, showing all non-excluded files since no sample assignment exists yet
-      );
+      filtered = filtered.filter((fastq) => !fastq.excluded && !fastq.sample);
     } else if (activeTab === "excluded") {
       filtered = filtered.filter((fastq) => fastq.excluded);
     } else if (activeTab === "done") {
@@ -120,8 +125,8 @@ export function Files() {
           !fastq.excluded &&
           fastq.type !== null &&
           fastq.quality !== null &&
-          fastq.dilutionFactor !== null,
-        // TODO: Add sample assignment check when sample field is added
+          fastq.dilutionFactor !== null &&
+          fastq.sample !== null,
       );
     }
 
@@ -165,20 +170,6 @@ export function Files() {
     setCurrentPage(1);
   }, [activeTab, dateRange, typeFilter]);
 
-  const {
-    selectedItems: selectedFiles,
-    selectedCount,
-    handleItemSelect: handleFileSelect,
-    handleSelectAll,
-    clearSelection,
-  } = useSelection(paginatedFastqs);
-
-  useHotkeys("e", () => {
-    if (selectedCount > 0) {
-      setExcludeDialogOpen(true);
-    }
-  });
-
   if (loading) {
     return (
       <>
@@ -207,6 +198,56 @@ export function Files() {
     setAssignDialogOpen(false);
     setSelectedFileId(null);
   };
+
+  return (
+    <FilesProvider refetchFiles={refetch}>
+      <SelectionProvider items={paginatedFastqs}>
+        <FilesContent
+          fastqs={paginatedFastqs}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          onRefetch={refetch}
+        />
+      </SelectionProvider>
+    </FilesProvider>
+  );
+}
+
+interface FilesContentProps {
+  fastqs: Fastq[];
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  typeFilter: TypeFilter;
+  setTypeFilter: (filter: TypeFilter) => void;
+  dateRange: DateRange | undefined;
+  setDateRange: (range: DateRange | undefined) => void;
+  onRefetch: () => void;
+}
+
+function FilesContent({
+  fastqs,
+  totalPages,
+  currentPage,
+  setCurrentPage,
+  activeTab,
+  setActiveTab,
+  typeFilter,
+  setTypeFilter,
+  dateRange,
+  setDateRange,
+  onRefetch,
+}: FilesContentProps) {
+  const { selectedCount, clearSelection } = useSelectionContext<Fastq>();
 
   return (
     <>
@@ -250,12 +291,7 @@ export function Files() {
         />
       </div>
 
-      <FilesTable
-        fastqs={paginatedFastqs}
-        selectedFiles={selectedFiles}
-        onFileSelect={handleFileSelect}
-        onSelectAll={handleSelectAll}
-      />
+      <FilesTable fastqs={fastqs} />
 
       {totalPages > 1 && (
         <Pagination className="mt-4">
@@ -305,10 +341,14 @@ export function Files() {
         onClearSelection={clearSelection}
       >
         <FilesAnnotate selectedCount={selectedCount} />
-        <FilesAssign selectedCount={selectedCount} />
-        <Button onClick={() => setExcludeDialogOpen(true)} variant="outline">
-          Exclude <Kbd shortcut="E" />
-        </Button>
+        <FilesAssign
+          selectedCount={selectedCount}
+          onAssignmentComplete={onRefetch}
+        />
+        <FilesExclude
+          selectedCount={selectedCount}
+          onExcludeComplete={onRefetch}
+        />
       </SelectionBar>
     </>
   );
