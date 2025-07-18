@@ -65,7 +65,7 @@ export function FilesTable({ fastqs }: FilesTableProps) {
               {fastq.type || <UnknownText>Unknown</UnknownText>}
             </TableCell>
             <TableCell>
-              <UnknownText>Unassigned</UnknownText>
+              {fastq.sample || <UnknownText>Unassigned</UnknownText>}
             </TableCell>
           </TableRow>
         ))}

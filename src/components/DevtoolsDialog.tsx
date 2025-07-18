@@ -7,12 +7,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useFilesContext } from "@/contexts/FilesContext";
 import { pb } from "@/lib/pocketbase";
 import { Bug, Plus } from "lucide-react";
 import { useState } from "react";
 
 export function DevtoolsDialog() {
   const [isCreating, setIsCreating] = useState(false);
+
+  // Try to use the files context if available, otherwise fall back to page reload
+  let refetchFiles: (() => void) | null = null;
+  try {
+    const context = useFilesContext();
+    refetchFiles = context.refetchFiles;
+  } catch {
+    // Context not available, will use page reload
+  }
 
   const createUnannotatedFiles = async (count: number) => {
     setIsCreating(true);
@@ -37,6 +47,14 @@ export function DevtoolsDialog() {
 
       await Promise.all(promises);
       console.log(`Created ${count} unannotated test files`);
+
+      // Refetch files to show the new files
+      if (refetchFiles) {
+        refetchFiles();
+      } else {
+        // Fall back to page reload if context is not available
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Failed to create test files:", error);
     } finally {

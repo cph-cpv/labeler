@@ -20,15 +20,22 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs.tsx";
+import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
 import { useSelection } from "@/hooks/useSelection.ts";
-import data from "@fake/viruses.json";
+import type { Virus } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
-const viruses = data.sort((a, b) => a.name.localeCompare(b.name));
-
 export function Viruses() {
   const [activeTab, setActiveTab] = useState("all");
+
+  const {
+    data: viruses = [],
+    loading,
+    error,
+  } = usePocketBaseCollection<Virus>("viruses", {
+    sort: "name",
+  });
 
   const { allViruses, typedViruses, untypedViruses } = useMemo(() => {
     return {
@@ -36,7 +43,7 @@ export function Viruses() {
       typedViruses: viruses.filter((virus) => virus.type !== null),
       untypedViruses: viruses.filter((virus) => virus.type === null),
     };
-  }, []);
+  }, [viruses]);
 
   const currentViruses = useMemo(() => {
     switch (activeTab) {
@@ -95,6 +102,30 @@ export function Viruses() {
       </TableBody>
     </Table>
   );
+
+  if (loading) {
+    return (
+      <div>
+        <header>
+          <h1 className="font-bold text-2xl">Viruses</h1>
+          <p className="font-medium text-gray-500">Loading viruses...</p>
+        </header>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <header>
+          <h1 className="font-bold text-2xl">Viruses</h1>
+          <p className="font-medium text-red-500">
+            Error loading viruses: {error.message}
+          </p>
+        </header>
+      </div>
+    );
+  }
 
   return (
     <>
