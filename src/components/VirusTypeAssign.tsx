@@ -36,9 +36,9 @@ interface VirusTypeAssignProps {
 
 const virusTypes: { value: VirusType; label: string; icon: typeof Hexagon }[] =
   [
-    { value: "VIRUS", label: "Virus", icon: Hexagon },
-    { value: "SATELLITE", label: "Satellite", icon: SatelliteIcon },
-    { value: "VIROID", label: "Viroid", icon: Circle },
+    { value: "Virus", label: "Virus", icon: Hexagon },
+    { value: "Satellite", label: "Satellite", icon: SatelliteIcon },
+    { value: "Viroid", label: "Viroid", icon: Circle },
   ];
 
 export function VirusTypeAssign({ selectedCount }: VirusTypeAssignProps) {
@@ -46,9 +46,13 @@ export function VirusTypeAssign({ selectedCount }: VirusTypeAssignProps) {
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  useHotkeys("t", () => {
-    setDialogOpen(true);
-  });
+  useHotkeys(
+    "t",
+    () => {
+      setDialogOpen(true);
+    },
+    { enableOnFormTags: true },
+  );
 
   const handleTypeSelect = (type: VirusType) => {
     setSelectedType(type);

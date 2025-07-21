@@ -1,14 +1,14 @@
-import { Files } from "@/components/Files.tsx";
+import { Fastqs } from "@/components/Fastqs.tsx";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/files")({
+export const Route = createFileRoute("/fastqs")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
     <>
-      <Files />
+      <Fastqs />
       <Outlet />
     </>
   );

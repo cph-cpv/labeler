@@ -33,7 +33,6 @@ interface SelectAllCheckboxProps<T extends SelectableItem> {
 }
 
 export function SelectAllCheckbox<T extends SelectableItem>({
-  items,
   isAllSelected,
   onSelectAll,
 }: SelectAllCheckboxProps<T>) {

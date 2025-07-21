@@ -15,6 +15,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu.tsx";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { FastqsProvider } from "@/contexts/FastqsContext.tsx";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 
 function AppShell() {
@@ -48,7 +49,7 @@ function AppShell() {
 
   // Show authenticated app
   return (
-    <>
+    <FastqsProvider>
       <header className="border-b p-2 flex items-center justify-between">
         <NavigationMenu>
           <NavigationMenuList>
@@ -61,8 +62,8 @@ function AppShell() {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/files" activeProps={{ "data-active": true }}>
-                  Files
+                <Link to="/fastqs" activeProps={{ "data-active": true }}>
+                  FASTQs
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -90,7 +91,7 @@ function AppShell() {
       <main className="p-6">
         <Outlet />
       </main>
-    </>
+    </FastqsProvider>
   );
 }
 

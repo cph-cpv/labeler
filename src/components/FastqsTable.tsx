@@ -17,16 +17,17 @@ import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 
-interface FilesTableProps {
+type FastqsTableProps = {
   fastqs: Fastq[];
-}
+};
 
-export function FilesTable({ fastqs }: FilesTableProps) {
+export function FastqsTable({ fastqs }: FastqsTableProps) {
   const { selectedIds, toggleItem, selectAll, isAllSelected } =
     useSelectionContext<Fastq>();
+
   return (
     <Table className="table">
-      <TableCaption>All available FASTQ files.</TableCaption>
+      <TableCaption>All available FASTQs.</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">
@@ -54,7 +55,7 @@ export function FilesTable({ fastqs }: FilesTableProps) {
               />
             </TableCell>
             <TableCell>
-              <Link to="/files/$id" params={{ id: fastq.id.toString() }}>
+              <Link to="/fastqs/$id" params={{ id: fastq.id }}>
                 {fastq.name}
               </Link>
             </TableCell>

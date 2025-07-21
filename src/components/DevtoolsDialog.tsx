@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useFilesContext } from "@/contexts/FilesContext";
+import { useFastqs } from "@/hooks/useFastqs.ts";
 import { pb } from "@/lib/pocketbase";
 import { Bug, Plus } from "lucide-react";
 import { useState } from "react";
@@ -15,16 +15,9 @@ import { useState } from "react";
 export function DevtoolsDialog() {
   const [isCreating, setIsCreating] = useState(false);
 
-  // Try to use the files context if available, otherwise fall back to page reload
-  let refetchFiles: (() => void) | null = null;
-  try {
-    const context = useFilesContext();
-    refetchFiles = context.refetchFiles;
-  } catch {
-    // Context not available, will use page reload
-  }
+  const { refetch: refetchFastqs } = useFastqs();
 
-  const createUnannotatedFiles = async (count: number) => {
+  const createUnannotatedFastqs = async (count: number) => {
     setIsCreating(true);
     try {
       const timestamp = new Date();
@@ -46,17 +39,16 @@ export function DevtoolsDialog() {
       }
 
       await Promise.all(promises);
-      console.log(`Created ${count} unannotated test files`);
+      console.log(`Created ${count} unannotated test FASTQs`);
 
-      // Refetch files to show the new files
-      if (refetchFiles) {
-        refetchFiles();
+      if (refetchFastqs) {
+        refetchFastqs();
       } else {
         // Fall back to page reload if context is not available
         window.location.reload();
       }
     } catch (error) {
-      console.error("Failed to create test files:", error);
+      console.error("Failed to create test FASTQ:", error);
     } finally {
       setIsCreating(false);
     }
@@ -80,14 +72,14 @@ export function DevtoolsDialog() {
           <div>
             <h3 className="font-medium mb-3">Database Tools</h3>
             <p className="text-sm text-gray-600 mb-3">
-              Create test files without annotation data (appears in Unannotated
+              Create test FASTQs without annotation data (appears in Unannotated
               section):
             </p>
             <div className="grid grid-cols-3 gap-2">
               {[1, 10, 20, 30, 50, 100].map((count) => (
                 <Button
                   key={count}
-                  onClick={() => createUnannotatedFiles(count)}
+                  onClick={() => createUnannotatedFastqs(count)}
                   disabled={isCreating}
                   variant="outline"
                   size="sm"
@@ -99,7 +91,7 @@ export function DevtoolsDialog() {
             </div>
             {isCreating && (
               <p className="text-xs text-blue-600 mt-2 font-medium">
-                Creating files...
+                Creating FASTQs...
               </p>
             )}
           </div>

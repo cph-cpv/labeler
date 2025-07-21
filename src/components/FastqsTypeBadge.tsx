@@ -3,12 +3,23 @@ import { cn } from "@/lib/utils.ts";
 
 type FastqType = "dsRNA" | "smRNA" | "Unknown";
 
-interface FilesTypeBadgeProps {
-  type: FastqType | null;
-  className?: string;
+function getVariantForType(type: FastqType) {
+  switch (type) {
+    case "dsRNA":
+      return "default";
+    case "smRNA":
+      return "secondary";
+    default:
+      return "outline";
+  }
 }
 
-export function FilesTypeBadge({ type, className }: FilesTypeBadgeProps) {
+type FastqsTypeBadgeProps = {
+  type: FastqType | null;
+  className?: string;
+};
+
+export function FastqsTypeBadge({ type, className }: FastqsTypeBadgeProps) {
   if (!type || type === "Unknown") {
     return (
       <Badge
@@ -19,17 +30,6 @@ export function FilesTypeBadge({ type, className }: FilesTypeBadgeProps) {
       </Badge>
     );
   }
-
-  const getVariantForType = (type: FastqType) => {
-    switch (type) {
-      case "dsRNA":
-        return "default";
-      case "smRNA":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
 
   return (
     <Badge variant={getVariantForType(type)} className={className}>

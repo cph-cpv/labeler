@@ -17,12 +17,12 @@ type VirusesDetailProps = {
 export function VirusesDetail({ virusId, open, onClose }: VirusesDetailProps) {
   const {
     data: virus,
-    loading,
+    isLoading,
     error,
     notFound,
   } = usePocketBaseRecord<Virus>("viruses", virusId);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent>

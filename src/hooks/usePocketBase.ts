@@ -9,12 +9,10 @@ export function usePocketBaseAuth() {
   const [user, setUser] = useState(pb.authStore.model);
 
   useEffect(() => {
-    const unsubscribe = pb.authStore.onChange(() => {
+    return pb.authStore.onChange(() => {
       setIsAuthenticated(pb.authStore.isValid);
       setUser(pb.authStore.model);
     });
-
-    return unsubscribe;
   }, []);
 
   return {
@@ -38,8 +36,8 @@ export function usePocketBaseCollection<T = any>(
   } = {},
 ) {
   const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isCancelled = false;
@@ -112,7 +110,7 @@ export function usePocketBaseCollection<T = any>(
     }
   };
 
-  return { data, loading, error, refetch };
+  return { data, error, isLoading: loading, refetch };
 }
 
 /**
@@ -124,13 +122,15 @@ export function usePocketBasePaginated<T = any>(
     filter?: string;
     sort?: string;
     expand?: string;
+    key?: string;
     page?: number;
     perPage?: number;
+    skipTotal?: boolean;
   } = {},
 ) {
   const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -144,30 +144,18 @@ export function usePocketBasePaginated<T = any>(
 
         const queryOptions: Record<string, any> = {};
 
-        if (options.sort) queryOptions.sort = options.sort;
         if (options.expand) queryOptions.expand = options.expand;
-        if (options.filter && options.filter.trim() !== "")
-          queryOptions.filter = options.filter;
+        if (options.key) queryOptions.requestKey = options.key;
+        if (options.skipTotal) queryOptions.skipTotal = options.skipTotal;
+        if (options.sort) queryOptions.sort = options.sort;
 
-        console.log("usePocketBasePaginated fetchData:", {
-          collection,
-          filter: options.filter,
-          queryOptions,
-          page: options.page || 1,
-          perPage: options.perPage || 25,
-        });
+        if (options.filter && options.filter.trim() !== "") {
+          queryOptions.filter = options.filter;
+        }
 
         const result = await pb
           .collection(collection)
           .getList<T>(options.page || 1, options.perPage || 25, queryOptions);
-
-        console.log("usePocketBasePaginated result:", {
-          collection,
-          filter: options.filter,
-          resultItems: result.items.length,
-          totalItems: result.totalItems,
-          totalPages: result.totalPages,
-        });
 
         if (!isCancelled) {
           setData(result.items);
@@ -175,12 +163,6 @@ export function usePocketBasePaginated<T = any>(
           setTotalPages(result.totalPages);
         }
       } catch (err) {
-        console.log("usePocketBasePaginated error:", {
-          collection,
-          filter: options.filter,
-          error: err instanceof Error ? err.message : "Unknown error",
-          errorObject: err,
-        });
         if (!isCancelled) {
           // Only show error if it's not an auto-cancellation
           const errorMessage =
@@ -223,6 +205,7 @@ export function usePocketBasePaginated<T = any>(
       if (options.expand) queryOptions.expand = options.expand;
       if (options.filter && options.filter.trim() !== "")
         queryOptions.filter = options.filter;
+      if (options.skipTotal) queryOptions.skipTotal = options.skipTotal;
 
       const result = await pb
         .collection(collection)
@@ -238,16 +221,20 @@ export function usePocketBasePaginated<T = any>(
     }
   };
 
-  return { data, loading, error, refetch, totalItems, totalPages };
+  return { data, error, isLoading: loading, refetch, totalItems, totalPages };
 }
 
 /**
  * Hook for getting record count from a PocketBase collection
  */
-export function usePocketBaseCount(collection: string, filter?: string) {
+export function usePocketBaseCount(
+  collection: string,
+  filter?: string,
+  key?: string,
+) {
   const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isCancelled = false;
@@ -259,6 +246,7 @@ export function usePocketBaseCount(collection: string, filter?: string) {
 
         const queryOptions: Record<string, any> = {};
 
+        if (key) queryOptions.requestKey = key;
         if (filter && filter.trim() !== "") queryOptions.filter = filter;
 
         const result = await pb
@@ -288,16 +276,20 @@ export function usePocketBaseCount(collection: string, filter?: string) {
     };
   }, [collection, filter]);
 
-  return { count, loading, error };
+  return { count, error, isLoading: loading };
 }
 
 /**
  * Hook for fetching a single record by ID from a PocketBase collection
  */
-export function usePocketBaseRecord<T = any>(collection: string, id: string) {
+export function usePocketBaseRecord<T = any>(
+  collection: string,
+  id: string,
+  options: { expand?: string } = {},
+) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -309,7 +301,12 @@ export function usePocketBaseRecord<T = any>(collection: string, id: string) {
         setError(null);
         setNotFound(false);
 
-        const record = await pb.collection(collection).getOne<T>(id);
+        const queryOptions: Record<string, any> = {};
+        if (options.expand) queryOptions.expand = options.expand;
+
+        const record = await pb
+          .collection(collection)
+          .getOne<T>(id, queryOptions);
 
         if (!isCancelled) {
           setData(record);
@@ -338,7 +335,7 @@ export function usePocketBaseRecord<T = any>(collection: string, id: string) {
     return () => {
       isCancelled = true;
     };
-  }, [collection, id]);
+  }, [collection, id, options.expand]);
 
-  return { data, loading, error, notFound };
+  return { data, error, isLoading: loading, notFound };
 }

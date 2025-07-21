@@ -31,23 +31,19 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-interface AnnotateProps {
-  selectedCount: number;
-  onAnnotationComplete?: () => void;
-}
-
 type AnnotationType = "missing" | "contamination";
+
+type AnnotateProps = {
+  onAnnotationComplete?: () => void;
+};
 
 const annotationTypes: { value: AnnotationType; label: string }[] = [
   { value: "missing", label: "Missing" },
   { value: "contamination", label: "Contamination" },
 ];
 
-export function FilesAnnotate({
-  selectedCount,
-  onAnnotationComplete,
-}: AnnotateProps) {
-  const { selectedItems: selectedFiles, clearSelection } =
+export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
+  const { selectedItems: selectedFastqs, clearSelection } =
     useSelectionContext<Fastq>();
   const [selectedVirus, setSelectedVirus] = useState<Virus | null>(null);
   const [selectedAnnotationType, setSelectedAnnotationType] =
@@ -60,9 +56,13 @@ export function FilesAnnotate({
 
   const { data: viruses = [] } = usePocketBaseCollection<Virus>("viruses");
 
-  useHotkeys("a", () => {
-    setOpen(true);
-  });
+  useHotkeys(
+    "a",
+    () => {
+      setOpen(true);
+    },
+    { enableOnFormTags: true },
+  );
 
   const filteredViruses = viruses.filter(
     (virus) =>
@@ -74,20 +74,19 @@ export function FilesAnnotate({
     if (
       !selectedVirus ||
       !selectedAnnotationType ||
-      selectedFiles.length === 0
+      selectedFastqs.length === 0
     ) {
       return;
     }
 
     setIsAnnotating(true);
     try {
-      // Create annotation records and update files
+      // Create annotation records and update FASTQs.
       await Promise.all(
-        selectedFiles.map(async (file) => {
-          // Create annotation record
+        selectedFastqs.map(async (file) => {
           const annotation = await pb.collection("annotations").create({
-            viruses: selectedVirus.id,
             type: selectedAnnotationType,
+            viruses: selectedVirus.id,
           });
 
           // Update file with annotation
@@ -109,7 +108,7 @@ export function FilesAnnotate({
         onAnnotationComplete();
       }
     } catch (error) {
-      console.error("Failed to annotate files:", error);
+      console.error("Failed to annotate FASTQs:", error);
     } finally {
       setIsAnnotating(false);
     }
@@ -139,10 +138,10 @@ export function FilesAnnotate({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Annotate Files</DialogTitle>
+          <DialogTitle>Annotate FASTQs</DialogTitle>
           <DialogDescription>
-            Annotate {selectedCount} selected{" "}
-            {selectedCount === 1 ? "file" : "files"}.
+            Annotate {selectedFastqs.length} selected{" "}
+            {selectedFastqs.length === 1 ? "FASTQ" : "FASTQs"}.
           </DialogDescription>
         </DialogHeader>
 
@@ -272,7 +271,7 @@ export function FilesAnnotate({
             disabled={!selectedVirus || !selectedAnnotationType || isAnnotating}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            {isAnnotating ? "Annotating..." : "Annotate Files"}
+            {isAnnotating ? "Annotating..." : "Annotate FASTQs"}
           </Button>
         </DialogFooter>
       </DialogContent>

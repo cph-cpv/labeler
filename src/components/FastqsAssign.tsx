@@ -1,4 +1,4 @@
-import { FilesSampleCombobox } from "@/components/FilesSampleCombobox.tsx";
+import { FastqsSampleCombobox } from "@/components/FastqsSampleCombobox.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -11,55 +11,50 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { pb } from "@/lib/pocketbase.ts";
+import { useFastqs } from "@/hooks/useFastqs.ts";
 import type { Fastq, Sample } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-interface AssignProps {
-  selectedCount: number;
-  onAssignmentComplete?: () => void;
-}
-
-export function FilesAssign({
-  selectedCount,
-  onAssignmentComplete,
-}: AssignProps) {
-  const { selectedItems: selectedFiles, clearSelection } =
+export function FastqsAssign() {
+  const { selectedItems: selectedFastqs, clearSelection } =
     useSelectionContext<Fastq>();
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [open, setOpen] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
+  const { updateMultiple } = useFastqs();
 
-  useHotkeys("s", () => {
-    setOpen(true);
-  });
+  useHotkeys(
+    "s",
+    () => {
+      if (selectedFastqs.length > 0) {
+        setOpen(true);
+      }
+    },
+    { enableOnFormTags: true },
+  );
 
   const handleAssign = async () => {
-    if (!selectedSample || selectedFiles.length === 0) return;
+    if (!selectedSample || selectedFastqs.length === 0) return;
 
     setIsAssigning(true);
+
     try {
-      // Update all selected files with the chosen sample
-      await Promise.all(
-        selectedFiles.map((file) =>
-          pb.collection("files").update(file.id, {
+      await updateMultiple(
+        selectedFastqs.map((fastq) => {
+          return {
+            id: fastq.id,
             sample: selectedSample.id,
-          }),
-        ),
+          };
+        }),
       );
 
       // Clear selection and close dialog
       clearSelection();
       setOpen(false);
       setSelectedSample(null);
-
-      // Notify parent component if callback provided
-      if (onAssignmentComplete) {
-        onAssignmentComplete();
-      }
     } catch (error) {
-      console.error("Failed to assign files to sample:", error);
+      console.error("Failed to assign FASTQs to sample:", error);
     } finally {
       setIsAssigning(false);
     }
@@ -74,13 +69,13 @@ export function FilesAssign({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Files</DialogTitle>
+          <DialogTitle>Assign FASTQs</DialogTitle>
           <DialogDescription>
-            Assign a sample for the {selectedCount} selected FASTQ{" "}
-            {selectedCount === 1 ? "file" : "files"}.
+            Assign a sample for the {selectedFastqs.length} selected FASTQ{" "}
+            {selectedFastqs.length === 1 ? "FASTQ" : "FASTQs"}.
           </DialogDescription>
         </DialogHeader>
-        <FilesSampleCombobox
+        <FastqsSampleCombobox
           value={selectedSample}
           onValueChange={setSelectedSample}
         />
@@ -91,7 +86,7 @@ export function FilesAssign({
             disabled={!selectedSample || isAssigning}
             className="bg-green-600 hover:bg-green-700"
           >
-            {isAssigning ? "Assigning..." : "Assign Files"}
+            {isAssigning ? "Assigning..." : "Assign FASTQs"}
           </Button>
         </DialogFooter>
       </DialogContent>

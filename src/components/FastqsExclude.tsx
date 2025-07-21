@@ -11,57 +11,54 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { pb } from "@/lib/pocketbase.ts";
+import { useFastqs } from "@/hooks/useFastqs.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-interface FilesExcludeProps {
-  selectedCount: number;
-  onExcludeComplete: () => void;
-}
-
-export function FilesExclude({
-  selectedCount,
-  onExcludeComplete,
-}: FilesExcludeProps) {
-  const [excludeDialogOpen, setExcludeDialogOpen] = useState(false);
+export function FastqsExclude() {
+  const [open, setOpen] = useState(false);
   const { clearSelection, selectedItems } = useSelectionContext<Fastq>();
+  const { updateMultiple } = useFastqs();
 
-  const handleExclude = async () => {
+  async function handleExclude() {
     try {
-      await Promise.all(
-        selectedItems.map((file) =>
-          pb.collection("files").update(file.id, { excluded: true }),
-        ),
+      await updateMultiple(
+        selectedItems.map((fastq) => ({
+          id: fastq.id,
+          excluded: true,
+        })),
       );
       clearSelection();
-      onExcludeComplete();
-      setExcludeDialogOpen(false);
+      setOpen(false);
     } catch (error) {
-      console.error("Failed to exclude files:", error);
+      console.error("Failed to exclude FASTQs:", error);
     }
-  };
+  }
 
-  useHotkeys("e", () => {
-    if (selectedCount > 0) {
-      setExcludeDialogOpen(true);
-    }
-  });
+  useHotkeys(
+    "e",
+    () => {
+      if (selectedItems.length > 0) {
+        setOpen(true);
+      }
+    },
+    { enableOnFormTags: true },
+  );
 
   return (
     <>
-      <Button onClick={() => setExcludeDialogOpen(true)} variant="outline">
+      <Button onClick={() => setOpen(true)} variant="outline">
         Exclude <Kbd shortcut="E" />
       </Button>
 
-      <AlertDialog open={excludeDialogOpen} onOpenChange={setExcludeDialogOpen}>
+      <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Exclude Files</AlertDialogTitle>
+            <AlertDialogTitle>Exclude FASTQs</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to exclude {selectedCount} file
-              {selectedCount === 1 ? "" : "s"}? This action will mark the
+              Are you sure you want to exclude {selectedItems.length} file
+              {selectedItems.length === 1 ? "" : "s"}? This action will mark the
               selected files as excluded.
             </AlertDialogDescription>
           </AlertDialogHeader>

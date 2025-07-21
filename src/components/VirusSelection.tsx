@@ -6,10 +6,7 @@ interface VirusSelectionProps {
   onClearSelection: () => void;
 }
 
-export function VirusSelection({
-  selectedCount,
-  onClearSelection,
-}: VirusSelectionProps) {
+export function VirusSelection({ selectedCount }: VirusSelectionProps) {
   const isVisible = selectedCount > 0;
 
   return (

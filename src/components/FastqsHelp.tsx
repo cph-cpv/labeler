@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 
-export function FilesHelp() {
+export function FastqsHelp() {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -23,11 +23,11 @@ export function FilesHelp() {
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
-          <h2 className="font-semibold">Files View</h2>
+          <h2 className="font-semibold">FASTQs View</h2>
           <div>
             <p className="text-sm text-muted-foreground">
               Allows you to set annotations and sample assignments on FASTQ
-              files.
+              FASTQs.
             </p>
           </div>
 
@@ -39,7 +39,8 @@ export function FilesHelp() {
                 <div>
                   <div className="font-medium">Unannotated</div>
                   <div className="text-muted-foreground">
-                    Files missing type, quality, or dilution factor information.
+                    FASTQs missing type, quality, or dilution factor
+                    information.
                   </div>
                 </div>
               </div>
@@ -49,7 +50,7 @@ export function FilesHelp() {
                 <div>
                   <div className="font-medium">Unassigned</div>
                   <div className="text-muted-foreground">
-                    Files not yet assigned to a sample.
+                    FASTQs not yet assigned to a sample.
                   </div>
                 </div>
               </div>
@@ -59,7 +60,7 @@ export function FilesHelp() {
                 <div>
                   <div className="font-medium">Excluded</div>
                   <div className="text-muted-foreground">
-                    Files that have been excluded from processing.
+                    FASTQs that have been excluded from processing.
                   </div>
                 </div>
               </div>
@@ -69,7 +70,7 @@ export function FilesHelp() {
                 <div>
                   <div className="font-medium">Done</div>
                   <div className="text-muted-foreground">
-                    Files that are fully annotated and assigned to samples.
+                    FASTQs that are fully annotated and assigned to samples.
                   </div>
                 </div>
               </div>

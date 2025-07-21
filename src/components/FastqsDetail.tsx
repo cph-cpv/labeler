@@ -1,5 +1,5 @@
-import { FilesSampleCombobox } from "@/components/FilesSampleCombobox.tsx";
-import { FilesTypeBadge } from "@/components/FilesTypeBadge.tsx";
+import { FastqsSampleCombobox } from "@/components/FastqsSampleCombobox.tsx";
+import { FastqsTypeBadge } from "@/components/FastqsTypeBadge.tsx";
 import {
   Dialog,
   DialogContent,
@@ -8,54 +8,94 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Slider } from "@/components/ui/slider.tsx";
-import { useFilesContext } from "@/contexts/FilesContext.tsx";
+import { useFastq } from "@/hooks/useFastqs.ts";
 import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
-import { pb } from "@/lib/pocketbase.ts";
-import type { Fastq, Sample } from "@/types.ts";
+import type { Sample } from "@/types.ts";
 import { useEffect, useState } from "react";
 
-type FilesDetailProps = {
-  fastq: Fastq;
+type FastqsDetailProps = {
+  id: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function FilesDetail({ fastq, open, onOpenChange }: FilesDetailProps) {
-  const [quality, setQuality] = useState<number[]>([fastq.quality || 1]);
-  const [dilutionFactor, setDilutionFactor] = useState<number[]>([
-    fastq.dilutionFactor || 1,
-  ]);
-
-  const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
+export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
+  const { fastq, isLoading, error, notFound, update } = useFastq(id);
+  const [quality, setQuality] = useState<number[]>([1]);
+  const [dilutionFactor, setDilutionFactor] = useState<number[]>([1]);
+  const [sample, setSample] = useState<Sample | null>(null);
   const { data: samples = [] } = usePocketBaseCollection<Sample>("samples");
-  const { refetchFiles } = useFilesContext();
 
-  // Initialize selected sample from fastq data
   useEffect(() => {
-    if (fastq.sample && samples.length > 0) {
-      const sample = samples.find((s) => s.name === fastq.sample);
-      setSelectedSample(sample || null);
+    if (fastq) {
+      setQuality([fastq.quality || 1]);
+      setDilutionFactor([fastq.dilutionFactor || 1]);
+
+      if (fastq.sample && samples.length > 0) {
+        const sample = samples.find((s) => s.name === fastq.sample);
+        setSample(sample || null);
+      }
     }
-  }, [fastq.sample, samples]);
+  }, [fastq, samples]);
 
   // Handle sample assignment change
-  const handleSampleChange = async (sample: Sample | null) => {
-    setSelectedSample(sample);
+  function handleSampleChange(sample: Sample | null) {
+    setSample(sample);
+    update({
+      sample: sample?.id || null,
+    });
+  }
 
-    try {
-      await pb.collection("files").update(fastq.id, {
-        sample: sample?.id || null,
-      });
+  // Handle quality change
+  function handleQualityChange(value: number[]) {
+    setQuality(value);
+    update({
+      quality: value[0],
+    });
+  }
 
-      // Refresh files list using context
-      refetchFiles();
-    } catch (error) {
-      console.error("Failed to update sample assignment:", error);
-      // Revert selection on error
-      const originalSample = samples.find((s) => s.name === fastq.sample);
-      setSelectedSample(originalSample || null);
-    }
-  };
+  // Handle dilution factor change
+  function handleDilutionFactorChange(value: number[]) {
+    const adjustedValue = [value[0] === 0 ? 1 : value[0]];
+    setDilutionFactor(adjustedValue);
+    update({
+      dilutionFactor: adjustedValue[0],
+    });
+  }
+
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <div>Loading...</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <div>Error loading file: File not found.</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <div>Error loading file: {error.message}</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (fastq === null) {
+    throw new Error("fastq is null");
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,8 +127,8 @@ export function FilesDetail({ fastq, open, onOpenChange }: FilesDetailProps) {
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">Sample</h3>
             <div>
-              <FilesSampleCombobox
-                value={selectedSample}
+              <FastqsSampleCombobox
+                value={sample}
                 onValueChange={handleSampleChange}
                 placeholder="Select or create sample..."
               />
@@ -100,7 +140,7 @@ export function FilesDetail({ fastq, open, onOpenChange }: FilesDetailProps) {
             <h3 className="text-lg font-semibold">Annotations</h3>
             <div className="space-y-3 prose">
               <div>
-                <strong>Type:</strong> <FilesTypeBadge type={fastq.type} />
+                <strong>Type:</strong> <FastqsTypeBadge type={fastq.type} />
               </div>
               <div>
                 <strong>Quality:</strong>
@@ -108,7 +148,7 @@ export function FilesDetail({ fastq, open, onOpenChange }: FilesDetailProps) {
                   <span className="text-sm font-medium">{quality[0]}</span>
                   <Slider
                     value={quality}
-                    onValueChange={setQuality}
+                    onValueChange={handleQualityChange}
                     min={1}
                     max={5}
                     step={1}
@@ -125,9 +165,7 @@ export function FilesDetail({ fastq, open, onOpenChange }: FilesDetailProps) {
                   </span>
                   <Slider
                     value={dilutionFactor}
-                    onValueChange={(value) =>
-                      setDilutionFactor([value[0] === 0 ? 1 : value[0]])
-                    }
+                    onValueChange={handleDilutionFactorChange}
                     min={0}
                     max={100}
                     step={10}

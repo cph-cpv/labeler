@@ -112,7 +112,11 @@ export function Samples() {
                 />
               </TableCell>
               <TableCell>
-                <Link to="/samples/$id" params={{ id: sample.id.toString() }}>
+                <Link
+                  from="/samples"
+                  to="/samples/$id"
+                  params={{ id: sample.id }}
+                >
                   {sample.name}
                 </Link>
               </TableCell>

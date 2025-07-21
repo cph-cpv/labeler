@@ -210,4 +210,5 @@ function CalendarDayButton({
   );
 }
 
-export { Calendar, CalendarDayButton, DateRange };
+export { Calendar, CalendarDayButton };
+export type { DateRange };

@@ -5,27 +5,17 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { useFastqs } from "@/hooks/useFastqs.ts";
+import type { FastqTypeFilter } from "@/types.tsx";
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+export function FastqsTypeDropdown() {
+  const { setTypeFilter, typeFilter } = useFastqs();
 
-export type TypeFilter = {
-  dsRNA: boolean;
-  smRNA: boolean;
-  unknown: boolean;
-};
-
-type FilesTypeDropdownProps = {
-  typeFilter: TypeFilter;
-  onTypeFilterChange: (filter: TypeFilter) => void;
-};
-
-export function FilesTypeDropdown({
-  typeFilter,
-  onTypeFilterChange,
-}: FilesTypeDropdownProps) {
-  const handleFilterChange = (type: keyof TypeFilter, checked: boolean) => {
-    onTypeFilterChange({
+  const handleFilterChange = (
+    type: keyof FastqTypeFilter,
+    checked: boolean,
+  ) => {
+    setTypeFilter({
       ...typeFilter,
       [type]: checked,
     });

@@ -21,17 +21,17 @@ import { pb } from "@/lib/pocketbase.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
 
-interface FilesSampleComboboxProps {
+interface FastqsSampleComboboxProps {
   value?: Sample | null;
   onValueChange: (sample: Sample | null) => void;
   placeholder?: string;
 }
 
-export function FilesSampleCombobox({
+export function FastqsSampleCombobox({
   value,
   onValueChange,
   placeholder = "Select sample...",
-}: FilesSampleComboboxProps) {
+}: FastqsSampleComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
   const [isCreating, setIsCreating] = React.useState(false);
@@ -65,7 +65,7 @@ export function FilesSampleCombobox({
       setIsCreating(true);
       try {
         // Create new sample in PocketBase
-        const newSample = await pb.collection("samples").create({
+        const newSample = await pb.collection("samples").create<Sample>({
           name: searchValue,
         });
 
@@ -73,7 +73,7 @@ export function FilesSampleCombobox({
         await refetch();
 
         // Select the newly created sample
-        onValueChange(newSample as Sample);
+        onValueChange(newSample);
       } catch (error) {
         console.error("Failed to create sample:", error);
       } finally {
@@ -99,12 +99,12 @@ export function FilesSampleCombobox({
 
     setIsCreating(true);
     try {
-      const newSample = await pb.collection("samples").create({
+      const newSample = await pb.collection("samples").create<Sample>({
         name: firstSampleName.trim(),
       });
 
       await refetch();
-      onValueChange(newSample as Sample);
+      onValueChange(newSample);
       setFirstSampleName("");
     } catch (error) {
       console.error("Failed to create first sample:", error);

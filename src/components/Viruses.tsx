@@ -54,7 +54,7 @@ export function Viruses() {
 
   const {
     data: viruses = [],
-    loading: virusesLoading,
+    isLoading: virusesLoading,
     error,
     totalPages,
   } = usePocketBasePaginated<Virus>("viruses", {
@@ -62,6 +62,7 @@ export function Viruses() {
     page: currentPage,
     perPage: itemsPerPage,
     filter,
+    skipTotal: true,
   });
 
   // Get counts for badges
@@ -69,7 +70,7 @@ export function Viruses() {
     allCount,
     typedCount,
     untypedCount,
-    loading: countsLoading,
+    isLoading: countsLoading,
   } = useVirusCounts();
 
   // Reset to page 1 when tab changes
@@ -113,7 +114,9 @@ export function Viruses() {
               />
             </TableCell>
             <TableCell className="font-medium">
-              <Link to={`/viruses/${virus.id}`}>{virus.name}</Link>
+              <Link to="/viruses/$id" params={{ id: virus.id.toString() }}>
+                {virus.name}
+              </Link>
             </TableCell>
             <TableCell>
               <VirusType type={virus.type} />
