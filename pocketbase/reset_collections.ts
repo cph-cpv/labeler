@@ -52,6 +52,7 @@ export async function resetCollections(pb: Pocketbase) {
 }
 
 if (isMainModule()) {
+  console.log("Starting collection reset...");
   await resetCollections(await createAuthenticatedClient());
   console.log("All collections created successfully with relations!");
 }

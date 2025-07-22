@@ -7,52 +7,105 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import { Slider } from "@/components/ui/slider.tsx";
-import { useFastq } from "@/hooks/useFastqs.ts";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
-import type { Sample } from "@/types.ts";
+import { Switch } from "@/components/ui/switch.tsx";
+import { convertPbToUi, useFastqs } from "@/hooks/useFastqs.ts";
+import {
+  usePocketBaseCollection,
+  usePocketBaseRecord,
+} from "@/hooks/usePocketBase.ts";
+import { pb } from "@/lib/pocketbase.ts";
+import type { Fastq, Sample } from "@/types.ts";
+import { useForm } from "@tanstack/react-form";
 import { VisuallyHidden } from "radix-ui";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type FastqsDetailProps = {
   id: string;
-  open: boolean;
   onOpenChange: (open: boolean) => void;
+  open: boolean;
+};
+
+type FormValues = {
+  quality: number;
+  dilutionFactor: number;
+  sample: Sample | null;
+  excluded: boolean;
 };
 
 export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
-  const { fastq, isLoading, error, notFound, update } = useFastq(id);
-  const [quality, setQuality] = useState<number[]>([1]);
-  const [dilutionFactor, setDilutionFactor] = useState<number[]>([1]);
-  const [sample, setSample] = useState<Sample | null>(null);
+  const { refetch } = useFastqs();
+
+  const [fastq, setFastq] = useState<Fastq | null>(null);
+
   const { data: samples = [] } = usePocketBaseCollection<Sample>("samples");
 
+  const {
+    data: pbFile,
+    error,
+    isLoading,
+    notFound,
+  } = usePocketBaseRecord("files", id, { expand: "sample" });
+
+  const form = useForm({
+    defaultValues: {
+      quality: 1,
+      dilutionFactor: 1,
+      sample: null,
+      excluded: false,
+    } as FormValues,
+  });
+
   useEffect(() => {
-    if (fastq) {
-      const newQuality = fastq.quality || 1;
-      const newDilutionFactor = fastq.dilutionFactor || 1;
+    const convertedFastq = convertPbToUi(pbFile);
+    setFastq(convertedFastq);
 
-      // Only update state if values have actually changed
-      if (quality[0] !== newQuality) {
-        setQuality([newQuality]);
+    if (convertedFastq) {
+      const newQuality = convertedFastq.quality || 1;
+      const newDilutionFactor = convertedFastq.dilutionFactor || 1;
+      let newSample: Sample | null = null;
+
+      if (convertedFastq.sample && samples.length > 0) {
+        newSample =
+          samples.find((s) => s.name === convertedFastq.sample) || null;
+      } else if (convertedFastq.sample === null) {
+        newSample = null;
       }
 
-      if (dilutionFactor[0] !== newDilutionFactor) {
-        setDilutionFactor([newDilutionFactor]);
-      }
-
-      if (fastq.sample && samples.length > 0) {
-        const foundSample = samples.find((s) => s.name === fastq.sample);
-        if (sample?.name !== foundSample?.name) {
-          setSample(foundSample || null);
-        }
-      } else if (fastq.sample === null && sample !== null) {
-        setSample(null);
-      }
+      // Update form with new values
+      form.setFieldValue("quality", newQuality);
+      form.setFieldValue("dilutionFactor", newDilutionFactor);
+      form.setFieldValue("sample", newSample);
+      form.setFieldValue("excluded", convertedFastq.excluded || false);
     }
-  }, [fastq, samples]);
+  }, [pbFile, samples, form]);
 
-  if (isLoading) {
+  const update = useCallback(
+    async (update: Partial<Fastq>) => {
+      const query: Record<string, any> = {};
+
+      if (update.excluded !== undefined) query.excluded = update.excluded;
+      if (update.type !== undefined) query.type = update.type;
+      if (update.quality !== undefined) {
+        query.quality_rating = update.quality;
+      }
+
+      if (update.dilutionFactor !== undefined)
+        query.dilution_factor = update.dilutionFactor;
+
+      if (update.sample !== undefined) query.sample = update.sample;
+
+      const updated = await pb.collection("files").update(id, query);
+
+      setFastq(convertPbToUi(updated));
+      refetch();
+    },
+    [id, refetch],
+  );
+
+  if (isLoading || !fastq) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
@@ -64,7 +117,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
               </DialogDescription>
             </VisuallyHidden.Root>
           </DialogHeader>
-          <div>Loading...</div>
+          <LoadingIndicator isLoading={isLoading} />
         </DialogContent>
       </Dialog>
     );
@@ -106,12 +159,9 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     );
   }
 
-  if (fastq === null) {
-    throw new Error("fastq is null");
-  }
-
   // Handle sample assignment change
   function handleSampleChange(sample: Sample | null) {
+    form.setFieldValue("sample", sample);
     update({
       sample: sample?.id || null,
     });
@@ -119,17 +169,27 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
 
   // Handle quality change
   function handleQualityChange(value: number[]) {
+    const newQuality = value[0];
+    form.setFieldValue("quality", newQuality);
     update({
-      quality: value[0],
+      quality: newQuality,
     });
   }
 
   // Handle dilution factor change
   function handleDilutionFactorChange(value: number[]) {
-    const adjustedValue = [value[0] === 0 ? 1 : value[0]];
-    setDilutionFactor(adjustedValue);
+    const newDilutionFactor = value[0];
+    form.setFieldValue("dilutionFactor", newDilutionFactor);
     update({
-      dilutionFactor: adjustedValue[0],
+      dilutionFactor: newDilutionFactor,
+    });
+  }
+
+  // Handle excluded change
+  function handleExcludedChange(checked: boolean) {
+    form.setFieldValue("excluded", checked);
+    update({
+      excluded: checked,
     });
   }
 
@@ -162,13 +222,16 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
           {/* Sample section */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">Sample</h3>
-            <div>
-              <FastqsSampleCombobox
-                value={sample}
-                onValueChange={handleSampleChange}
-                placeholder="Select or create sample..."
-              />
-            </div>
+            <form.Field
+              name="sample"
+              children={(field) => (
+                <FastqsSampleCombobox
+                  value={field.state.value}
+                  onValueChange={handleSampleChange}
+                  placeholder="Select or create sample..."
+                />
+              )}
+            />
           </div>
 
           {/* Editable fields */}
@@ -178,41 +241,61 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
               <div>
                 <strong>Type:</strong> <FastqsTypeBadge type={fastq.type} />
               </div>
-              <div>
-                <strong>Quality:</strong>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-sm font-medium">{quality[0]}</span>
-                  <Slider
-                    value={quality}
-                    onValueChange={handleQualityChange}
-                    min={1}
-                    max={5}
-                    step={1}
-                    className="flex-1"
-                  />
-                  <span className="text-sm text-muted-foreground">5</span>
-                </div>
-              </div>
-              <div>
-                <strong>Dilution Factor:</strong>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-sm font-medium">
-                    {dilutionFactor[0]}
-                  </span>
-                  <Slider
-                    value={dilutionFactor}
-                    onValueChange={handleDilutionFactorChange}
-                    min={0}
-                    max={100}
-                    step={10}
-                    className="flex-1"
-                  />
-                  <span className="text-sm text-muted-foreground">100</span>
-                </div>
-              </div>
-              <div>
-                <strong>Excluded:</strong> {fastq.excluded ? "Yes" : "No"}
-              </div>
+              <form.Field
+                name="quality"
+                children={(field) => (
+                  <div>
+                    <Label htmlFor={`quality-${id}`} className="font-bold">
+                      Quality
+                    </Label>
+                    <div className="mt-2">
+                      <Slider
+                        id={`quality-${id}`}
+                        value={[field.state.value]}
+                        onValueChange={handleQualityChange}
+                        min={1}
+                        max={5}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                )}
+              />
+              <form.Field
+                name="dilutionFactor"
+                children={(field) => (
+                  <div>
+                    <Label
+                      htmlFor={`dilution-factor-${id}`}
+                      className="font-bold"
+                    >
+                      Dilution Factor
+                    </Label>
+                    <div className="mt-2">
+                      <Slider
+                        id={`dilution-factor-${id}`}
+                        value={[field.state.value]}
+                        onValueChange={handleDilutionFactorChange}
+                        min={1}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                )}
+              />
+              <form.Field
+                name="excluded"
+                children={(field) => (
+                  <div className="flex items-center gap-3">
+                    <strong>Excluded:</strong>
+                    <Switch
+                      checked={field.state.value}
+                      onCheckedChange={handleExcludedChange}
+                    />
+                  </div>
+                )}
+              />
             </div>
           </div>
         </div>

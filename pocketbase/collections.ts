@@ -60,9 +60,9 @@ export function createFilesCollection(
       },
       {
         name: "quality_rating",
-        type: "select",
-        maxSelect: 1,
-        values: ["good", "borderline", "bad"],
+        type: "number",
+        min: 1,
+        max: 5,
       },
       {
         name: "dilution_factor",

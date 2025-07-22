@@ -134,14 +134,7 @@ export function FastqsProvider({
       name: file.name,
       path: file.path,
       timestamp: file.date ? new Date(file.date) : new Date(),
-      quality:
-        file.quality_rating === "good"
-          ? 5
-          : file.quality_rating === "borderline"
-            ? 3
-            : file.quality_rating === "bad"
-              ? 1
-              : null,
+      quality: file.quality_rating ?? null,
       dilutionFactor: file.dilution_factor,
       type:
         file.type === "dsRNA"
@@ -169,14 +162,7 @@ export function FastqsProvider({
           if (data.excluded !== undefined) pbData.excluded = data.excluded;
           if (data.type !== undefined) pbData.type = data.type;
           if (data.quality !== undefined) {
-            pbData.quality_rating =
-              data.quality === 5
-                ? "good"
-                : data.quality === 3
-                  ? "borderline"
-                  : data.quality === 1
-                    ? "bad"
-                    : null;
+            pbData.quality_rating = data.quality;
           }
           if (data.dilutionFactor !== undefined)
             pbData.dilution_factor = data.dilutionFactor;
