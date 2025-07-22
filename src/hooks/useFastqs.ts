@@ -2,7 +2,7 @@ import { FastqsContext } from "@/contexts/FastqsContext.tsx";
 import { usePocketBaseRecord } from "@/hooks/usePocketBase.ts";
 import { pb } from "@/lib/pocketbase.ts";
 import type { DateRange, Fastq, FastqTypeFilter } from "@/types.ts";
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 
 type UseFastqReturn = {
   error: Error | null;
@@ -13,28 +13,8 @@ type UseFastqReturn = {
   update: (updates: Partial<Fastq>) => void;
 };
 
-export function useFastq(id: string): UseFastqReturn {
-  const context = useContext(FastqsContext);
-
-  if (!context) {
-    throw new Error("useFastqsContext must be used within a FastqsProvider");
-  }
-
-  const {
-    data: pbFile,
-    loading: isLoading,
-    error,
-    notFound,
-  } = usePocketBaseRecord("files", id, { expand: "sample" });
-
-  let { refetch } = context;
-
-  if (context.isLoading) {
-    refetch = () => {};
-  }
-
-  // Convert PocketBase data to UI format
-  const fastq: Fastq | null = pbFile
+function convertPbToUi(pbFile: any): Fastq | null {
+  return pbFile
     ? {
         id: pbFile.id,
         name: pbFile.name,
@@ -61,36 +41,53 @@ export function useFastq(id: string): UseFastqReturn {
         excluded: pbFile.excluded || false,
       }
     : null;
+}
 
-  function update(updates: Partial<Fastq>) {
-    // Convert UI format back to PocketBase format
-    const pbData: Record<string, any> = {};
+export function useFastq(id: string): UseFastqReturn {
+  const context = useContext(FastqsContext);
 
-    if (updates.excluded !== undefined) pbData.excluded = updates.excluded;
-    if (updates.type !== undefined) pbData.type = updates.type;
-    if (updates.quality !== undefined) {
-      pbData.quality_rating =
-        updates.quality === 5
-          ? "good"
-          : updates.quality === 3
-            ? "borderline"
-            : updates.quality === 1
-              ? "bad"
-              : null;
-    }
-    if (updates.dilutionFactor !== undefined)
-      pbData.dilution_factor = updates.dilutionFactor;
-    if (updates.sample !== undefined) pbData.sample = updates.sample;
-
-    pb.collection("files")
-      .update(id, pbData)
-      .then(() => {
-        refetch();
-      })
-      .catch((error) => {
-        console.error("Failed to update fastq:", error);
-      });
+  if (!context) {
+    throw new Error("useFastq must be used within a FastqsProvider");
   }
+
+  const {
+    data: pbFile,
+    error,
+    isLoading,
+    notFound,
+  } = usePocketBaseRecord("files", id, { expand: "sample" });
+
+  const refetch = context.isLoading ? () => {} : context.refetch;
+
+  const fastq = pbFile ? convertPbToUi(pbFile) : null;
+
+  const updateAndSetRecord = useCallback(
+    async (update: Partial<Fastq>) => {
+      const query: Record<string, any> = {};
+
+      if (update.excluded !== undefined) query.excluded = update.excluded;
+      if (update.type !== undefined) query.type = update.type;
+      if (update.quality !== undefined) {
+        query.quality_rating =
+          update.quality === 5
+            ? "good"
+            : update.quality === 3
+              ? "borderline"
+              : update.quality === 1
+                ? "bad"
+                : null;
+      }
+
+      if (update.dilutionFactor !== undefined)
+        query.dilution_factor = update.dilutionFactor;
+
+      if (update.sample !== undefined) query.sample = update.sample;
+
+      await pb.collection("files").update(id, query);
+      refetch();
+    },
+    [id],
+  );
 
   return {
     error,
@@ -98,7 +95,7 @@ export function useFastq(id: string): UseFastqReturn {
     isLoading: context.isLoading || isLoading,
     notFound,
     refetch,
-    update,
+    update: updateAndSetRecord,
   };
 }
 
@@ -125,7 +122,7 @@ export function useFastqs(): UseFastqsReturn {
   const context = useContext(FastqsContext);
 
   if (!context) {
-    throw new Error("useFastqsContext must be used within a FastqsProvider");
+    throw new Error("useFastqs must be used within a FastqsProvider");
   }
 
   const {

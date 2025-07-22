@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider.tsx";
 import { useFastq } from "@/hooks/useFastqs.ts";
 import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
 import type { Sample } from "@/types.ts";
+import { VisuallyHidden } from "radix-ui";
 import { useEffect, useState } from "react";
 
 type FastqsDetailProps = {
@@ -28,19 +29,89 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
 
   useEffect(() => {
     if (fastq) {
-      setQuality([fastq.quality || 1]);
-      setDilutionFactor([fastq.dilutionFactor || 1]);
+      const newQuality = fastq.quality || 1;
+      const newDilutionFactor = fastq.dilutionFactor || 1;
+
+      // Only update state if values have actually changed
+      if (quality[0] !== newQuality) {
+        setQuality([newQuality]);
+      }
+
+      if (dilutionFactor[0] !== newDilutionFactor) {
+        setDilutionFactor([newDilutionFactor]);
+      }
 
       if (fastq.sample && samples.length > 0) {
-        const sample = samples.find((s) => s.name === fastq.sample);
-        setSample(sample || null);
+        const foundSample = samples.find((s) => s.name === fastq.sample);
+        if (sample?.name !== foundSample?.name) {
+          setSample(foundSample || null);
+        }
+      } else if (fastq.sample === null && sample !== null) {
+        setSample(null);
       }
     }
   }, [fastq, samples]);
 
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Loading FASTQ File</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>
+                Please wait while the file details are loaded.
+              </DialogDescription>
+            </VisuallyHidden.Root>
+          </DialogHeader>
+          <div>Loading...</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>FASTQ File Not Found</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>
+                The requested FASTQ file could not be found.
+              </DialogDescription>
+            </VisuallyHidden.Root>
+          </DialogHeader>
+          <div>Error loading file: File not found.</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>FASTQ File Error</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>
+                An error occurred while loading the FASTQ file.
+              </DialogDescription>
+            </VisuallyHidden.Root>
+          </DialogHeader>
+          <div>Error loading file: {error.message}</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (fastq === null) {
+    throw new Error("fastq is null");
+  }
+
   // Handle sample assignment change
   function handleSampleChange(sample: Sample | null) {
-    setSample(sample);
     update({
       sample: sample?.id || null,
     });
@@ -48,7 +119,6 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
 
   // Handle quality change
   function handleQualityChange(value: number[]) {
-    setQuality(value);
     update({
       quality: value[0],
     });
@@ -61,40 +131,6 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     update({
       dilutionFactor: adjustedValue[0],
     });
-  }
-
-  if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <div>Loading...</div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (notFound) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <div>Error loading file: File not found.</div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (error) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <div>Error loading file: {error.message}</div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (fastq === null) {
-    throw new Error("fastq is null");
   }
 
   return (
