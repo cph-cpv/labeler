@@ -1,8 +1,8 @@
 import Pocketbase from "pocketbase";
-import { createAuthenticatedClient } from "./client";
-import { isMainModule } from "./utils";
 
 export async function enableBatch(pb: Pocketbase) {
+  console.log("⚡ Enabling batch operations...");
+
   // Get current settings
   const settings = await pb.settings.getAll();
 
@@ -16,8 +16,6 @@ export async function enableBatch(pb: Pocketbase) {
       maxBodySize: 0,
     },
   });
-}
 
-if (isMainModule()) {
-  await enableBatch(await createAuthenticatedClient());
+  console.log("✅ Batch operations enabled");
 }

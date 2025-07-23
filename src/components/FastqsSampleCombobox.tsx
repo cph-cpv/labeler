@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
+import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
 import { pb } from "@/lib/pocketbase.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";

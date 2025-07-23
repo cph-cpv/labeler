@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
-import { usePocketBaseRecord } from "@/hooks/usePocketBase.ts";
+import { usePocketBaseRecord } from "@/hooks/usePocketBaseQuery.ts";
 import type { Virus } from "@/types.ts";
 
 type VirusesDetailProps = {

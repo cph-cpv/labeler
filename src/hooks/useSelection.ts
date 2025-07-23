@@ -1,46 +1,40 @@
-import { useCallback, useState } from "react";
+import {
+  SelectionProvider,
+  useSelectionContext,
+} from "@/contexts/SelectionContext.tsx";
 
 export interface SelectableItem {
   id: number | string;
 }
 
 export function useSelection<T extends SelectableItem>(items: T[]) {
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-
-  const handleItemSelect = useCallback((itemId: string) => {
-    setSelectedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const handleSelectAll = useCallback(() => {
-    if (selectedItems.size === items.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(items.map((item) => item.id.toString())));
-    }
-  }, [selectedItems.size, items]);
-
-  const clearSelection = useCallback(() => {
-    setSelectedItems(new Set());
-  }, []);
-
-  const isAllSelected = selectedItems.size === items.length && items.length > 0;
-  const selectedCount = selectedItems.size;
+  const context = useSelectionContext<T>();
 
   return {
-    selectedItems,
-    selectedCount,
-    isAllSelected,
-    handleItemSelect,
-    handleSelectAll,
-    clearSelection,
-    setSelectedItems,
+    selectedItems: context.selectedIds,
+    selectedCount: context.selectedCount,
+    isAllSelected: context.isAllSelected(items),
+    handleItemSelect: (itemId: string, event?: React.MouseEvent) => {
+      const item = items.find((i) => i.id.toString() === itemId);
+      if (item) {
+        context.toggleItem(item, event);
+      }
+    },
+    handleSelectAll: () => context.selectAll(items),
+    clearSelection: context.clearSelection,
+    setSelectedItems: (newSelection: Set<string>) => {
+      // Clear current selection first
+      context.clearSelection();
+      // Then select the new items
+      newSelection.forEach((itemId) => {
+        const item = items.find((i) => i.id.toString() === itemId);
+        if (item) {
+          context.selectItem(item);
+        }
+      });
+    },
   };
 }
+
+// Re-export for convenience
+export { SelectionProvider };

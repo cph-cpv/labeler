@@ -1,7 +1,6 @@
 import { parse } from "csv-parse/sync";
 import * as fs from "fs/promises";
 import Pocketbase from "pocketbase";
-import { createAuthenticatedClient } from "./client";
 
 export async function populateViruses(pb: Pocketbase, path: string) {
   const data = parse(await fs.readFile(path, "utf8"));
@@ -23,16 +22,7 @@ export async function populateViruses(pb: Pocketbase, path: string) {
 
     const result = await batch.send();
     totalCreated += result.length;
-
-    return totalCreated;
   }
-}
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const count = await populateViruses(
-    await createAuthenticatedClient(),
-    "input/viruses.csv",
-  );
-
-  console.log(`Created ${count} virus records`);
+  return totalCreated;
 }

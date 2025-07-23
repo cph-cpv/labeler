@@ -1,4 +1,5 @@
-import { usePocketBasePaginated } from "@/hooks/usePocketBase.ts";
+import { convertPbToUi } from "@/hooks/useFastqs.ts";
+import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { pb } from "@/lib/pocketbase.ts";
 import type { DateRange, Fastq, FastqTypeFilter, Sample } from "@/types.ts";
 import { createContext, useMemo, useState, type ReactNode } from "react";
@@ -127,47 +128,23 @@ export function FastqsProvider({
     filter: computedFilter || undefined,
   });
 
-  // Convert PocketBase fastqs to UI format
-  const fastqs: Fastq[] = useMemo(() => {
-    return pbFiles.map((file) => ({
-      id: file.id,
-      name: file.name,
-      path: file.path,
-      timestamp: file.date ? new Date(file.date) : new Date(),
-      quality: file.quality_rating ?? null,
-      dilutionFactor: file.dilution_factor,
-      type:
-        file.type === "dsRNA"
-          ? "dsRNA"
-          : file.type === "smRNA"
-            ? "smRNA"
-            : file.type === "Unknown"
-              ? "Unknown"
-              : null,
-      sample: file.expand?.sample?.name || null,
-      excluded: file.excluded || false,
-    }));
-  }, [pbFiles]);
-
   async function updateMultiple(
     updates: Array<Partial<Fastq> & { id: string }>,
   ) {
     try {
       await Promise.all(
         updates.map((update) => {
-          const { id, ...data } = update;
-          // Convert UI format back to PocketBase format
-          const pbData: Record<string, any> = {};
+          const params: Record<string, any> = {};
 
-          if (data.excluded !== undefined) pbData.excluded = data.excluded;
-          if (data.type !== undefined) pbData.type = data.type;
+          if (data.excluded !== undefined) params.excluded = data.excluded;
+          if (data.type !== undefined) params.type = data.type;
           if (data.quality !== undefined) {
-            pbData.quality_rating = data.quality;
+            params.quality_rating = data.quality;
           }
           if (data.dilutionFactor !== undefined)
-            pbData.dilution_factor = data.dilutionFactor;
+            params.dilution_factor = data.dilutionFactor;
 
-          return pb.collection("files").update(id, pbData);
+          return pb.collection("files").update(data.id, params);
         }),
       );
       refetch();
@@ -176,6 +153,8 @@ export function FastqsProvider({
       throw error;
     }
   }
+
+  const fastqs = pbFiles.map((pbFile) => convertPbToUi(pbFile));
 
   return (
     <FastqsContext.Provider

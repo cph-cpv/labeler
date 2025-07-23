@@ -1,4 +1,4 @@
-import { usePocketBaseCount } from "@/hooks/usePocketBase.ts";
+import { usePocketBaseCount } from "@/hooks/usePocketBaseQuery.ts";
 
 type VirusCounts = {
   allCount: number;
@@ -8,10 +8,10 @@ type VirusCounts = {
 };
 
 export function useVirusCounts(): VirusCounts {
-  const { count: allCount, loading: allCountLoading } =
+  const { data: allCount, isLoading: allCountLoading } =
     usePocketBaseCount("viruses");
 
-  const { count: typedCount, loading: typedCountLoading } = usePocketBaseCount(
+  const { data: typedCount, isLoading: typedCountLoading } = usePocketBaseCount(
     "viruses",
     "type != null",
   );

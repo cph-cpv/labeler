@@ -1,5 +1,5 @@
 import { SamplesDetail } from "@/components/SamplesDetail.tsx";
-import { usePocketBaseRecord } from "@/hooks/usePocketBase.ts";
+import { usePocketBaseRecord } from "@/hooks/usePocketBaseQuery.ts";
 import type { Sample } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 

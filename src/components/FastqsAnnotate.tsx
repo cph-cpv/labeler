@@ -23,7 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
+import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
 import { pb } from "@/lib/pocketbase.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Fastq, Virus } from "@/types.ts";

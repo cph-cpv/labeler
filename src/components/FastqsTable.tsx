@@ -50,7 +50,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
               <SelectionCheckbox
                 item={fastq}
                 selectedItems={selectedIds}
-                onItemSelect={() => toggleItem(fastq)}
+                onItemSelect={(_, event) => toggleItem(fastq, event)}
                 getItemLabel={(item) => item.name}
               />
             </TableCell>

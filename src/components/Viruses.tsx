@@ -29,42 +29,32 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs.tsx";
-import { usePocketBasePaginated } from "@/hooks/usePocketBase.ts";
-import { useSelection } from "@/hooks/useSelection.ts";
+import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
+import { SelectionProvider, useSelection } from "@/hooks/useSelection.ts";
 import { useVirusCounts } from "@/hooks/useVirusCounts.ts";
 import type { Virus } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
-export function Viruses() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
-
-  const filter = useMemo(() => {
-    switch (activeTab) {
-      case "typed":
-        return "type != null";
-      case "untyped":
-        return "type = null";
-      default:
-        return "";
-    }
-  }, [activeTab]);
-
-  const {
-    data: viruses = [],
-    isLoading: virusesLoading,
-    error,
-    totalPages,
-  } = usePocketBasePaginated<Virus>("viruses", {
-    sort: "name",
-    page: currentPage,
-    perPage: itemsPerPage,
-    filter,
-    skipTotal: true,
-  });
-
+function VirusesContent({
+  viruses,
+  virusesLoading,
+  error,
+  totalPages,
+  currentPage,
+  setCurrentPage,
+  activeTab,
+  setActiveTab,
+}: {
+  viruses: Virus[];
+  virusesLoading: boolean;
+  error: any;
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) {
   // Get counts for badges
   const {
     allCount,
@@ -72,11 +62,6 @@ export function Viruses() {
     untypedCount,
     isLoading: countsLoading,
   } = useVirusCounts();
-
-  // Reset to page 1 when tab changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
 
   const {
     selectedItems: selectedViruses,
@@ -109,7 +94,9 @@ export function Viruses() {
               <SelectionCheckbox
                 item={virus}
                 selectedItems={selectedViruses}
-                onItemSelect={handleVirusSelect}
+                onItemSelect={(itemId, event) =>
+                  handleVirusSelect(itemId, event)
+                }
                 getItemLabel={(item) => item.name}
               />
             </TableCell>
@@ -194,6 +181,10 @@ export function Viruses() {
             </PaginationItem>
 
             {(() => {
+              if (!totalPages || totalPages <= 1) {
+                return null; // Don't show pagination if there's only 1 page or no pages
+              }
+
               const maxVisiblePages = 5;
               const halfVisible = Math.floor(maxVisiblePages / 2);
               let startPage = Math.max(1, currentPage - halfVisible);
@@ -245,5 +236,55 @@ export function Viruses() {
 
       <Outlet />
     </>
+  );
+}
+
+export function Viruses() {
+  const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
+
+  const filter = useMemo(() => {
+    switch (activeTab) {
+      case "typed":
+        return "type != null";
+      case "untyped":
+        return "type = null";
+      default:
+        return "";
+    }
+  }, [activeTab]);
+
+  const {
+    data: viruses = [],
+    isLoading: virusesLoading,
+    error,
+    totalPages,
+  } = usePocketBasePaginated<Virus>("viruses", {
+    sort: "name",
+    page: currentPage,
+    perPage: itemsPerPage,
+    filter,
+    skipTotal: false,
+  });
+
+  // Reset to page 1 when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
+  return (
+    <SelectionProvider items={viruses}>
+      <VirusesContent
+        viruses={viruses}
+        virusesLoading={virusesLoading}
+        error={error}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+    </SelectionProvider>
   );
 }

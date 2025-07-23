@@ -15,7 +15,7 @@ import { convertPbToUi, useFastqs } from "@/hooks/useFastqs.ts";
 import {
   usePocketBaseCollection,
   usePocketBaseRecord,
-} from "@/hooks/usePocketBase.ts";
+} from "@/hooks/usePocketBaseQuery.ts";
 import { pb } from "@/lib/pocketbase.ts";
 import type { Fastq, Sample } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";

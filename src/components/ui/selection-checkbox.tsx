@@ -3,7 +3,7 @@ import type { SelectableItem } from "@/hooks/useSelection.ts";
 interface SelectionCheckboxProps<T extends SelectableItem> {
   item: T;
   selectedItems: Set<string>;
-  onItemSelect: (itemId: string) => void;
+  onItemSelect: (itemId: string, event?: React.MouseEvent) => void;
   getItemLabel: (item: T) => string;
 }
 
@@ -13,12 +13,16 @@ export function SelectionCheckbox<T extends SelectableItem>({
   onItemSelect,
   getItemLabel,
 }: SelectionCheckboxProps<T>) {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onItemSelect(item.id.toString(), event.nativeEvent as React.MouseEvent);
+  };
+
   return (
     <label className="flex items-center justify-center cursor-pointer p-2">
       <input
         type="checkbox"
         checked={selectedItems.has(item.id.toString())}
-        onChange={() => onItemSelect(item.id.toString())}
+        onChange={handleChange}
         className="rounded"
         aria-label={`Select ${getItemLabel(item)}`}
       />

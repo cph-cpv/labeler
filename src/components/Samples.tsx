@@ -23,21 +23,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBase.ts";
-import { useSelection } from "@/hooks/useSelection.ts";
+import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
+import { SelectionProvider, useSelection } from "@/hooks/useSelection.ts";
 import type { Sample } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import React from "react";
 
-export function Samples() {
+function SamplesContent({ samples }: { samples: Sample[] }) {
   const [searchValue, setSearchValue] = React.useState("");
   const [labelDialogOpen, setLabelDialogOpen] = React.useState(false);
-
-  const {
-    data: samples = [],
-    isLoading,
-    error,
-  } = usePocketBaseCollection<Sample>("samples");
 
   const filteredSamples = React.useMemo(() => {
     if (!searchValue) return samples;
@@ -47,32 +41,6 @@ export function Samples() {
   }, [samples, searchValue]);
 
   const selection = useSelection<Sample>(filteredSamples);
-
-  if (isLoading) {
-    return (
-      <>
-        <Header
-          title="Samples"
-          subtitle="All available samples for analysis."
-        />
-        <div className="text-center py-8">Loading samples...</div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header
-          title="Samples"
-          subtitle="All available samples for analysis."
-        />
-        <div className="text-center py-8 text-red-600">
-          Error loading samples: {error.message}
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -107,7 +75,9 @@ export function Samples() {
                 <SelectionCheckbox
                   item={sample}
                   selectedItems={selection.selectedItems}
-                  onItemSelect={selection.handleItemSelect}
+                  onItemSelect={(itemId, event) =>
+                    selection.handleItemSelect(itemId, event)
+                  }
                   getItemLabel={(item) => item.name}
                 />
               </TableCell>
@@ -152,5 +122,45 @@ export function Samples() {
 
       <Outlet />
     </>
+  );
+}
+
+export function Samples() {
+  const {
+    data: samples = [],
+    isLoading,
+    error,
+  } = usePocketBaseCollection<Sample>("samples");
+
+  if (isLoading) {
+    return (
+      <>
+        <Header
+          title="Samples"
+          subtitle="All available samples for analysis."
+        />
+        <div className="text-center py-8">Loading samples...</div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header
+          title="Samples"
+          subtitle="All available samples for analysis."
+        />
+        <div className="text-center py-8 text-red-600">
+          Error loading samples: {error.message}
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <SelectionProvider items={samples}>
+      <SamplesContent samples={samples} />
+    </SelectionProvider>
   );
 }

@@ -70,8 +70,9 @@ export function useFastqs(): UseFastqsReturn {
 
   // Reset to page 1 when filters change.
   useEffect(() => {
+    console.log("reset page");
     setPage(1);
-  }, [category, dateRange, setPage, typeFilter]);
+  }, [category, dateRange, typeFilter]);
 
   return {
     category,

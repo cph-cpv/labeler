@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -18,7 +19,7 @@ export interface SelectionContextValue<T extends SelectableItem> {
   // Selection methods
   selectItem: (item: T) => void;
   deselectItem: (itemId: string) => void;
-  toggleItem: (item: T) => void;
+  toggleItem: (item: T, event?: React.MouseEvent) => void;
   selectAll: (items: T[]) => void;
   clearSelection: () => void;
   isSelected: (itemId: string) => boolean;
@@ -37,6 +38,7 @@ export function SelectionProvider<T extends SelectableItem>({
   items,
 }: SelectionProviderProps<T>) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const lastSelectedIndexRef = useRef<number | null>(null);
 
   // Derive selected objects from IDs and current items
   const selectedItems = items.filter((item) =>
@@ -56,18 +58,52 @@ export function SelectionProvider<T extends SelectableItem>({
     });
   }, []);
 
-  const toggleItem = useCallback((item: T) => {
-    const itemId = item.id.toString();
-    setSelectedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
-  }, []);
+  const toggleItem = useCallback(
+    (item: T, event?: React.MouseEvent) => {
+      const itemId = item.id.toString();
+      const itemIndex = items.findIndex((i) => i.id.toString() === itemId);
+
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+
+        // Handle shift-key range selection
+        if (
+          event?.shiftKey &&
+          lastSelectedIndexRef.current !== null &&
+          itemIndex !== -1
+        ) {
+          const startIndex = Math.min(lastSelectedIndexRef.current, itemIndex);
+          const endIndex = Math.max(lastSelectedIndexRef.current, itemIndex);
+
+          // Determine if we should select or deselect based on the clicked item's current state
+          const shouldSelect = !newSet.has(itemId);
+
+          // Apply selection/deselection to all items in the range
+          for (let i = startIndex; i <= endIndex; i++) {
+            if (i < items.length) {
+              const rangeItemId = items[i].id.toString();
+              if (shouldSelect) {
+                newSet.add(rangeItemId);
+              } else {
+                newSet.delete(rangeItemId);
+              }
+            }
+          }
+        } else {
+          // Regular toggle behavior
+          if (newSet.has(itemId)) {
+            newSet.delete(itemId);
+          } else {
+            newSet.add(itemId);
+          }
+          lastSelectedIndexRef.current = itemIndex;
+        }
+
+        return newSet;
+      });
+    },
+    [items],
+  );
 
   const selectAll = useCallback(
     (items: T[]) => {

@@ -20,6 +20,8 @@ export function Fastqs() {
   const { dateRange, error, fastqs, page, setDateRange, setPage, totalPages } =
     useFastqs();
 
+  console.log(page, totalPages);
+
   if (error) {
     return (
       <>
@@ -89,7 +91,7 @@ export function Fastqs() {
                       isActive={page === targetPage}
                       className="cursor-pointer"
                     >
-                      {page}
+                      {targetPage}
                     </PaginationLink>
                   </PaginationItem>
                 ));
