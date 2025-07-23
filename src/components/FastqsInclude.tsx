@@ -61,7 +61,7 @@ export function FastqsInclude() {
             <AlertDialogDescription>
               Are you sure you want to include {selectedFastqs.length} file
               {selectedFastqs.length === 1 ? "" : "s"}? This action will mark
-              the selected files as included.
+              the selected FASTQs as included.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

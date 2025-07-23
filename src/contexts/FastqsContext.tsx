@@ -116,12 +116,12 @@ export function FastqsProvider({
   }
 
   const {
-    data: pbFiles,
+    data: pbFastqs,
     isLoading,
     error,
     totalPages,
     refetch,
-  } = usePocketBasePaginated<PocketBaseFile>("files", {
+  } = usePocketBasePaginated<PocketBaseFile>("fastqs", {
     expand: "sample",
     page: currentPage,
     perPage: itemsPerPage,
@@ -145,7 +145,7 @@ export function FastqsProvider({
             params.dilution_factor = update.dilutionFactor;
           if (update.sample !== undefined) params.sample = update.sample;
 
-          return pb.collection("files").update(update.id, params);
+          return pb.collection("fastqs").update(update.id, params);
         }),
       );
       refetch();
@@ -155,7 +155,7 @@ export function FastqsProvider({
     }
   }
 
-  const fastqs = pbFiles.map((pbFile) => convertPbToUi(pbFile));
+  const fastqs = pbFastqs.map((pbFile) => convertPbToUi(pbFile));
 
   return (
     <FastqsContext.Provider

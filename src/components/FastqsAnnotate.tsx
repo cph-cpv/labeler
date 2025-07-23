@@ -93,7 +93,7 @@ export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
           });
 
           // Update file with annotation
-          await pb.collection("files").update(file.id, {
+          await pb.collection("fastqs").update(file.id, {
             annotations: annotation.id,
           });
         }),

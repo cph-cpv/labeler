@@ -47,7 +47,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     error,
     isLoading,
     notFound,
-  } = usePocketBaseRecord("files", id, { expand: "sample" });
+  } = usePocketBaseRecord("fastqs", id, { expand: "sample" });
 
   const form = useForm({
     defaultValues: {
@@ -97,7 +97,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
 
       if (update.sample !== undefined) query.sample = update.sample;
 
-      const updated = await pb.collection("files").update(id, query);
+      const updated = await pb.collection("fastqs").update(id, query);
 
       setFastq(convertPbToUi(updated));
       refetch();

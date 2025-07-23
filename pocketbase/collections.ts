@@ -39,13 +39,13 @@ export const virusCollection = {
   ],
 };
 
-export function createFilesCollection(
-  fileAnnotationCollectionId: string,
+export function createFastqsCollection(
+  fastqAnnotationCollectionId: string,
   samplesCollectionId: string,
 ) {
   return {
     ...ACCESS_ALL_USERS,
-    name: "files",
+    name: "fastqs",
     type: "base",
     fields: [
       {
@@ -92,7 +92,7 @@ export function createFilesCollection(
       {
         name: "annotations",
         type: "relation",
-        collectionId: fileAnnotationCollectionId,
+        collectionId: fastqAnnotationCollectionId,
         cascadeDelete: false,
         required: false,
         minSelect: 0,
@@ -125,7 +125,7 @@ export function createSampleCollection(virusesCollectionId: string) {
   };
 }
 
-export function createFileAnnotationsCollection(virusesCollectionId: string) {
+export function createFastqAnnotationsCollection(virusesCollectionId: string) {
   return {
     ...ACCESS_ALL_USERS,
     name: "annotations",

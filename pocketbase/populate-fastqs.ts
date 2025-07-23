@@ -2,7 +2,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import Pocketbase from "pocketbase";
 
-export async function populateFiles(pb: Pocketbase, filePath: string) {
+export async function populateFastqs(pb: Pocketbase, filePath: string) {
   const input = await fs.readFile(filePath, "utf8");
   const files = input.split("\n").filter((line) => line.length > 0);
 
@@ -17,7 +17,7 @@ export async function populateFiles(pb: Pocketbase, filePath: string) {
       const fileName = path.basename(file, ".fastq.gz");
       const date = extractDateFromFilePath(file);
 
-      batch.collection("files").create({
+      batch.collection("fastqs").create({
         path: file,
         name: fileName,
         date: date,

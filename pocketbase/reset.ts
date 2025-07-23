@@ -1,6 +1,6 @@
 import { createAuthenticatedClient } from "./client";
 import { enableBatch } from "./enable-batch";
-import { populateFiles } from "./populate-files";
+import { populateFastqs } from "./populate-fastqs";
 import { populateViruses } from "./populate-viruses";
 import { resetCollections } from "./reset-collections";
 
@@ -18,7 +18,7 @@ async function reset() {
   console.log(`✅ Created ${virusCount} virus records`);
 
   console.log("📁 Populating FASTQs...");
-  const fastqCount = await populateFiles(pb, "input/files.txt");
+  const fastqCount = await populateFastqs(pb, "input/files.txt");
   console.log(`✅ Created ${fastqCount} FASTQ records`);
 
   console.log("✅ Reset complete!");

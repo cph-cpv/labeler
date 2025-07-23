@@ -1,6 +1,5 @@
 import { AuthButton } from "@/components/AuthButton.tsx";
 import { AuthLogin } from "@/components/AuthLogin.tsx";
-import { DevtoolsDialog } from "@/components/DevtoolsDialog.tsx";
 import {
   Card,
   CardContent,
@@ -84,7 +83,6 @@ function AppShell() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2">
-          <DevtoolsDialog />
           <AuthButton />
         </div>
       </header>

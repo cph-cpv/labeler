@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import PocketBase from "pocketbase";
 import { promisify } from "util";
 import { enableBatch } from "../pocketbase/enable-batch";
-import { populateFiles } from "../pocketbase/populate-files";
+import { populateFastqs } from "../pocketbase/populate-fastqs";
 import { populateSamples } from "../pocketbase/populate-samples";
 import { populateViruses } from "../pocketbase/populate-viruses";
 import { resetCollections } from "../pocketbase/reset-collections";
@@ -68,7 +68,7 @@ async function globalSetup() {
   await resetCollections(pb);
   await populateViruses(pb, "input/viruses.csv");
   await populateSamples(pb);
-  await populateFiles(pb, "input/files.txt");
+  await populateFastqs(pb, "input/files.txt");
 }
 
 export default globalSetup;

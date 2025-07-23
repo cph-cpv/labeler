@@ -138,18 +138,20 @@ export function Fastqs() {
   }, [category, dateRange, typeFilter, searchQuery]);
 
   const {
-    data: pbFiles = [],
+    data: pbFastqs = [],
     isLoading,
     error,
     totalPages,
-  } = usePocketBasePaginated<PocketBaseFile>("files", {
+  } = usePocketBasePaginated<PocketBaseFile>("fastqs", {
     expand: "sample",
     page,
     perPage: itemsPerPage,
     filter: computedFilter || undefined,
   });
 
-  const fastqs = pbFiles.map((pbFile) => convertPbToUi(pbFile)).filter(Boolean);
+  const fastqs = pbFastqs
+    .map((pbFile) => convertPbToUi(pbFile))
+    .filter(Boolean);
 
   // Reset to page 1 when filters change
   useEffect(() => {

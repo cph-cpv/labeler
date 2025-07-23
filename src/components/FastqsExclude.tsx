@@ -61,7 +61,7 @@ export function FastqsExclude() {
             <AlertDialogDescription>
               Are you sure you want to exclude {selectedFastqs.length} file
               {selectedFastqs.length === 1 ? "" : "s"}? This action will mark
-              the selected files as excluded.
+              the selected FASTQ files as excluded.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
