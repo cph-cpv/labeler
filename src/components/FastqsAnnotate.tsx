@@ -61,7 +61,10 @@ export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
     () => {
       setOpen(true);
     },
-    { enableOnFormTags: true },
+    {
+      enableOnFormTags: true,
+      enabled: selectedFastqs.length > 0,
+    },
   );
 
   const filteredViruses = viruses.filter(

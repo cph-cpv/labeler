@@ -27,11 +27,12 @@ export function FastqsAssign() {
   useHotkeys(
     "s",
     () => {
-      if (selectedFastqs.length > 0) {
-        setOpen(true);
-      }
+      setOpen(true);
     },
-    { enableOnFormTags: true },
+    {
+      enableOnFormTags: true,
+      enabled: selectedFastqs.length > 0,
+    },
   );
 
   const handleAssign = async () => {

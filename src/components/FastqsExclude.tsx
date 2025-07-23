@@ -18,13 +18,14 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsExclude() {
   const [open, setOpen] = useState(false);
-  const { clearSelection, selectedItems } = useSelectionContext<Fastq>();
+  const { clearSelection, selectedItems: selectedFastqs } =
+    useSelectionContext<Fastq>();
   const { updateMultiple } = useFastqs();
 
   async function handleExclude() {
     try {
       await updateMultiple(
-        selectedItems.map((fastq) => ({
+        selectedFastqs.map((fastq) => ({
           id: fastq.id,
           excluded: true,
         })),
@@ -39,11 +40,12 @@ export function FastqsExclude() {
   useHotkeys(
     "e",
     () => {
-      if (selectedItems.length > 0) {
-        setOpen(true);
-      }
+      setOpen(true);
     },
-    { enableOnFormTags: true },
+    {
+      enableOnFormTags: true,
+      enabled: selectedFastqs.length > 0,
+    },
   );
 
   return (
@@ -57,9 +59,9 @@ export function FastqsExclude() {
           <AlertDialogHeader>
             <AlertDialogTitle>Exclude FASTQs</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to exclude {selectedItems.length} file
-              {selectedItems.length === 1 ? "" : "s"}? This action will mark the
-              selected files as excluded.
+              Are you sure you want to exclude {selectedFastqs.length} file
+              {selectedFastqs.length === 1 ? "" : "s"}? This action will mark
+              the selected files as excluded.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

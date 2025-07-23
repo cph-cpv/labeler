@@ -97,6 +97,48 @@ test.describe("FASTQs Page", () => {
     await expect(page.locator("text=1 FASTQ selected")).toBeVisible();
   });
 
+  test("search functionality with URL parameters", async ({ page }) => {
+    await page.goto("/fastqs");
+
+    // Wait for the table to load
+    await page.waitForSelector("table");
+
+    // Find the search input
+    const searchInput = page.getByPlaceholder("Search");
+    await expect(searchInput).toBeVisible();
+
+    // Start empty - verify >5 items match 14G4 pattern
+    const cellsWithPattern14G4 = page
+      .locator("table tbody tr td")
+      .getByText(/^14G4/);
+    const countOf14G4 = await cellsWithPattern14G4.count();
+    expect(countOf14G4).toBeGreaterThan(5);
+
+    // Type search term "SP"
+    await searchInput.fill("SP");
+
+    // Verify URL contains search parameter
+    await expect(page).toHaveURL(/search=SP/);
+
+    // Wait for table to update and verify 0 items match 14G4, but >5 match 14SP
+    await expect(cellsWithPattern14G4).toHaveCount(0);
+
+    const cellsWithPattern14SP = page
+      .locator("table tbody tr td")
+      .getByText(/14SP/);
+    const countOf14SP = await cellsWithPattern14SP.count();
+    expect(countOf14SP).toBeGreaterThan(5);
+
+    // Clear search and verify URL parameter is removed
+    await searchInput.clear();
+    await expect(page).not.toHaveURL(/search=/);
+
+    // Navigate away and back to verify search persists
+    await page.goto("/fastqs?search=sample");
+    await expect(searchInput).toHaveValue("sample");
+    await expect(page).toHaveURL(/search=sample/);
+  });
+
   test.describe("Multi-FASTQ Assignment", () => {
     test("should assign multiple FASTQs to a sample and refresh table", async ({
       page,

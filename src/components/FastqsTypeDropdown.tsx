@@ -5,21 +5,26 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { useFastqs } from "@/hooks/useFastqs.ts";
-import type { FastqTypeFilter } from "@/types.tsx";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function FastqsTypeDropdown() {
-  const { setTypeFilter, typeFilter } = useFastqs();
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false });
 
-  const handleFilterChange = (
-    type: keyof FastqTypeFilter,
-    checked: boolean,
-  ) => {
-    setTypeFilter({
-      ...typeFilter,
-      [type]: checked,
+  const types: string[] = search.type || [];
+
+  function handleFilterChange(type: string, checked: boolean) {
+    const newTypes = checked
+      ? [...types, type]
+      : types.filter((t) => t !== type);
+
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        type: newTypes.length ? newTypes : undefined,
+      }),
     });
-  };
+  }
 
   return (
     <DropdownMenu>
@@ -28,7 +33,7 @@ export function FastqsTypeDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuCheckboxItem
-          checked={typeFilter.dsRNA}
+          checked={types.includes("dsRNA")}
           onCheckedChange={(checked) =>
             handleFilterChange("dsRNA", checked ?? false)
           }
@@ -36,7 +41,7 @@ export function FastqsTypeDropdown() {
           dsRNA
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={typeFilter.smRNA}
+          checked={types.includes("smRNA")}
           onCheckedChange={(checked) =>
             handleFilterChange("smRNA", checked ?? false)
           }
@@ -44,9 +49,9 @@ export function FastqsTypeDropdown() {
           smRNA
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={typeFilter.unknown}
+          checked={types.includes("Unknown")}
           onCheckedChange={(checked) =>
-            handleFilterChange("unknown", checked ?? false)
+            handleFilterChange("Unknown", checked ?? false)
           }
           className="text-muted-foreground italic"
         >
