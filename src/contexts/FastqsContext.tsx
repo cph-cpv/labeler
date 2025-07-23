@@ -136,15 +136,16 @@ export function FastqsProvider({
         updates.map((update) => {
           const params: Record<string, any> = {};
 
-          if (data.excluded !== undefined) params.excluded = data.excluded;
-          if (data.type !== undefined) params.type = data.type;
-          if (data.quality !== undefined) {
-            params.quality_rating = data.quality;
+          if (update.excluded !== undefined) params.excluded = update.excluded;
+          if (update.type !== undefined) params.type = update.type;
+          if (update.quality !== undefined) {
+            params.quality_rating = update.quality;
           }
-          if (data.dilutionFactor !== undefined)
-            params.dilution_factor = data.dilutionFactor;
+          if (update.dilutionFactor !== undefined)
+            params.dilution_factor = update.dilutionFactor;
+          if (update.sample !== undefined) params.sample = update.sample;
 
-          return pb.collection("files").update(data.id, params);
+          return pb.collection("files").update(update.id, params);
         }),
       );
       refetch();
