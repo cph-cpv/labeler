@@ -1,9 +1,10 @@
 import { exec } from "child_process";
 import PocketBase from "pocketbase";
 import { promisify } from "util";
-import { enableBatch } from "../pocketbase/enable_batch";
-import { populateViruses } from "../pocketbase/populate_viruses";
-import { resetCollections } from "../pocketbase/reset_collections.ts";
+import { enableBatch } from "../pocketbase/enable-batch";
+import { populateFiles } from "../pocketbase/populate-files";
+import { populateViruses } from "../pocketbase/populate-viruses";
+import { resetCollections } from "../pocketbase/reset-collections";
 
 const execAsync = promisify(exec);
 
@@ -11,6 +12,11 @@ async function globalSetup() {
   process.env.VITE_POCKETBASE_URL = "http://localhost:8081";
 
   await execAsync("docker compose -f docker-compose.test.yml up -d");
+
+  console.log("Waiting for init container to complete...");
+  await execAsync(
+    "docker compose -f docker-compose.test.yml wait pocketbase-test-init",
+  );
 
   console.log("Waiting for Pocketbase to be ready...");
 
@@ -60,6 +66,7 @@ async function globalSetup() {
 
   await resetCollections(pb);
   await populateViruses(pb, "input/viruses.csv");
+  await populateFiles(pb, "input/files.txt");
 }
 
 export default globalSetup;

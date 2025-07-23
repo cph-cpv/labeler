@@ -185,11 +185,9 @@ export function usePocketBaseAuth() {
 
   // Listen for auth changes and invalidate auth query
   React.useEffect(() => {
-    const unsubscribe = pb.authStore.onChange(() => {
+    return pb.authStore.onChange(() => {
       queryClient.invalidateQueries({ queryKey: ["pocketbase", "auth"] });
     });
-
-    return unsubscribe;
   }, [queryClient]);
 
   const login = useMutation({
@@ -280,5 +278,80 @@ export function usePocketBaseMutation<T>(collection: string) {
     createError: create.error,
     updateError: update.error,
     removeError: remove.error,
+  };
+}
+
+// Batch update mutation for multiple records
+export function usePocketBaseBatchUpdate<T extends { id: string }>(
+  collection: string,
+) {
+  const queryClient = useQueryClient();
+
+  const batchUpdate = useMutation({
+    mutationFn: async ({
+      updates,
+    }: {
+      updates: Array<{ id: string; data: Partial<T> }>;
+    }) => {
+      // Execute all updates in parallel
+      const results = await Promise.all(
+        updates.map(({ id, data }) =>
+          pb.collection(collection).update<T>(id, data),
+        ),
+      );
+      return { results, updates };
+    },
+    onSuccess: ({ results, updates }) => {
+      // Update cached data directly instead of invalidating
+      results.forEach((updatedRecord, index) => {
+        const recordId = updates[index].id;
+
+        // Update individual record queries
+        queryClient.setQueryData(
+          ["pocketbase", collection, recordId],
+          updatedRecord,
+        );
+      });
+
+      // Update paginated queries by modifying existing cache data
+      queryClient.setQueriesData(
+        { queryKey: ["pocketbase", collection, "paginated"] },
+        (oldData: any) => {
+          if (!oldData?.items) return oldData;
+
+          const updatedItems = oldData.items.map((item: T) => {
+            const update = results.find((result: T) => result.id === item.id);
+            return update ? update : item;
+          });
+
+          return { ...oldData, items: updatedItems };
+        },
+      );
+
+      // Update collection queries
+      queryClient.setQueriesData(
+        {
+          queryKey: ["pocketbase", collection],
+          predicate: (query) =>
+            !query.queryKey.includes("paginated") &&
+            !query.queryKey.includes("count"),
+        },
+        (oldData: T[] | undefined) => {
+          if (!Array.isArray(oldData)) return oldData;
+
+          return oldData.map((item: T) => {
+            const update = results.find((result: T) => result.id === item.id);
+            return update ? update : item;
+          });
+        },
+      );
+    },
+  });
+
+  return {
+    batchUpdate: batchUpdate.mutate,
+    batchUpdateAsync: batchUpdate.mutateAsync,
+    isBatchUpdating: batchUpdate.isPending,
+    batchUpdateError: batchUpdate.error,
   };
 }

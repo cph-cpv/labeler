@@ -75,18 +75,20 @@ export function SelectionProvider<T extends SelectableItem>({
           const startIndex = Math.min(lastSelectedIndexRef.current, itemIndex);
           const endIndex = Math.max(lastSelectedIndexRef.current, itemIndex);
 
-          // Determine if we should select or deselect based on the clicked item's current state
-          const shouldSelect = !newSet.has(itemId);
+          // Conventional behavior: clear all selections, then select the range
+          // But exclude the clicked item itself if it would be deselected
+          const wasItemSelected = newSet.has(itemId);
+          newSet.clear();
 
-          // Apply selection/deselection to all items in the range
+          // Select all items in the range from anchor to current click
           for (let i = startIndex; i <= endIndex; i++) {
             if (i < items.length) {
               const rangeItemId = items[i].id.toString();
-              if (shouldSelect) {
-                newSet.add(rangeItemId);
-              } else {
-                newSet.delete(rangeItemId);
+              // If this is the clicked item and it was selected, don't re-select it (deselect it)
+              if (rangeItemId === itemId && wasItemSelected) {
+                continue;
               }
+              newSet.add(rangeItemId);
             }
           }
         } else {
