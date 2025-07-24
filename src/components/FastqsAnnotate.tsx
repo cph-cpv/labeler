@@ -43,7 +43,7 @@ const annotationTypes: { value: AnnotationType; label: string }[] = [
 ];
 
 export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
-  const { selectedItems: selectedFastqs, clearSelection } =
+  const { selectedItems: selectedFastqs, onClearSelection } =
     useSelection<Fastq>();
   const [selectedVirus, setSelectedVirus] = useState<Virus | null>(null);
   const [selectedAnnotationType, setSelectedAnnotationType] =
@@ -100,7 +100,7 @@ export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
       );
 
       // Clear selection and close dialog
-      clearSelection();
+      onClearSelection();
       setOpen(false);
       setSelectedVirus(null);
       setSelectedAnnotationType(null);

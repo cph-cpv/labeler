@@ -90,7 +90,7 @@ export function createFastqsCollection(
         maxSelect: 1,
       },
       {
-        name: "annotations",
+        name: "exceptions",
         type: "relation",
         collectionId: fastqAnnotationCollectionId,
         cascadeDelete: false,
@@ -125,10 +125,10 @@ export function createSampleCollection(virusesCollectionId: string) {
   };
 }
 
-export function createFastqAnnotationsCollection(virusesCollectionId: string) {
+export function createExceptionsCollection(virusesCollectionId: string) {
   return {
     ...ACCESS_ALL_USERS,
-    name: "annotations",
+    name: "exceptions",
     type: "base",
     fields: [
       {

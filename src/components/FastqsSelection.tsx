@@ -2,7 +2,7 @@ import { FastqsAnnotate } from "@/components/FastqsAnnotate.tsx";
 import { FastqsAssign } from "@/components/FastqsAssign.tsx";
 import { FastqsExclude } from "@/components/FastqsExclude.tsx";
 import { FastqsInclude } from "@/components/FastqsInclude.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import { cn } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 
@@ -11,7 +11,7 @@ type FastqsSelectionProps = {
 };
 
 export function FastqsSelection({ category }: FastqsSelectionProps) {
-  const { selectedCount } = useSelectionContext<Fastq>();
+  const { selectedCount } = useSelection<Fastq>();
 
   return (
     <div

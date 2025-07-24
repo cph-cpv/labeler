@@ -1,6 +1,6 @@
 import type Pocketbase from "pocketbase";
 import {
-  createFastqAnnotationsCollection,
+  createExceptionsCollection,
   createFastqsCollection,
   createSampleCollection,
   virusCollection as virusCollectionSchema,
@@ -31,7 +31,7 @@ export async function resetCollections(pb: Pocketbase) {
   // Delete in reverse dependency order
   await deleteCollection(pb, "fastqs");
   await deleteCollection(pb, "samples");
-  await deleteCollection(pb, "annotations");
+  await deleteCollection(pb, "exceptions");
   await deleteCollection(pb, "viruses");
 
   const virusCollection = await createCollection(pb, virusCollectionSchema);
@@ -41,7 +41,7 @@ export async function resetCollections(pb: Pocketbase) {
   );
   const fastqAnnotationCollection = await createCollection(
     pb,
-    createFastqAnnotationsCollection(virusCollection.id),
+    createExceptionsCollection(virusCollection.id),
   );
   await createCollection(
     pb,

@@ -13,17 +13,23 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { UnknownText } from "@/components/ui/unknown-text.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
+import React from "react";
 
 type FastqsTableProps = {
   fastqs: Fastq[];
 };
 
 export function FastqsTable({ fastqs }: FastqsTableProps) {
-  const { selectedIds, toggleItem, selectAll, isAllSelected } =
-    useSelectionContext<Fastq>();
+  const { selectedIds, onToggle, onSelectAll, isAllSelected, onSetItems } =
+    useSelection<Fastq>();
+
+  // Update items when fastqs change
+  React.useEffect(() => {
+    onSetItems(fastqs);
+  }, [fastqs, onSetItems]);
 
   return (
     <Table className="table">
@@ -33,8 +39,8 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
           <TableHead className="w-12">
             <SelectAllCheckbox
               items={fastqs}
-              isAllSelected={isAllSelected(fastqs)}
-              onSelectAll={() => selectAll(fastqs)}
+              isAllSelected={isAllSelected}
+              onSelectAll={onSelectAll}
             />
           </TableHead>
           <TableHead>Name</TableHead>
@@ -50,7 +56,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
               <SelectionCheckbox
                 item={fastq}
                 selectedItems={selectedIds}
-                onItemSelect={(_, event) => toggleItem(fastq, event)}
+                onItemSelect={(_, event) => onToggle(fastq.id, event)}
                 getItemLabel={(item) => item.name}
               />
             </TableCell>

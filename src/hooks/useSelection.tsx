@@ -1,43 +1,39 @@
 import React, {
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
+  useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 
 export interface SelectableItem {
-  id: number | string;
+  id: string;
 }
 
 interface SelectionContextValue<T extends SelectableItem> {
+  items: T[];
   selectedIds: Set<string>;
+  setItems: (items: T[]) => void;
   setSelectedIds: (
     ids: Set<string> | ((prev: Set<string>) => Set<string>),
   ) => void;
-  lastSelectedIndexRef: React.RefObject<number | null>;
-  items: T[];
-  setItems: (items: T[]) => void;
 }
 
 const SelectionContext = createContext<SelectionContextValue<any> | null>(null);
 
-export interface SelectionProviderProps {
-  children: ReactNode;
-}
+export type SelectionProviderProps = PropsWithChildren<{}>;
 
 export function SelectionProvider({ children }: SelectionProviderProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [items, setItems] = useState<SelectableItem[]>([]);
-  const lastSelectedIndexRef = useRef<number | null>(null);
 
   const value: SelectionContextValue<SelectableItem> = {
-    selectedIds,
-    setSelectedIds,
-    lastSelectedIndexRef,
     items,
+    selectedIds,
     setItems,
+    setSelectedIds,
   };
 
   return (
@@ -49,16 +45,27 @@ export function SelectionProvider({ children }: SelectionProviderProps) {
 
 export function useSelection<T extends SelectableItem>() {
   const context = useContext(SelectionContext);
+
   if (!context) {
     throw new Error("useSelection must be used within a SelectionProvider");
   }
 
-  const { selectedIds, setSelectedIds, lastSelectedIndexRef, items, setItems } =
-    context;
+  const anchorIndexRef = useRef<number | null>(null);
+  const lastClickedIndexRef = useRef<number | null>(null);
+
+  const { items, selectedIds, setItems, setSelectedIds } = context;
+
+  // Create index map for O(1) lookups
+  const itemIndexMap = useMemo(
+    () =>
+      new Map((items as T[]).map((item, index) => [item.id.toString(), index])),
+    [items],
+  );
 
   // Derive selected objects from IDs and current items
-  const selectedItems = (items as T[]).filter((item) =>
-    selectedIds.has(item.id.toString()),
+  const selectedItems = useMemo(
+    () => (items as T[]).filter((item) => selectedIds.has(item.id.toString())),
+    [items, selectedIds],
   );
 
   const onSelect = useCallback(
@@ -80,11 +87,8 @@ export function useSelection<T extends SelectableItem>() {
   );
 
   const onToggle = useCallback(
-    (item: T, event?: React.MouseEvent) => {
-      const itemId = item.id.toString();
-      const itemIndex = (items as T[]).findIndex(
-        (i) => i.id.toString() === itemId,
-      );
+    (itemId: string, event?: React.MouseEvent) => {
+      const itemIndex = itemIndexMap.get(itemId) ?? -1;
 
       setSelectedIds((prev) => {
         const newSet = new Set(prev);
@@ -92,28 +96,56 @@ export function useSelection<T extends SelectableItem>() {
         // Handle shift-key range selection
         if (
           event?.shiftKey &&
-          lastSelectedIndexRef.current !== null &&
+          anchorIndexRef.current !== null &&
           itemIndex !== -1
         ) {
-          const startIndex = Math.min(lastSelectedIndexRef.current, itemIndex);
-          const endIndex = Math.max(lastSelectedIndexRef.current, itemIndex);
+          const startIndex = Math.min(anchorIndexRef.current, itemIndex);
+          let endIndex = Math.max(anchorIndexRef.current, itemIndex);
 
-          // Conventional behavior: clear all selections, then select the range
-          // But exclude the clicked item itself if it would be deselected
-          const wasItemSelected = newSet.has(itemId);
+          // Determine if we're expanding or contracting the selection
+          if (lastClickedIndexRef.current !== null) {
+            // Check if we're moving closer to anchor (contracting) or further away (expanding)
+            const lastWasAboveAnchor =
+              lastClickedIndexRef.current > anchorIndexRef.current;
+            const currentIsAboveAnchor = itemIndex > anchorIndexRef.current;
+
+            let isExpanding = false;
+
+            if (lastWasAboveAnchor && currentIsAboveAnchor) {
+              // Both above anchor: expanding if current is further from anchor
+              isExpanding = itemIndex > lastClickedIndexRef.current;
+            } else if (!lastWasAboveAnchor && !currentIsAboveAnchor) {
+              // Both below anchor: expanding if current is further from anchor
+              isExpanding = itemIndex < lastClickedIndexRef.current;
+            } else {
+              // Crossing anchor: always expanding
+              isExpanding = true;
+            }
+
+            // If contracting, exclude the last clicked item from selection
+            if (
+              !isExpanding &&
+              lastClickedIndexRef.current > startIndex &&
+              lastClickedIndexRef.current <= endIndex
+            ) {
+              if (lastClickedIndexRef.current === endIndex) {
+                endIndex -= 1;
+              }
+            }
+          }
+
+          // For shift-click: clear all selections and select only the range
+          // from anchor to the clicked item (inclusive)
           newSet.clear();
 
-          // Select all items in the range from anchor to current click
           for (let i = startIndex; i <= endIndex; i++) {
             if (i < items.length) {
               const rangeItemId = (items as T[])[i].id.toString();
-              // If this is the clicked item and it was selected, don't re-select it (deselect it)
-              if (rangeItemId === itemId && wasItemSelected) {
-                continue;
-              }
               newSet.add(rangeItemId);
             }
           }
+
+          // Don't update anchor for shift-clicks - keep the original anchor point
         } else {
           // Regular toggle behavior
           if (newSet.has(itemId)) {
@@ -121,13 +153,17 @@ export function useSelection<T extends SelectableItem>() {
           } else {
             newSet.add(itemId);
           }
-          lastSelectedIndexRef.current = itemIndex;
+
+          // Update anchor point only for non-shift clicks
+          anchorIndexRef.current = itemIndex;
         }
+
+        lastClickedIndexRef.current = itemIndex;
 
         return newSet;
       });
     },
-    [items, setSelectedIds, lastSelectedIndexRef],
+    [anchorIndexRef, itemIndexMap, items, setSelectedIds],
   );
 
   const onSelectAll = useCallback(() => {
@@ -158,7 +194,7 @@ export function useSelection<T extends SelectableItem>() {
     [selectedIds],
   );
 
-  const isAllSelected = useCallback(() => {
+  const isAllSelected = useMemo(() => {
     return (
       items.length > 0 &&
       items.every((item) => selectedIds.has(item.id.toString()))

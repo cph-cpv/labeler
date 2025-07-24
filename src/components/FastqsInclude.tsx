@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -23,8 +23,8 @@ type PocketBaseFastq = {
 
 export function FastqsInclude() {
   const [open, setOpen] = useState(false);
-  const { clearSelection, selectedItems: selectedFastqs } =
-    useSelectionContext<Fastq>();
+  const { onClearSelection, selectedItems: selectedFastqs } =
+    useSelection<Fastq>();
   const { batchUpdateAsync } =
     usePocketBaseBatchUpdate<PocketBaseFastq>("fastqs");
 
@@ -36,7 +36,7 @@ export function FastqsInclude() {
           data: { excluded: false },
         })),
       });
-      clearSelection();
+      onClearSelection();
       setOpen(false);
     } catch (error) {
       console.error("Failed to include FASTQs:", error);

@@ -10,15 +10,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq, Sample } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsAssign() {
-  const { selectedItems: selectedFastqs, clearSelection } =
-    useSelectionContext<Fastq>();
+  const { selectedItems: selectedFastqs, onClearSelection } =
+    useSelection<Fastq>();
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [open, setOpen] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -50,7 +50,7 @@ export function FastqsAssign() {
       {
         onSuccess: () => {
           // Clear selection and close dialog
-          clearSelection();
+          onClearSelection();
           setOpen(false);
           setSelectedSample(null);
           setIsAssigning(false);

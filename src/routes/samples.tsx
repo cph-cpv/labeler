@@ -1,6 +1,16 @@
 import { Samples } from "@/components/Samples.tsx";
-import { createFileRoute } from "@tanstack/react-router";
+import { SelectionProvider } from "@/hooks/useSelection.tsx";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/samples")({
-  component: Samples,
+  component: RouteComponent,
 });
+
+function RouteComponent() {
+  return (
+    <SelectionProvider>
+      <Samples />
+      <Outlet />
+    </SelectionProvider>
+  );
+}

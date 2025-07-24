@@ -13,8 +13,13 @@ export function SelectionCheckbox<T extends SelectableItem>({
   onItemSelect,
   getItemLabel,
 }: SelectionCheckboxProps<T>) {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onItemSelect(item, event.nativeEvent as React.MouseEvent);
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    onItemSelect(item, event);
+  };
+
+  const handleChange = () => {
+    // onChange is required by React but we handle the logic in onClick
+    // to properly capture the mouse event with shiftKey
   };
 
   return (
@@ -22,6 +27,7 @@ export function SelectionCheckbox<T extends SelectableItem>({
       <input
         type="checkbox"
         checked={selectedItems.has(item.id.toString())}
+        onClick={handleClick}
         onChange={handleChange}
         className="rounded"
         aria-label={`Select ${getItemLabel(item)}`}

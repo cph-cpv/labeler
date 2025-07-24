@@ -70,7 +70,6 @@ export function Viruses() {
   } = useViruses({
     category: activeTab,
     page: currentPage,
-    sort: "name",
     search: searchTerm,
   });
 
@@ -93,7 +92,7 @@ export function Viruses() {
           <TableRow>
             <TableHead className="w-12">
               <SelectAllCheckbox
-                isAllSelected={isAllSelected()}
+                isAllSelected={isAllSelected}
                 items={virusList}
                 onSelectAll={onSelectAll}
               />
@@ -109,7 +108,7 @@ export function Viruses() {
                 <SelectionCheckbox
                   item={virus}
                   selectedItems={selectedIds}
-                  onItemSelect={(item, event) => onToggle(item, event)}
+                  onItemSelect={(item, event) => onToggle(item.id, event)}
                   getItemLabel={(item) => item.name}
                 />
               </TableCell>

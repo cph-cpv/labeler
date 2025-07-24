@@ -13,6 +13,7 @@ export default defineConfig({
   server: {
     watch: {
       ignored: [
+        ".claude",
         "**/tests/**",
         "CLAUDE.md",
         "input",

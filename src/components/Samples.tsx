@@ -24,12 +24,18 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
-import { SelectionProvider, useSelection } from "@/hooks/useSelection.ts";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Sample } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
-import React from "react";
+import React, { useEffect } from "react";
 
-function SamplesContent({ samples }: { samples: Sample[] }) {
+export function Samples() {
+  const {
+    data: samples = [],
+    isLoading,
+    error,
+  } = usePocketBaseCollection<Sample>("samples");
+
   const [searchValue, setSearchValue] = React.useState("");
   const [labelDialogOpen, setLabelDialogOpen] = React.useState(false);
 
@@ -40,97 +46,22 @@ function SamplesContent({ samples }: { samples: Sample[] }) {
     );
   }, [samples, searchValue]);
 
-  const selection = useSelection<Sample>(filteredSamples);
-
-  return (
-    <>
-      <Header title="Samples" subtitle="All available samples for analysis." />
-
-      <div className="mb-4">
-        <Input
-          placeholder="Search samples by name..."
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-      </div>
-
-      <Table>
-        <TableCaption>Sample collection for virus detection.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
-              <SelectAllCheckbox
-                items={filteredSamples}
-                isAllSelected={selection.isAllSelected}
-                onSelectAll={selection.handleSelectAll}
-              />
-            </TableHead>
-            <TableHead>Name</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredSamples.map((sample) => (
-            <TableRow key={sample.id}>
-              <TableCell>
-                <SelectionCheckbox
-                  item={sample}
-                  selectedItems={selection.selectedItems}
-                  onItemSelect={(itemId, event) =>
-                    selection.handleItemSelect(itemId, event)
-                  }
-                  getItemLabel={(item) => item.name}
-                />
-              </TableCell>
-              <TableCell>
-                <Link
-                  from="/samples"
-                  to="/samples/$id"
-                  params={{ id: sample.id }}
-                >
-                  {sample.name}
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {selection.selectedCount > 0 && (
-        <SelectionBar
-          selectedCount={selection.selectedCount}
-          itemName="sample"
-          onClearSelection={selection.clearSelection}
-        >
-          <Dialog open={labelDialogOpen} onOpenChange={setLabelDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Label</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Label Samples</DialogTitle>
-              </DialogHeader>
-              <div className="p-4">
-                <p>
-                  Label {selection.selectedCount} selected sample
-                  {selection.selectedCount === 1 ? "" : "s"}.
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </SelectionBar>
-      )}
-
-      <Outlet />
-    </>
-  );
-}
-
-export function Samples() {
   const {
-    data: samples = [],
-    isLoading,
-    error,
-  } = usePocketBaseCollection<Sample>("samples");
+    isAllSelected,
+    onSelectAll,
+    onSetItems,
+    onToggle,
+    selectedIds,
+    selectedCount,
+    onClearSelection,
+  } = useSelection<Sample>();
+
+  // Set the samples in the selection context when they change
+  useEffect(() => {
+    if (filteredSamples) {
+      onSetItems(filteredSamples);
+    }
+  }, [filteredSamples, onSetItems]);
 
   if (isLoading) {
     return (
@@ -159,8 +90,82 @@ export function Samples() {
   }
 
   return (
-    <SelectionProvider items={samples}>
-      <SamplesContent samples={samples} />
-    </SelectionProvider>
+    <>
+      <Header title="Samples" subtitle="All available samples for analysis." />
+
+      <div className="mb-4">
+        <Input
+          placeholder="Search samples by name..."
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
+      </div>
+
+      <Table>
+        <TableCaption>Sample collection for virus detection.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <SelectAllCheckbox
+                isAllSelected={isAllSelected}
+                items={filteredSamples}
+                onSelectAll={onSelectAll}
+              />
+            </TableHead>
+            <TableHead>Name</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredSamples.map((sample) => (
+            <TableRow key={sample.id}>
+              <TableCell>
+                <SelectionCheckbox
+                  item={sample}
+                  selectedItems={selectedIds}
+                  onItemSelect={(item, event) => onToggle(item.id, event)}
+                  getItemLabel={(item) => item.name}
+                />
+              </TableCell>
+              <TableCell>
+                <Link
+                  from="/samples"
+                  to="/samples/$id"
+                  params={{ id: sample.id }}
+                >
+                  {sample.name}
+                </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {selectedCount > 0 && (
+        <SelectionBar
+          selectedCount={selectedCount}
+          itemName="sample"
+          onClearSelection={onClearSelection}
+        >
+          <Dialog open={labelDialogOpen} onOpenChange={setLabelDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Label</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Label Samples</DialogTitle>
+              </DialogHeader>
+              <div className="p-4">
+                <p>
+                  Label {selectedCount} selected sample
+                  {selectedCount === 1 ? "" : "s"}.
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </SelectionBar>
+      )}
+
+      <Outlet />
+    </>
   );
 }
