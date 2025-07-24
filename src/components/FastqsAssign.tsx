@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { useFastqs } from "@/hooks/useFastqs.ts";
+import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import type { Fastq, Sample } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -22,7 +22,7 @@ export function FastqsAssign() {
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [open, setOpen] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
-  const { updateMultiple } = useFastqs();
+  const { batchUpdate, isBatchUpdating } = usePocketBaseBatchUpdate("fastqs");
 
   useHotkeys(
     "s",
@@ -40,25 +40,27 @@ export function FastqsAssign() {
 
     setIsAssigning(true);
 
-    try {
-      await updateMultiple(
-        selectedFastqs.map((fastq) => {
-          return {
-            id: fastq.id,
-            sample: selectedSample.id,
-          };
-        }),
-      );
-
-      // Clear selection and close dialog
-      clearSelection();
-      setOpen(false);
-      setSelectedSample(null);
-    } catch (error) {
-      console.error("Failed to assign FASTQs to sample:", error);
-    } finally {
-      setIsAssigning(false);
-    }
+    batchUpdate(
+      {
+        updates: selectedFastqs.map((fastq) => ({
+          id: fastq.id,
+          data: { sample: selectedSample.id },
+        })),
+      },
+      {
+        onSuccess: () => {
+          // Clear selection and close dialog
+          clearSelection();
+          setOpen(false);
+          setSelectedSample(null);
+          setIsAssigning(false);
+        },
+        onError: (error) => {
+          console.error("Failed to assign FASTQs to sample:", error);
+          setIsAssigning(false);
+        },
+      },
+    );
   };
 
   return (
@@ -84,10 +86,10 @@ export function FastqsAssign() {
         <DialogFooter>
           <Button
             onClick={handleAssign}
-            disabled={!selectedSample || isAssigning}
+            disabled={!selectedSample || isAssigning || isBatchUpdating}
             className="bg-green-600 hover:bg-green-700"
           >
-            {isAssigning ? "Assigning..." : "Assign FASTQs"}
+            {isAssigning || isBatchUpdating ? "Assigning..." : "Assign FASTQs"}
           </Button>
         </DialogFooter>
       </DialogContent>

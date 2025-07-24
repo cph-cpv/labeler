@@ -16,8 +16,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
-import { pb } from "@/lib/pocketbase.ts";
+import {
+  usePocketBaseCollection,
+  usePocketBaseMutation,
+} from "@/hooks/usePocketBaseQuery.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
 
@@ -37,8 +39,8 @@ export function FastqsSampleCombobox({
   const [isCreating, setIsCreating] = React.useState(false);
   const [firstSampleName, setFirstSampleName] = React.useState("");
 
-  const { data: samples = [], refetch } =
-    usePocketBaseCollection<Sample>("samples");
+  const { data: samples = [] } = usePocketBaseCollection<Sample>("samples");
+  const { create } = usePocketBaseMutation<Sample>("samples");
 
   const filteredSamples = React.useMemo(() => {
     if (!searchValue) return samples;
@@ -64,19 +66,23 @@ export function FastqsSampleCombobox({
 
       setIsCreating(true);
       try {
-        // Create new sample in PocketBase
-        const newSample = await pb.collection("samples").create<Sample>({
-          name: searchValue,
-        });
-
-        // Refetch samples to update the list
-        await refetch();
-
-        // Select the newly created sample
-        onValueChange(newSample);
+        // Create new sample using mutation hook
+        create(
+          { name: searchValue },
+          {
+            onSuccess: (newSample) => {
+              // Select the newly created sample
+              onValueChange(newSample);
+              setIsCreating(false);
+            },
+            onError: (error) => {
+              console.error("Failed to create sample:", error);
+              setIsCreating(false);
+            },
+          },
+        );
       } catch (error) {
         console.error("Failed to create sample:", error);
-      } finally {
         setIsCreating(false);
       }
     } else {
@@ -99,16 +105,22 @@ export function FastqsSampleCombobox({
 
     setIsCreating(true);
     try {
-      const newSample = await pb.collection("samples").create<Sample>({
-        name: firstSampleName.trim(),
-      });
-
-      await refetch();
-      onValueChange(newSample);
-      setFirstSampleName("");
+      create(
+        { name: firstSampleName.trim() },
+        {
+          onSuccess: (newSample) => {
+            onValueChange(newSample);
+            setFirstSampleName("");
+            setIsCreating(false);
+          },
+          onError: (error) => {
+            console.error("Failed to create first sample:", error);
+            setIsCreating(false);
+          },
+        },
+      );
     } catch (error) {
       console.error("Failed to create first sample:", error);
-    } finally {
       setIsCreating(false);
     }
   };

@@ -98,7 +98,7 @@ export function usePocketBasePaginated<T>(
 ): PaginatedResult<T> {
   const {
     page = 1,
-    perPage = 20,
+    perPage = 50,
     skipTotal = false,
     ...queryOptions
   } = options;
@@ -302,49 +302,17 @@ export function usePocketBaseBatchUpdate<T extends { id: string }>(
       return { results, updates };
     },
     onSuccess: ({ results, updates }) => {
-      // Update cached data directly instead of invalidating
+      // Invalidate collection queries to ensure correct filtering
+      queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
+
+      // Update individual record queries with the new data
       results.forEach((updatedRecord, index) => {
         const recordId = updates[index].id;
-
-        // Update individual record queries
         queryClient.setQueryData(
           ["pocketbase", collection, recordId],
           updatedRecord,
         );
       });
-
-      // Update paginated queries by modifying existing cache data
-      queryClient.setQueriesData(
-        { queryKey: ["pocketbase", collection, "paginated"] },
-        (oldData: any) => {
-          if (!oldData?.items) return oldData;
-
-          const updatedItems = oldData.items.map((item: T) => {
-            const update = results.find((result: T) => result.id === item.id);
-            return update ? update : item;
-          });
-
-          return { ...oldData, items: updatedItems };
-        },
-      );
-
-      // Update collection queries
-      queryClient.setQueriesData(
-        {
-          queryKey: ["pocketbase", collection],
-          predicate: (query) =>
-            !query.queryKey.includes("paginated") &&
-            !query.queryKey.includes("count"),
-        },
-        (oldData: T[] | undefined) => {
-          if (!Array.isArray(oldData)) return oldData;
-
-          return oldData.map((item: T) => {
-            const update = results.find((result: T) => result.id === item.id);
-            return update ? update : item;
-          });
-        },
-      );
     },
   });
 

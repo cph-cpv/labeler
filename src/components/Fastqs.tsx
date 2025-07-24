@@ -60,19 +60,6 @@ export function Fastqs() {
     navigate({ search: (prev) => ({ ...prev, category: newCategory }) });
   }
 
-  function setTypeFilter(newTypeFilter: FastqTypeFilter) {
-    const types = Object.entries(newTypeFilter)
-      .filter(([_, enabled]) => enabled)
-      .map(([type, _]) => type);
-
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        type: types.length > 0 ? types : undefined,
-      }),
-    });
-  }
-
   function setSearchQuery(newSearchQuery: string) {
     navigate({
       search: (prev) => ({
@@ -90,8 +77,6 @@ export function Fastqs() {
       }),
     };
   }
-
-  const itemsPerPage = 50;
 
   const computedFilter = useMemo(() => {
     const conditions: string[] = [];
@@ -144,9 +129,8 @@ export function Fastqs() {
     totalPages,
   } = usePocketBasePaginated<PocketBaseFile>("fastqs", {
     expand: "sample",
-    page,
-    perPage: itemsPerPage,
     filter: computedFilter || undefined,
+    page,
   });
 
   const fastqs = pbFastqs
@@ -164,8 +148,6 @@ export function Fastqs() {
       });
     }
   }, [category, dateRange, typeFilter, searchQuery, navigate]);
-
-  console.log(page, totalPages);
 
   if (error) {
     return (

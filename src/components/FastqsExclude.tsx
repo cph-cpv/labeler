@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { useFastqs } from "@/hooks/useFastqs.ts";
+import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -20,16 +20,16 @@ export function FastqsExclude() {
   const [open, setOpen] = useState(false);
   const { clearSelection, selectedItems: selectedFastqs } =
     useSelectionContext<Fastq>();
-  const { updateMultiple } = useFastqs();
+  const { batchUpdateAsync } = usePocketBaseBatchUpdate("fastqs");
 
   async function handleExclude() {
     try {
-      await updateMultiple(
-        selectedFastqs.map((fastq) => ({
-          id: fastq.id,
-          excluded: true,
-        })),
-      );
+      const updates = selectedFastqs.map((fastq) => ({
+        id: fastq.id,
+        data: { excluded: true },
+      }));
+
+      await batchUpdateAsync({ updates });
       clearSelection();
       setOpen(false);
     } catch (error) {

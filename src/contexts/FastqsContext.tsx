@@ -1,6 +1,8 @@
 import { convertPbToUi } from "@/hooks/useFastqs.ts";
-import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
-import { pb } from "@/lib/pocketbase.ts";
+import {
+  usePocketBaseBatchUpdate,
+  usePocketBasePaginated,
+} from "@/hooks/usePocketBaseQuery.ts";
 import type { DateRange, Fastq, FastqTypeFilter, Sample } from "@/types.ts";
 import { createContext, useMemo, useState, type ReactNode } from "react";
 
@@ -63,7 +65,7 @@ export function FastqsProvider({
     unknown: false,
   });
 
-  const itemsPerPage = 25;
+  const itemsPerPage = 50;
 
   const currentPage = externalPage ?? internalPage;
 
@@ -128,27 +130,29 @@ export function FastqsProvider({
     filter: computedFilter || undefined,
   });
 
+  const { batchUpdateAsync } =
+    usePocketBaseBatchUpdate<PocketBaseFile>("fastqs");
+
   async function updateMultiple(
     updates: Array<Partial<Fastq> & { id: string }>,
   ) {
     try {
-      await Promise.all(
-        updates.map((update) => {
-          const params: Record<string, any> = {};
+      const mappedUpdates = updates.map((update) => {
+        const params: Record<string, any> = {};
 
-          if (update.excluded !== undefined) params.excluded = update.excluded;
-          if (update.type !== undefined) params.type = update.type;
-          if (update.quality !== undefined) {
-            params.quality_rating = update.quality;
-          }
-          if (update.dilutionFactor !== undefined)
-            params.dilution_factor = update.dilutionFactor;
-          if (update.sample !== undefined) params.sample = update.sample;
+        if (update.excluded !== undefined) params.excluded = update.excluded;
+        if (update.type !== undefined) params.type = update.type;
+        if (update.quality !== undefined) {
+          params.quality_rating = update.quality;
+        }
+        if (update.dilutionFactor !== undefined)
+          params.dilution_factor = update.dilutionFactor;
+        if (update.sample !== undefined) params.sample = update.sample;
 
-          return pb.collection("fastqs").update(update.id, params);
-        }),
-      );
-      refetch();
+        return { id: update.id, data: params };
+      });
+
+      await batchUpdateAsync({ updates: mappedUpdates });
     } catch (error) {
       console.error("Failed to update fastqs:", error);
       throw error;

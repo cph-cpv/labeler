@@ -1,5 +1,4 @@
 import { FastqsSampleCombobox } from "@/components/FastqsSampleCombobox.tsx";
-import { FastqsTypeBadge } from "@/components/FastqsTypeBadge.tsx";
 import {
   Dialog,
   DialogContent,
@@ -9,18 +8,19 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
 import { Slider } from "@/components/ui/slider.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
-import { convertPbToUi, useFastqs } from "@/hooks/useFastqs.ts";
+import { convertPbToUi } from "@/hooks/useFastqs.ts";
 import {
   usePocketBaseCollection,
+  usePocketBaseMutation,
   usePocketBaseRecord,
 } from "@/hooks/usePocketBaseQuery.ts";
-import { pb } from "@/lib/pocketbase.ts";
-import type { Fastq, Sample } from "@/types.ts";
+import type { Fastq, FastqType, Sample } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import { VisuallyHidden } from "radix-ui";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type FastqsDetailProps = {
   id: string;
@@ -33,10 +33,11 @@ type FormValues = {
   dilutionFactor: number;
   sample: Sample | null;
   excluded: boolean;
+  type: FastqType | null;
 };
 
 export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
-  const { refetch } = useFastqs();
+  const { update } = usePocketBaseMutation<any>("fastqs");
 
   const [fastq, setFastq] = useState<Fastq | null>(null);
 
@@ -55,7 +56,32 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
       dilutionFactor: 1,
       sample: null,
       excluded: false,
+      type: null,
     } as FormValues,
+    validators: {
+      onChange: ({ value }) => {
+        // Auto-update when any field changes
+        const query: Record<string, any> = {};
+
+        if (value.excluded !== undefined) query.excluded = value.excluded;
+        if (value.type !== undefined) query.type = value.type;
+        if (value.quality !== undefined) query.quality_rating = value.quality;
+        if (value.dilutionFactor !== undefined)
+          query.dilution_factor = value.dilutionFactor;
+        if (value.sample !== undefined) query.sample = value.sample?.id || null;
+
+        update(
+          { id, data: query },
+          {
+            onSuccess: (updated) => {
+              setFastq(convertPbToUi(updated));
+            },
+          },
+        );
+
+        return undefined; // No validation errors
+      },
+    },
   });
 
   useEffect(() => {
@@ -79,31 +105,9 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
       form.setFieldValue("dilutionFactor", newDilutionFactor);
       form.setFieldValue("sample", newSample);
       form.setFieldValue("excluded", convertedFastq.excluded || false);
+      form.setFieldValue("type", convertedFastq.type);
     }
   }, [pbFile, samples, form]);
-
-  const update = useCallback(
-    async (update: Partial<Fastq>) => {
-      const query: Record<string, any> = {};
-
-      if (update.excluded !== undefined) query.excluded = update.excluded;
-      if (update.type !== undefined) query.type = update.type;
-      if (update.quality !== undefined) {
-        query.quality_rating = update.quality;
-      }
-
-      if (update.dilutionFactor !== undefined)
-        query.dilution_factor = update.dilutionFactor;
-
-      if (update.sample !== undefined) query.sample = update.sample;
-
-      const updated = await pb.collection("fastqs").update(id, query);
-
-      setFastq(convertPbToUi(updated));
-      refetch();
-    },
-    [id, refetch],
-  );
 
   if (isLoading || !fastq) {
     return (
@@ -159,40 +163,6 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     );
   }
 
-  // Handle sample assignment change
-  function handleSampleChange(sample: Sample | null) {
-    form.setFieldValue("sample", sample);
-    update({
-      sample: sample?.id || null,
-    });
-  }
-
-  // Handle quality change
-  function handleQualityChange(value: number[]) {
-    const newQuality = value[0];
-    form.setFieldValue("quality", newQuality);
-    update({
-      quality: newQuality,
-    });
-  }
-
-  // Handle dilution factor change
-  function handleDilutionFactorChange(value: number[]) {
-    const newDilutionFactor = value[0];
-    form.setFieldValue("dilutionFactor", newDilutionFactor);
-    update({
-      dilutionFactor: newDilutionFactor,
-    });
-  }
-
-  // Handle excluded change
-  function handleExcludedChange(checked: boolean) {
-    form.setFieldValue("excluded", checked);
-    update({
-      excluded: checked,
-    });
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -200,26 +170,30 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
           <DialogTitle>{fastq.name}</DialogTitle>
           <DialogDescription>FASTQ File Details</DialogDescription>
         </DialogHeader>
-        <div className="space-y-6">
-          {/* Non-editable fields */}
-          <div className="space-y-3 prose">
-            <div>
-              <strong>Path:</strong>{" "}
-              <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-                {fastq.path}
-              </span>
-            </div>
-            <div>
-              <strong>Run Date:</strong>{" "}
-              {new Date(fastq.timestamp).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+        <div className="space-y-8 min-w-0">
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold">Metadata</h3>
+            <div className="space-y-4">
+              <div className="min-w-0">
+                <Label className="font-medium">Path</Label>
+                <div className="w-full mt-2 overflow-x-auto border rounded bg-gray-100">
+                  <div className="font-mono px-3 py-2 whitespace-nowrap">
+                    {fastq.path}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="font-medium">Run Date</Label>
+                <div className="mt-2">
+                  {new Date(fastq.timestamp).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Sample section */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">Sample</h3>
             <form.Field
@@ -227,7 +201,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
               children={(field) => (
                 <FastqsSampleCombobox
                   value={field.state.value}
-                  onValueChange={handleSampleChange}
+                  onValueChange={(sample) => field.handleChange(sample)}
                   placeholder="Select or create sample..."
                 />
               )}
@@ -237,22 +211,49 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
           {/* Editable fields */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">Annotations</h3>
-            <div className="space-y-3 prose">
-              <div>
-                <strong>Type:</strong> <FastqsTypeBadge type={fastq.type} />
-              </div>
+            <div className="space-y-4">
+              <form.Field
+                name="type"
+                children={(field) => (
+                  <div>
+                    <Label className="font-semibold">Type</Label>
+                    <div className="mt-2">
+                      <RadioGroup
+                        value={field.state.value || ""}
+                        onValueChange={(value) =>
+                          field.handleChange(value as FastqType)
+                        }
+                        className="flex flex-row space-x-6"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="dsRNA" id="dsRNA" />
+                          <Label htmlFor="dsRNA">dsRNA</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="smRNA" id="smRNA" />
+                          <Label htmlFor="smRNA">smRNA</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Unknown" id="Unknown" />
+                          <Label htmlFor="Unknown">Unknown</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+                )}
+              />
               <form.Field
                 name="quality"
                 children={(field) => (
                   <div>
-                    <Label htmlFor={`quality-${id}`} className="font-bold">
+                    <Label htmlFor={`quality-${id}`} className="font-semibold">
                       Quality
                     </Label>
                     <div className="mt-2">
                       <Slider
                         id={`quality-${id}`}
                         value={[field.state.value]}
-                        onValueChange={handleQualityChange}
+                        onValueChange={(value) => field.handleChange(value[0])}
                         min={1}
                         max={5}
                         step={1}
@@ -267,7 +268,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
                   <div>
                     <Label
                       htmlFor={`dilution-factor-${id}`}
-                      className="font-bold"
+                      className="font-semibold"
                     >
                       Dilution Factor
                     </Label>
@@ -275,7 +276,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
                       <Slider
                         id={`dilution-factor-${id}`}
                         value={[field.state.value]}
-                        onValueChange={handleDilutionFactorChange}
+                        onValueChange={(value) => field.handleChange(value[0])}
                         min={1}
                         max={100}
                         step={1}
@@ -288,10 +289,10 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
                 name="excluded"
                 children={(field) => (
                   <div className="flex items-center gap-3">
-                    <strong>Excluded:</strong>
+                    <Label className="font-semibold">Excluded</Label>
                     <Switch
                       checked={field.state.value}
-                      onCheckedChange={handleExcludedChange}
+                      onCheckedChange={(checked) => field.handleChange(checked)}
                     />
                   </div>
                 )}
