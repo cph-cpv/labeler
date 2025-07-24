@@ -3,13 +3,15 @@ import { FastqsAssign } from "@/components/FastqsAssign.tsx";
 import { FastqsExclude } from "@/components/FastqsExclude.tsx";
 import { FastqsInclude } from "@/components/FastqsInclude.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { useFastqs } from "@/hooks/useFastqs.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 
-export function FastqsSelection() {
+type FastqsSelectionProps = {
+  category: string;
+};
+
+export function FastqsSelection({ category }: FastqsSelectionProps) {
   const { selectedCount } = useSelectionContext<Fastq>();
-  const { category } = useFastqs();
 
   return (
     <div

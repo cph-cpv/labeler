@@ -1,4 +1,5 @@
 import { Fastqs } from "@/components/Fastqs.tsx";
+import { SelectionProvider } from "@/hooks/useSelection.tsx";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 type FastqsSearch = {
@@ -20,9 +21,9 @@ export const Route = createFileRoute("/fastqs")({
 
 function RouteComponent() {
   return (
-    <>
+    <SelectionProvider>
       <Fastqs />
       <Outlet />
-    </>
+    </SelectionProvider>
   );
 }

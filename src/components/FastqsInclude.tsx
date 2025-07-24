@@ -11,25 +11,31 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
-import { useFastqs } from "@/hooks/useFastqs.ts";
+import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+
+type PocketBaseFastq = {
+  id: string;
+  excluded: boolean | null;
+};
 
 export function FastqsInclude() {
   const [open, setOpen] = useState(false);
   const { clearSelection, selectedItems: selectedFastqs } =
     useSelectionContext<Fastq>();
-  const { updateMultiple } = useFastqs();
+  const { batchUpdateAsync } =
+    usePocketBaseBatchUpdate<PocketBaseFastq>("fastqs");
 
   async function handleInclude() {
     try {
-      await updateMultiple(
-        selectedFastqs.map((fastq) => ({
+      await batchUpdateAsync({
+        updates: selectedFastqs.map((fastq) => ({
           id: fastq.id,
-          excluded: false,
+          data: { excluded: false },
         })),
-      );
+      });
       clearSelection();
       setOpen(false);
     } catch (error) {

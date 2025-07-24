@@ -1,4 +1,4 @@
-import { useAuth } from "../contexts/AuthContext.tsx";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button.tsx";
 import {
   DropdownMenu,
@@ -10,6 +10,10 @@ import {
 
 export function AuthButton() {
   const { isAuthenticated, user, logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+  }
 
   if (!isAuthenticated) {
     return null; // Auth is handled at app level now
@@ -23,7 +27,7 @@ export function AuthButton() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem disabled>{user?.email}</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>Sign Out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

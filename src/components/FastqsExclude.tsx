@@ -10,17 +10,17 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsExclude() {
   const [open, setOpen] = useState(false);
-  const { clearSelection, selectedItems: selectedFastqs } =
-    useSelectionContext<Fastq>();
-  const { batchUpdateAsync } = usePocketBaseBatchUpdate("fastqs");
+  const { onClearSelection, selectedItems: selectedFastqs } =
+    useSelection<Fastq>();
+  const { batchUpdateAsync } = usePocketBaseBatchUpdate<Fastq>("fastqs");
 
   async function handleExclude() {
     try {
@@ -30,7 +30,7 @@ export function FastqsExclude() {
       }));
 
       await batchUpdateAsync({ updates });
-      clearSelection();
+      onClearSelection();
       setOpen(false);
     } catch (error) {
       console.error("Failed to exclude FASTQs:", error);

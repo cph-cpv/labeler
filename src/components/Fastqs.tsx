@@ -12,9 +12,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
-import { SelectionProvider } from "@/contexts/SelectionContext.tsx";
-import { convertPbToUi } from "@/hooks/useFastqs.ts";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
+import { convertPbToUiFastq } from "@/lib/convert.ts";
 import type { DateRange, FastqTypeFilter } from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -134,7 +133,7 @@ export function Fastqs() {
   });
 
   const fastqs = pbFastqs
-    .map((pbFile) => convertPbToUi(pbFile))
+    .map((pbFile) => convertPbToUiFastq(pbFile))
     .filter(Boolean);
 
   // Reset to page 1 when filters change
@@ -186,105 +185,103 @@ export function Fastqs() {
         />
       </div>
 
-      <SelectionProvider items={fastqs}>
-        <FastqsTable fastqs={fastqs} />
+      <FastqsTable fastqs={fastqs} />
 
-        {totalPages > 1 && (
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                {page === 1 ? (
-                  <PaginationPrevious className="pointer-events-none opacity-50" />
-                ) : (
+      {totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              {page === 1 ? (
+                <PaginationPrevious className="pointer-events-none opacity-50" />
+              ) : (
+                <Link
+                  to="/fastqs"
+                  {...getPageUrl(page - 1)}
+                  className="gap-1 px-2.5 sm:pl-2.5 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10"
+                  aria-label="Go to previous page"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  <span className="hidden sm:block">Previous</span>
+                </Link>
+              )}
+            </PaginationItem>
+
+            {(() => {
+              const maxVisiblePages = 5;
+              const halfVisible = Math.floor(maxVisiblePages / 2);
+              let startPage = Math.max(1, page - halfVisible);
+              let endPage = Math.min(
+                totalPages,
+                startPage + maxVisiblePages - 1,
+              );
+
+              if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+              }
+
+              return Array.from(
+                { length: endPage - startPage + 1 },
+                (_, i) => startPage + i,
+              ).map((targetPage) => (
+                <PaginationItem key={targetPage}>
                   <Link
                     to="/fastqs"
-                    {...getPageUrl(page - 1)}
-                    className="gap-1 px-2.5 sm:pl-2.5 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10"
-                    aria-label="Go to previous page"
+                    {...getPageUrl(targetPage)}
+                    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 w-10 ${page === targetPage ? "border border-input bg-background hover:bg-accent hover:text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
+                    aria-current={page === targetPage ? "page" : undefined}
                   >
-                    <svg
-                      className="h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m15 18-6-6 6-6" />
-                    </svg>
-                    <span className="hidden sm:block">Previous</span>
+                    {targetPage}
                   </Link>
-                )}
-              </PaginationItem>
+                </PaginationItem>
+              ));
+            })()}
 
-              {(() => {
-                const maxVisiblePages = 5;
-                const halfVisible = Math.floor(maxVisiblePages / 2);
-                let startPage = Math.max(1, page - halfVisible);
-                let endPage = Math.min(
-                  totalPages,
-                  startPage + maxVisiblePages - 1,
-                );
-
-                if (endPage - startPage + 1 < maxVisiblePages) {
-                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                }
-
-                return Array.from(
-                  { length: endPage - startPage + 1 },
-                  (_, i) => startPage + i,
-                ).map((targetPage) => (
-                  <PaginationItem key={targetPage}>
-                    <Link
-                      to="/fastqs"
-                      {...getPageUrl(targetPage)}
-                      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 w-10 ${page === targetPage ? "border border-input bg-background hover:bg-accent hover:text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground"}`}
-                      aria-current={page === targetPage ? "page" : undefined}
-                    >
-                      {targetPage}
-                    </Link>
-                  </PaginationItem>
-                ));
-              })()}
-
-              <PaginationItem>
-                {page === totalPages ? (
-                  <PaginationNext className="pointer-events-none opacity-50" />
-                ) : (
-                  <Link
-                    to="/fastqs"
-                    {...getPageUrl(page + 1)}
-                    className="gap-1 px-2.5 sm:pr-2.5 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10"
-                    aria-label="Go to next page"
+            <PaginationItem>
+              {page === totalPages ? (
+                <PaginationNext className="pointer-events-none opacity-50" />
+              ) : (
+                <Link
+                  to="/fastqs"
+                  {...getPageUrl(page + 1)}
+                  className="gap-1 px-2.5 sm:pr-2.5 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10"
+                  aria-label="Go to next page"
+                >
+                  <span className="hidden sm:block">Next</span>
+                  <svg
+                    className="h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <span className="hidden sm:block">Next</span>
-                    <svg
-                      className="h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </Link>
-                )}
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </Link>
+              )}
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
-        <FastqsSelection category={category} />
-      </SelectionProvider>
+      <FastqsSelection category={category} />
     </>
   );
 }

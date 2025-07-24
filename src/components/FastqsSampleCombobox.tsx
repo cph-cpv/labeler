@@ -17,39 +17,46 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  usePocketBaseCollection,
   usePocketBaseMutation,
+  usePocketBasePaginated,
 } from "@/hooks/usePocketBaseQuery.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
 
-interface FastqsSampleComboboxProps {
-  value?: Sample | null;
+type FastqsSampleComboboxProps = {
   onValueChange: (sample: Sample | null) => void;
   placeholder?: string;
-}
+  value?: Sample | null;
+};
 
 export function FastqsSampleCombobox({
   value,
   onValueChange,
-  placeholder = "Select sample...",
+  placeholder = "Search or select a sample...",
 }: FastqsSampleComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
   const [isCreating, setIsCreating] = React.useState(false);
   const [firstSampleName, setFirstSampleName] = React.useState("");
 
-  const { data: samples = [] } = usePocketBaseCollection<Sample>("samples");
+  // Use paginated query for better performance - fetch 50 samples (app default)
+  const { data: allSamples = [], totalItems = 0 } =
+    usePocketBasePaginated<Sample>("samples", {
+      sort: "name", // Sort alphabetically for better UX
+    });
   const { create } = usePocketBaseMutation<Sample>("samples");
 
   const filteredSamples = React.useMemo(() => {
-    if (!searchValue) return samples;
-    return samples.filter((sample) =>
+    // Client-side filtering on the fetched subset
+    if (!searchValue) {
+      return allSamples;
+    }
+    return allSamples.filter((sample) =>
       sample.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-  }, [samples, searchValue]);
+  }, [allSamples, searchValue]);
 
-  const exactMatch = samples.find(
+  const exactMatch = allSamples.find(
     (sample) => sample.name.toLowerCase() === searchValue.toLowerCase(),
   );
 
@@ -60,7 +67,7 @@ export function FastqsSampleCombobox({
       filteredSamples.length === 0,
   );
 
-  const handleSelect = async (selectedValue: string) => {
+  async function handleSelect(selectedValue: string) {
     if (selectedValue === "create-new") {
       if (isCreating) return;
 
@@ -86,21 +93,21 @@ export function FastqsSampleCombobox({
         setIsCreating(false);
       }
     } else {
-      const sample = samples.find((s) => s.name === selectedValue);
+      const sample = allSamples.find((s) => s.name === selectedValue);
       onValueChange(sample || null);
     }
     setOpen(false);
     setSearchValue("");
-  };
+  }
 
-  const handleOpenChange = (newOpen: boolean) => {
+  function handleOpenChange(newOpen: boolean) {
     setOpen(newOpen);
     if (!newOpen) {
       setSearchValue("");
     }
-  };
+  }
 
-  const handleCreateFirstSample = async () => {
+  async function handleCreateFirstSample() {
     if (!firstSampleName.trim() || isCreating) return;
 
     setIsCreating(true);
@@ -123,16 +130,16 @@ export function FastqsSampleCombobox({
       console.error("Failed to create first sample:", error);
       setIsCreating(false);
     }
-  };
+  }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  function handleKeyPress(e: React.KeyboardEvent) {
     if (e.key === "Enter") {
       handleCreateFirstSample();
     }
-  };
+  }
 
-  // If no samples exist, show first sample creation UI
-  if (samples.length === 0) {
+  // If no samples exist in the database, show the first sample creation UI.
+  if (totalItems === 0) {
     return (
       <div className="space-y-3">
         <div className="text-sm text-muted-foreground">
@@ -179,7 +186,7 @@ export function FastqsSampleCombobox({
       >
         <Command>
           <CommandInput
-            placeholder="Search samples..."
+            placeholder="Type to search samples..."
             value={searchValue}
             onValueChange={setSearchValue}
           />

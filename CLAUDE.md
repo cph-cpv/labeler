@@ -10,5 +10,5 @@
 - Playwright config should use "line" reporter for Claude, "html" for humans.
 - Don't use testid.
 - You can use Playwright MCP to debug in the browser.
-- Only use arrow functions for anonymous functions. Otherwise, use function
-  declarations.
+- Use function declarations for named functions.
+- Use `npm run typecheck` for type checks using tsc.

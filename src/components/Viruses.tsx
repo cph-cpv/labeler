@@ -1,6 +1,7 @@
 import { VirusSelection } from "@/components/VirusSelection.tsx";
 import { VirusType } from "@/components/VirusType.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import { Input } from "@/components/ui/input.tsx";
 import { Link } from "@/components/ui/link.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
@@ -29,90 +30,103 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs.tsx";
-import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
-import { SelectionProvider, useSelection } from "@/hooks/useSelection.ts";
-import { useVirusCounts } from "@/hooks/useVirusCounts.ts";
-import type { Virus } from "@/types.ts";
-import { Outlet } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useSelection } from "@/hooks/useSelection.tsx";
+import { useViruses } from "@/hooks/useViruses.ts";
+import type { Virus, VirusesCategory } from "@/types.ts";
+import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
 
-function VirusesContent({
-  viruses,
-  virusesLoading,
-  error,
-  totalPages,
-  currentPage,
-  setCurrentPage,
-  activeTab,
-  setActiveTab,
-}: {
-  viruses: Virus[];
-  virusesLoading: boolean;
-  error: any;
-  totalPages: number;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}) {
-  // Get counts for badges
-  const {
-    allCount,
-    typedCount,
-    untypedCount,
-    isLoading: countsLoading,
-  } = useVirusCounts();
+export function Viruses() {
+  const navigate = useNavigate({ from: "/viruses" });
+  const search = useSearch({ from: "/viruses" });
+  const activeTab = search.category ?? "all";
+  const currentPage = search.page ?? 1;
+  const searchTerm = search.search ?? "";
+
+  function setCategory(category: string) {
+    navigate({
+      search: { ...search, category: category as VirusesCategory, page: 1 },
+    });
+  }
+
+  function setCurrentPage(page: number) {
+    navigate({
+      search: { ...search, page },
+    });
+  }
+
+  function setSearchTerm(searchTerm: string) {
+    navigate({
+      search: { ...search, search: searchTerm, page: 1 },
+    });
+  }
 
   const {
-    selectedItems: selectedViruses,
-    selectedCount,
-    isAllSelected,
-    handleItemSelect: handleVirusSelect,
-    handleSelectAll,
-    clearSelection,
-  } = useSelection(viruses);
+    counts,
+    error,
+    isLoading: virusesLoading,
+    totalPages,
+    viruses,
+  } = useViruses({
+    category: activeTab,
+    page: currentPage,
+    sort: "name",
+    search: searchTerm,
+  });
 
-  const renderVirusTable = (virusList: typeof viruses) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-12">
-            <SelectAllCheckbox
-              items={virusList}
-              isAllSelected={isAllSelected}
-              onSelectAll={handleSelectAll}
-            />
-          </TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Type</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {virusList.map((virus) => (
-          <TableRow key={virus.id}>
-            <TableCell>
-              <SelectionCheckbox
-                item={virus}
-                selectedItems={selectedViruses}
-                onItemSelect={(itemId, event) =>
-                  handleVirusSelect(itemId, event)
-                }
-                getItemLabel={(item) => item.name}
+  const { allCount, typedCount, untypedCount } = counts;
+
+  const { isAllSelected, onSelectAll, onSetItems, onToggle, selectedIds } =
+    useSelection<Virus>();
+
+  // Set the viruses in the selection context when they change
+  useEffect(() => {
+    if (viruses) {
+      onSetItems(viruses);
+    }
+  }, [viruses, onSetItems]);
+
+  function renderVirusTable(virusList: typeof viruses) {
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <SelectAllCheckbox
+                isAllSelected={isAllSelected()}
+                items={virusList}
+                onSelectAll={onSelectAll}
               />
-            </TableCell>
-            <TableCell className="font-medium">
-              <Link to="/viruses/$id" params={{ id: virus.id.toString() }}>
-                {virus.name}
-              </Link>
-            </TableCell>
-            <TableCell>
-              <VirusType type={virus.type} />
-            </TableCell>
+            </TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Type</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+        </TableHeader>
+        <TableBody>
+          {virusList.map((virus) => (
+            <TableRow key={virus.id}>
+              <TableCell>
+                <SelectionCheckbox
+                  item={virus}
+                  selectedItems={selectedIds}
+                  onItemSelect={(item, event) => onToggle(item, event)}
+                  getItemLabel={(item) => item.name}
+                />
+              </TableCell>
+              <TableCell className="font-medium">
+                <Link to="/viruses/$id" params={{ id: virus.id.toString() }}>
+                  {virus.name}
+                </Link>
+              </TableCell>
+              <TableCell>
+                <VirusType type={virus.type} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
 
   if (error) {
     return (
@@ -136,7 +150,7 @@ function VirusesContent({
             Viruses from the Virtool reference.
           </p>
         </header>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <Tabs value={activeTab} onValueChange={setCategory} className="mt-4">
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="all">
@@ -160,8 +174,19 @@ function VirusesContent({
                 </Badge>
               </TabsTrigger>
             </TabsList>
-            {(virusesLoading || countsLoading) && <LoadingIndicator />}
+            <LoadingIndicator isLoading={virusesLoading} />
           </div>
+
+          <div className="mt-4">
+            <Input
+              type="text"
+              placeholder="Search viruses..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
+
           <TabsContent value="all">{renderVirusTable(viruses)}</TabsContent>
           <TabsContent value="typed">{renderVirusTable(viruses)}</TabsContent>
           <TabsContent value="untyped">{renderVirusTable(viruses)}</TabsContent>
@@ -182,7 +207,7 @@ function VirusesContent({
 
             {(() => {
               if (!totalPages || totalPages <= 1) {
-                return null; // Don't show pagination if there's only 1 page or no pages
+                return null;
               }
 
               const maxVisiblePages = 5;
@@ -229,62 +254,8 @@ function VirusesContent({
         </Pagination>
       </div>
 
-      <VirusSelection
-        selectedCount={selectedCount}
-        onClearSelection={clearSelection}
-      />
-
+      <VirusSelection />
       <Outlet />
     </>
-  );
-}
-
-export function Viruses() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
-
-  const filter = useMemo(() => {
-    switch (activeTab) {
-      case "typed":
-        return "type != null";
-      case "untyped":
-        return "type = null";
-      default:
-        return "";
-    }
-  }, [activeTab]);
-
-  const {
-    data: viruses = [],
-    isLoading: virusesLoading,
-    error,
-    totalPages,
-  } = usePocketBasePaginated<Virus>("viruses", {
-    sort: "name",
-    page: currentPage,
-    perPage: itemsPerPage,
-    filter,
-    skipTotal: false,
-  });
-
-  // Reset to page 1 when tab changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
-
-  return (
-    <SelectionProvider items={viruses}>
-      <VirusesContent
-        viruses={viruses}
-        virusesLoading={virusesLoading}
-        error={error}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-    </SelectionProvider>
   );
 }

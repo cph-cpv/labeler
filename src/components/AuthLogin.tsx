@@ -1,5 +1,5 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext.tsx";
 import { Button } from "./ui/button.tsx";
 import { Input } from "./ui/input.tsx";
 import { Label } from "./ui/label.tsx";
@@ -9,26 +9,20 @@ interface LoginFormProps {
 }
 
 export function AuthLogin({ onSuccess }: LoginFormProps) {
-  const { login } = useAuth();
+  const { loginAsync, isLoggingIn, loginError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
 
     try {
-      await login(email, password);
+      await loginAsync({ email, password });
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setIsLoading(false);
+      // Error is handled by the mutation
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -40,7 +34,7 @@ export function AuthLogin({ onSuccess }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoggingIn}
         />
       </div>
 
@@ -52,18 +46,18 @@ export function AuthLogin({ onSuccess }: LoginFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          disabled={isLoading}
+          disabled={isLoggingIn}
         />
       </div>
 
-      {error && (
+      {loginError && (
         <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-          {error}
+          {loginError.message}
         </div>
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign In"}
+      <Button type="submit" className="w-full" disabled={isLoggingIn}>
+        {isLoggingIn ? "Signing in..." : "Sign In"}
       </Button>
     </form>
   );

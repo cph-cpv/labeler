@@ -19,7 +19,6 @@ export function VirusesDetail({ virusId, open, onClose }: VirusesDetailProps) {
     data: virus,
     isLoading,
     error,
-    notFound,
   } = usePocketBaseRecord<Virus>("viruses", virusId);
 
   if (isLoading) {
@@ -34,7 +33,7 @@ export function VirusesDetail({ virusId, open, onClose }: VirusesDetailProps) {
     );
   }
 
-  if (error || notFound || !virus) {
+  if (error || !virus) {
     onClose();
     return null;
   }

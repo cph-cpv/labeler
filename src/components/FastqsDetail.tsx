@@ -11,12 +11,12 @@ import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
 import { Slider } from "@/components/ui/slider.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
-import { convertPbToUi } from "@/hooks/useFastqs.ts";
 import {
   usePocketBaseCollection,
   usePocketBaseMutation,
   usePocketBaseRecord,
 } from "@/hooks/usePocketBaseQuery.ts";
+import { convertPbToUiFastq } from "@/lib/convert.ts";
 import type { Fastq, FastqType, Sample } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import { VisuallyHidden } from "radix-ui";
@@ -47,7 +47,6 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     data: pbFile,
     error,
     isLoading,
-    notFound,
   } = usePocketBaseRecord("fastqs", id, { expand: "sample" });
 
   const form = useForm({
@@ -74,7 +73,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
           { id, data: query },
           {
             onSuccess: (updated) => {
-              setFastq(convertPbToUi(updated));
+              setFastq(convertPbToUiFastq(updated));
             },
           },
         );
@@ -85,7 +84,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
   });
 
   useEffect(() => {
-    const convertedFastq = convertPbToUi(pbFile);
+    const convertedFastq = convertPbToUiFastq(pbFile);
     setFastq(convertedFastq);
 
     if (convertedFastq) {
@@ -127,7 +126,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
     );
   }
 
-  if (notFound) {
+  if (error?.notFound) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

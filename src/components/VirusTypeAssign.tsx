@@ -19,7 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import type { Virus, VirusType } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
@@ -33,9 +32,7 @@ import {
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-interface VirusTypeAssignProps {
-  selectedCount: number;
-}
+import { useSelection } from "@/hooks/useSelection.tsx";
 
 const virusTypes: { value: VirusType; label: string; icon: typeof Hexagon }[] =
   [
@@ -44,9 +41,9 @@ const virusTypes: { value: VirusType; label: string; icon: typeof Hexagon }[] =
     { value: "Viroid", label: "Viroid", icon: Circle },
   ];
 
-export function VirusTypeAssign({ selectedCount }: VirusTypeAssignProps) {
-  const { selectedItems: selectedViruses, clearSelection } =
-    useSelectionContext<Virus>();
+export function VirusTypeAssign() {
+  const { selectedItems: selectedViruses, onClearSelection } =
+    useSelection<Virus>();
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -69,7 +66,7 @@ export function VirusTypeAssign({ selectedCount }: VirusTypeAssignProps) {
         // Close dialog and clear selection
         setDialogOpen(false);
         form.reset();
-        clearSelection();
+        onClearSelection();
       }
     },
   });
@@ -98,8 +95,8 @@ export function VirusTypeAssign({ selectedCount }: VirusTypeAssignProps) {
         <DialogHeader>
           <DialogTitle>Set Virus Type</DialogTitle>
           <DialogDescription>
-            Set the type for {selectedCount} selected{" "}
-            {selectedCount === 1 ? "virus" : "viruses"}.
+            Set the type for {selectedViruses.length} selected{" "}
+            {selectedViruses.length === 1 ? "virus" : "viruses"}.
           </DialogDescription>
         </DialogHeader>
         <form

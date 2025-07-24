@@ -2,6 +2,10 @@ import type { DateRange } from "react-day-picker";
 
 export type FastqType = "dsRNA" | "smRNA" | "Unknown";
 
+export type FastqsCategory = "unannotated" | "unassigned" | "excluded" | "done";
+
+export type VirusesCategory = "all" | "typed" | "untyped";
+
 export type FastqTypeFilter = {
   dsRNA: boolean;
   smRNA: boolean;
@@ -28,12 +32,24 @@ export type Sample = {
 export type VirusType = "Satellite" | "Virus" | "Viroid";
 
 export type Virus = {
-  id: number;
+  id: string;
   acronym: string;
   name: string;
   synonyms: string[];
   type: VirusType | null;
   uuid: string;
+};
+
+export type ClientResponseError = Error & {
+  url: string;
+  status: number;
+  response: Record<string, any>;
+  isAbort: boolean;
+  originalError: Error | null;
+};
+
+export type PocketBaseError = ClientResponseError & {
+  notFound: boolean;
 };
 
 export type { DateRange };

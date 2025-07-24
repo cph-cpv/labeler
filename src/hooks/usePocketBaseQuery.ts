@@ -1,26 +1,27 @@
 import { pb } from "@/lib/pocketbase";
+import type { ClientResponseError, PocketBaseError } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RecordOptions } from "pocketbase";
-import React from "react";
 
-type PocketBaseQueryOptions = {
-  sort?: string;
-  expand?: string;
-  filter?: string;
-  fields?: string;
-};
-
-type PaginatedOptions = PocketBaseQueryOptions & {
-  page?: number;
-  perPage?: number;
-  skipTotal?: boolean;
-};
+const POCKETBASE_PER_PAGE = 50;
 
 type QueryResult<T> = {
   data: T;
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
+};
+
+type PocketBaseQueryResult<T> = {
+  data: T;
+  isLoading: boolean;
+  error: PocketBaseError | null;
+  refetch: () => void;
+};
+
+type PaginatedOptions = PocketBaseQueryOptions & {
+  page?: number;
+  skipTotal?: boolean;
 };
 
 type PaginatedResult<T> = QueryResult<T[]> & {
@@ -30,7 +31,13 @@ type PaginatedResult<T> = QueryResult<T[]> & {
   perPage: number;
 };
 
-// Collection queries
+type PocketBaseQueryOptions = {
+  sort?: string;
+  expand?: string;
+  filter?: string;
+  fields?: string;
+};
+
 export function usePocketBaseCollection<T>(
   collection: string,
   options: PocketBaseQueryOptions = {},
@@ -49,7 +56,10 @@ export function usePocketBaseCollection<T>(
     staleTime: 30 * 1000, // 30 seconds
     retry: (failureCount, error) => {
       // Don't retry on PocketBase auto-cancellation errors
-      if (error?.name === "ClientResponseError" && error?.isAbort) {
+      if (
+        error?.name === "ClientResponseError" &&
+        (error as ClientResponseError)?.isAbort
+      ) {
         return false;
       }
       return failureCount < 2;
@@ -69,7 +79,7 @@ export function usePocketBaseRecord<T>(
   collection: string,
   id: string,
   options: PocketBaseQueryOptions = {},
-): QueryResult<T | null> {
+): PocketBaseQueryResult<T | null> {
   const queryResult = useQuery({
     queryKey: ["pocketbase", collection, id, options],
     queryFn: async () => {
@@ -83,10 +93,36 @@ export function usePocketBaseRecord<T>(
     staleTime: 30 * 1000,
   });
 
+  function createPocketBaseError(error: Error | null): PocketBaseError | null {
+    if (!error) return null;
+
+    // Check if it's already a ClientResponseError from PocketBase
+    if (error.name === "ClientResponseError") {
+      const clientError = error as ClientResponseError;
+      return {
+        ...clientError,
+        notFound: clientError.status === 404,
+      };
+    }
+
+    // For other errors, create a minimal PocketBaseError
+    return {
+      ...error,
+      url: "",
+      status: 0,
+      response: {},
+      isAbort: false,
+      originalError: error,
+      notFound: false,
+    };
+  }
+
+  const pocketBaseError = createPocketBaseError(queryResult.error);
+
   return {
     data: queryResult.data ?? null,
     isLoading: queryResult.isPending,
-    error: queryResult.error,
+    error: pocketBaseError,
     refetch: queryResult.refetch,
   };
 }
@@ -96,19 +132,14 @@ export function usePocketBasePaginated<T>(
   collection: string,
   options: PaginatedOptions = {},
 ): PaginatedResult<T> {
-  const {
-    page = 1,
-    perPage = 50,
-    skipTotal = false,
-    ...queryOptions
-  } = options;
+  const { page = 1, skipTotal = false, ...queryOptions } = options;
 
   const queryResult = useQuery({
     queryKey: [
       "pocketbase",
       collection,
       "paginated",
-      { page, perPage, skipTotal, ...queryOptions },
+      { page, skipTotal, ...queryOptions },
     ],
     queryFn: async () => {
       const recordOptions: RecordOptions = {};
@@ -120,7 +151,7 @@ export function usePocketBasePaginated<T>(
 
       return await pb
         .collection(collection)
-        .getList<T>(page, perPage, recordOptions);
+        .getList<T>(page, POCKETBASE_PER_PAGE, recordOptions);
     },
     staleTime: 30 * 1000, // 30 seconds
     placeholderData: (previousData) => previousData, // Keep previous data while loading new page
@@ -136,7 +167,7 @@ export function usePocketBasePaginated<T>(
     totalPages: result?.totalPages ?? 1, // Default to 1 when skipTotal is used
     totalItems: result?.totalItems,
     page,
-    perPage,
+    perPage: POCKETBASE_PER_PAGE,
   };
 }
 
@@ -166,69 +197,10 @@ export function usePocketBaseCount(
   };
 }
 
-// Auth state
-export function usePocketBaseAuth() {
-  const queryClient = useQueryClient();
-
-  const queryResult = useQuery({
-    queryKey: ["pocketbase", "auth"],
-    queryFn: () => {
-      return {
-        isAuthenticated: pb.authStore.isValid,
-        user: pb.authStore.model,
-        token: pb.authStore.token,
-      };
-    },
-    staleTime: Infinity, // Auth state changes are handled by events
-    refetchOnWindowFocus: false,
-  });
-
-  // Listen for auth changes and invalidate auth query
-  React.useEffect(() => {
-    return pb.authStore.onChange(() => {
-      queryClient.invalidateQueries({ queryKey: ["pocketbase", "auth"] });
-    });
-  }, [queryClient]);
-
-  const login = useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
-      return await pb.collection("users").authWithPassword(email, password);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pocketbase", "auth"] });
-    },
-  });
-
-  const logout = useMutation({
-    mutationFn: async () => {
-      pb.authStore.clear();
-    },
-    onSuccess: () => {
-      queryClient.clear(); // Clear all cached data on logout
-    },
-  });
-
-  return {
-    isAuthenticated: queryResult.data?.isAuthenticated ?? false,
-    user: queryResult.data?.user,
-    token: queryResult.data?.token,
-    isLoading: queryResult.isPending,
-    error: queryResult.error,
-    login: login.mutate,
-    logout: logout.mutate,
-    isLoginLoading: login.isPending,
-    isLogoutLoading: logout.isPending,
-  };
-}
-
 // Mutation hooks for CRUD operations
-export function usePocketBaseMutation<T>(collection: string) {
+export function usePocketBaseMutation<T extends { id: string }>(
+  collection: string,
+) {
   const queryClient = useQueryClient();
 
   const create = useMutation({
@@ -236,7 +208,6 @@ export function usePocketBaseMutation<T>(collection: string) {
       return await pb.collection(collection).create<T>(data);
     },
     onSuccess: () => {
-      // Invalidate collection queries
       queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
     },
   });
@@ -246,9 +217,7 @@ export function usePocketBaseMutation<T>(collection: string) {
       return await pb.collection(collection).update<T>(id, data);
     },
     onSuccess: (updatedRecord) => {
-      // Invalidate collection queries
       queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
-      // Update specific record in cache
       queryClient.setQueryData(
         ["pocketbase", collection, updatedRecord.id],
         updatedRecord,
@@ -261,9 +230,7 @@ export function usePocketBaseMutation<T>(collection: string) {
       return await pb.collection(collection).delete(id);
     },
     onSuccess: (_, id) => {
-      // Invalidate collection queries
       queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
-      // Remove specific record from cache
       queryClient.removeQueries({ queryKey: ["pocketbase", collection, id] });
     },
   });
@@ -293,7 +260,6 @@ export function usePocketBaseBatchUpdate<T extends { id: string }>(
     }: {
       updates: Array<{ id: string; data: Partial<T> }>;
     }) => {
-      // Execute all updates in parallel
       const results = await Promise.all(
         updates.map(({ id, data }) =>
           pb.collection(collection).update<T>(id, data),
@@ -302,14 +268,10 @@ export function usePocketBaseBatchUpdate<T extends { id: string }>(
       return { results, updates };
     },
     onSuccess: ({ results, updates }) => {
-      // Invalidate collection queries to ensure correct filtering
       queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
-
-      // Update individual record queries with the new data
       results.forEach((updatedRecord, index) => {
-        const recordId = updates[index].id;
         queryClient.setQueryData(
-          ["pocketbase", collection, recordId],
+          ["pocketbase", collection, updates[index].id],
           updatedRecord,
         );
       });

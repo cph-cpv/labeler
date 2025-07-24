@@ -22,8 +22,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import { useSelectionContext } from "@/contexts/SelectionContext.tsx";
 import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import { pb } from "@/lib/pocketbase.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Fastq, Virus } from "@/types.ts";
@@ -44,7 +44,7 @@ const annotationTypes: { value: AnnotationType; label: string }[] = [
 
 export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
   const { selectedItems: selectedFastqs, clearSelection } =
-    useSelectionContext<Fastq>();
+    useSelection<Fastq>();
   const [selectedVirus, setSelectedVirus] = useState<Virus | null>(null);
   const [selectedAnnotationType, setSelectedAnnotationType] =
     useState<AnnotationType | null>(null);

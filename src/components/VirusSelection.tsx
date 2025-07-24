@@ -1,12 +1,9 @@
 import { VirusTypeAssign } from "@/components/VirusTypeAssign.tsx";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import { cn } from "@/lib/utils.ts";
 
-interface VirusSelectionProps {
-  selectedCount: number;
-  onClearSelection: () => void;
-}
-
-export function VirusSelection({ selectedCount }: VirusSelectionProps) {
+export function VirusSelection() {
+  const { selectedCount } = useSelection();
   const isVisible = selectedCount > 0;
 
   return (
@@ -33,7 +30,7 @@ export function VirusSelection({ selectedCount }: VirusSelectionProps) {
             {selectedCount} {selectedCount === 1 ? "virus" : "viruses"} selected
           </div>
           <div className="flex gap-2">
-            <VirusTypeAssign selectedCount={selectedCount} />
+            <VirusTypeAssign />
           </div>
         </div>
       </div>

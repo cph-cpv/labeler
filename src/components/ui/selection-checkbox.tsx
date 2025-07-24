@@ -1,9 +1,9 @@
-import type { SelectableItem } from "@/hooks/useSelection.ts";
+import type { SelectableItem } from "@/hooks/useSelection.tsx";
 
 interface SelectionCheckboxProps<T extends SelectableItem> {
   item: T;
   selectedItems: Set<string>;
-  onItemSelect: (itemId: string, event?: React.MouseEvent) => void;
+  onItemSelect: (item: T, event?: React.MouseEvent) => void;
   getItemLabel: (item: T) => string;
 }
 
@@ -14,7 +14,7 @@ export function SelectionCheckbox<T extends SelectableItem>({
   getItemLabel,
 }: SelectionCheckboxProps<T>) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onItemSelect(item.id.toString(), event.nativeEvent as React.MouseEvent);
+    onItemSelect(item, event.nativeEvent as React.MouseEvent);
   };
 
   return (
