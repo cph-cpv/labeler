@@ -1,6 +1,3 @@
-import { AlertCircle, Check, CircleCheck, Plus } from "lucide-react";
-import * as React from "react";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +9,8 @@ import {
 import { useSampleCreation } from "@/hooks/useSampleCreation";
 import { cn, guessCommonSampleName } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
+import { AlertCircle, Check, CircleCheck, Plus } from "lucide-react";
+import * as React from "react";
 
 type FastqsSampleSelectorProps = {
   onChange: (sampleId: string | null) => void;
@@ -87,12 +86,6 @@ export function FastqsSampleSelector({
     setFirstSampleName("");
   }
 
-  function handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === "Enter") {
-      handleCreateFirstSample();
-    }
-  }
-
   // If no samples exist in the database, show the first sample creation UI.
   if (totalItems === 0) {
     return (
@@ -112,13 +105,11 @@ export function FastqsSampleSelector({
         )}
         <div className="flex gap-2">
           <Input
-            placeholder="Enter sample name..."
+            placeholder="Search samples..."
             value={firstSampleName}
             onChange={(e) => setFirstSampleName(e.target.value)}
-            onKeyPress={handleKeyPress}
             disabled={isCreating}
             className="flex-1"
-            M
           />
           <Button
             onClick={handleCreateFirstSample}

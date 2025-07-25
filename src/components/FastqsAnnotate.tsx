@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
@@ -94,10 +99,18 @@ export function FastqsAnnotate() {
 
           <Separator />
 
-          <FastqsAnnotateType selectedItems={selectedItems} />
-          <FastqsAnnotateQuality selectedItems={selectedItems} />
-          <FastqsAnnotateDilution selectedItems={selectedItems} />
-          <FastqsAnnotateSample selectedItems={selectedItems} />
+          <TabsContent value="type">
+            <FastqsAnnotateType selectedItems={selectedItems} />
+          </TabsContent>
+          <TabsContent value="quality">
+            <FastqsAnnotateQuality selectedItems={selectedItems} />
+          </TabsContent>
+          <TabsContent value="dilution">
+            <FastqsAnnotateDilution selectedItems={selectedItems} />
+          </TabsContent>
+          <TabsContent value="sample">
+            <FastqsAnnotateSample selectedItems={selectedItems} />
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>

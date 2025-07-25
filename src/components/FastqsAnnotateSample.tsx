@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { DialogSectionTitle } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { TableMissingIcon } from "@/components/ui/table-missing-icon.tsx";
-import { TabsContent } from "@/components/ui/tabs.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
@@ -20,21 +19,21 @@ export function FastqsAnnotateSample({
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
 
   return (
-    <TabsContent value="sample" className="space-y-3">
+    <div className="space-y-3">
       <DialogSectionTitle>Sample Information</DialogSectionTitle>
       <div className="space-y-3">
         <Label className="font-semibold">
           Set sample for all selected FASTQs
         </Label>
         <FastqsSampleSelector
-          value={selectedSample}
-          onValueChange={(sample) => {
-            setSelectedSample(sample);
-            if (sample) {
+          value={selectedSampleId}
+          onChange={(sampleId) => {
+            setSelectedSampleId(sampleId);
+            if (sampleId) {
               const updates = selectedItems.map((fastq) =>
                 update({
                   id: fastq.id,
-                  data: { sample: sample.name },
+                  data: { sample: sampleId },
                 }),
               );
               Promise.all(updates);
@@ -54,7 +53,7 @@ export function FastqsAnnotateSample({
               }),
             );
             await Promise.all(updates);
-            setSelectedSample(null);
+            setSelectedSampleId(null);
           }}
           className="flex items-center gap-2"
         >
@@ -67,6 +66,6 @@ export function FastqsAnnotateSample({
         selectedItems={selectedItems}
         fieldExtractor={(fastq) => fastq.sample}
       />
-    </TabsContent>
+    </div>
   );
 }
