@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { convertPbToUiFastq } from "@/lib/convert.ts";
-import type { DateRange, FastqTypeFilter } from "@/types.ts";
+import type { DateRange, FastqTypeFilter, FastqsCategory } from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -39,7 +39,8 @@ type PocketBaseFile = {
 export function Fastqs() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
-  const category = search.category ?? "unannotated";
+  const category: FastqsCategory =
+    (search.category as FastqsCategory) ?? "todo";
   const urlTypeFilter = Array.isArray(search.type)
     ? search.type
     : search.type
@@ -80,13 +81,9 @@ export function Fastqs() {
   const computedFilter = useMemo(() => {
     const conditions: string[] = [];
 
-    if (category === "unannotated") {
+    if (category === "todo") {
       conditions.push(
-        "(excluded = null || excluded = false) && (type = null || quality_rating = null || dilution_factor = null)",
-      );
-    } else if (category === "unassigned") {
-      conditions.push(
-        "(excluded = null || excluded = false) && (sample = null || sample = '')",
+        "(excluded = null || excluded = false) && (type = null || quality_rating = null || dilution_factor = null || sample = null || sample = '')",
       );
     } else if (category === "excluded") {
       conditions.push("excluded = true");

@@ -2,7 +2,7 @@ import type { DateRange } from "react-day-picker";
 
 export type FastqType = "dsRNA" | "smRNA" | "Unknown";
 
-export type FastqsCategory = "unannotated" | "unassigned" | "excluded" | "done";
+export type FastqsCategory = "todo" | "excluded" | "done";
 
 export type VirusesCategory = "all" | "typed" | "untyped";
 

@@ -1,9 +1,10 @@
 import { Fastqs } from "@/components/Fastqs.tsx";
 import { SelectionProvider } from "@/hooks/useSelection.tsx";
+import type { FastqsCategory } from "@/types.ts";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 type FastqsSearch = {
-  category?: "unannotated" | "unassigned" | "excluded" | "done";
+  category?: FastqsCategory;
   type?: string | string[];
   search?: string;
   page?: number;
