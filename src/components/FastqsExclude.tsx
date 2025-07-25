@@ -60,8 +60,17 @@ export function FastqsExclude() {
             <AlertDialogTitle>Exclude FASTQs</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to exclude {selectedFastqs.length} file
-              {selectedFastqs.length === 1 ? "" : "s"}? This action will mark
-              the selected FASTQ files as excluded.
+              {selectedFastqs.length === 1 ? "" : "s"}?
+              <div className="mt-2">
+                <div className="font-medium">This action will:</div>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>
+                    Remove these FASTQs from search results and sample
+                    association
+                  </li>
+                  <li>Hide these FASTQs from bulk management operations</li>
+                </ul>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

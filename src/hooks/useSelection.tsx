@@ -104,7 +104,6 @@ export function useSelection<T extends SelectableItem>() {
 
           // Determine if we're expanding or contracting the selection
           if (lastClickedIndexRef.current !== null) {
-            // Check if we're moving closer to anchor (contracting) or further away (expanding)
             const lastWasAboveAnchor =
               lastClickedIndexRef.current > anchorIndexRef.current;
             const currentIsAboveAnchor = itemIndex > anchorIndexRef.current;
@@ -123,14 +122,8 @@ export function useSelection<T extends SelectableItem>() {
             }
 
             // If contracting, exclude the last clicked item from selection
-            if (
-              !isExpanding &&
-              lastClickedIndexRef.current > startIndex &&
-              lastClickedIndexRef.current <= endIndex
-            ) {
-              if (lastClickedIndexRef.current === endIndex) {
-                endIndex -= 1;
-              }
+            if (!isExpanding && lastClickedIndexRef.current === endIndex) {
+              endIndex -= 1;
             }
           }
 

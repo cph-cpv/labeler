@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogSectionTitle,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
@@ -171,7 +172,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
         </DialogHeader>
         <div className="space-y-8 min-w-0">
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Metadata</h3>
+            <DialogSectionTitle>Metadata</DialogSectionTitle>
             <div className="space-y-4">
               <div className="min-w-0">
                 <Label className="font-medium">Path</Label>
@@ -194,7 +195,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
             </div>
           </div>
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Sample</h3>
+            <DialogSectionTitle>Sample</DialogSectionTitle>
             <form.Field
               name="sample"
               children={(field) => (
@@ -209,7 +210,7 @@ export function FastqsDetail({ id, open, onOpenChange }: FastqsDetailProps) {
 
           {/* Editable fields */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Annotations</h3>
+            <DialogSectionTitle>Annotations</DialogSectionTitle>
             <div className="space-y-4">
               <form.Field
                 name="type"

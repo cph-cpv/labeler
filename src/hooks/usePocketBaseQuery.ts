@@ -237,8 +237,11 @@ export function usePocketBaseMutation<T extends { id: string }>(
 
   return {
     create: create.mutate,
+    createAsync: create.mutateAsync,
     update: update.mutate,
+    updateAsync: update.mutateAsync,
     remove: remove.mutate,
+    removeAsync: remove.mutateAsync,
     isCreating: create.isPending,
     isUpdating: update.isPending,
     isRemoving: remove.isPending,

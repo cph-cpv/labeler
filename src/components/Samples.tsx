@@ -1,11 +1,6 @@
+import { SamplesCreate } from "@/components/SamplesCreate.tsx";
+import { SamplesLabel } from "@/components/SamplesLabel.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Link } from "@/components/ui/link.tsx";
@@ -28,6 +23,7 @@ import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Sample } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import React, { useEffect } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export function Samples() {
   const {
@@ -63,6 +59,18 @@ export function Samples() {
     }
   }, [filteredSamples, onSetItems]);
 
+  // Handle keyboard shortcuts
+  useHotkeys(
+    "l",
+    () => {
+      setLabelDialogOpen(true);
+    },
+    {
+      enabled: selectedCount > 0,
+      enableOnFormTags: false,
+    },
+  );
+
   if (isLoading) {
     return (
       <>
@@ -93,12 +101,14 @@ export function Samples() {
     <>
       <Header title="Samples" subtitle="All available samples for analysis." />
 
-      <div className="mb-4">
+      <div className="mb-4 flex gap-2">
         <Input
           placeholder="Search samples by name..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
+          className="flex-1"
         />
+        <SamplesCreate />
       </div>
 
       <Table>
@@ -146,24 +156,18 @@ export function Samples() {
           itemName="sample"
           onClearSelection={onClearSelection}
         >
-          <Dialog open={labelDialogOpen} onOpenChange={setLabelDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Label</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Label Samples</DialogTitle>
-              </DialogHeader>
-              <div className="p-4">
-                <p>
-                  Label {selectedCount} selected sample
-                  {selectedCount === 1 ? "" : "s"}.
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button variant="outline" onClick={() => setLabelDialogOpen(true)}>
+            Label
+          </Button>
         </SelectionBar>
       )}
+
+      <SamplesLabel
+        open={labelDialogOpen}
+        onOpenChange={setLabelDialogOpen}
+        selectedSampleIds={Array.from(selectedIds)}
+        selectedCount={selectedCount}
+      />
 
       <Outlet />
     </>
