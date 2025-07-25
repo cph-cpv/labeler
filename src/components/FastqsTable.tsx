@@ -1,10 +1,9 @@
-import { FastqsAssignSingle } from "@/components/FastqsAssignSingle.tsx";
-import { FastqsDilutionSingle } from "@/components/FastqsDilutionSingle.tsx";
+import { FastqsDilution } from "@/components/FastqsDilution.tsx";
 import { FastqsExcludeSingle } from "@/components/FastqsExcludeSingle.tsx";
 import { FastqsQualitySingle } from "@/components/FastqsQualitySingle.tsx";
+import { FastqsSample } from "@/components/FastqsSample.tsx";
 import { FastqsTypeSingle } from "@/components/FastqsTypeSingle.tsx";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/components/ui/link.tsx";
 import {
   SelectAllCheckbox,
   SelectionCheckbox,
@@ -26,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSelection } from "@/hooks/useSelection.tsx";
+import { formatDilution } from "@/lib/dilution.ts";
 import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { EditIcon, EyeOffIcon } from "lucide-react";
@@ -141,8 +141,8 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
             </TableHead>
             <TableHead className="flex-[2]">Name</TableHead>
             <TableHead className="w-32">Run Date</TableHead>
-            <TableHead className="w-24">Type</TableHead>
-            <TableHead className="w-20">Quality</TableHead>
+            <TableHead className="w-20">Type</TableHead>
+            <TableHead className="w-24">Quality</TableHead>
             <TableHead className="w-24">Dilution</TableHead>
             <TableHead className="flex-1">Sample</TableHead>
             <TableHead className="w-12"></TableHead>
@@ -159,11 +159,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                   getItemLabel={(item) => item.name}
                 />
               </TableCell>
-              <TableCell>
-                <Link to="/fastqs/$id" params={{ id: fastq.id }}>
-                  {fastq.name}
-                </Link>
-              </TableCell>
+              <TableCell>{fastq.name}</TableCell>
               <TableCell>
                 <span>{formatDate(fastq.timestamp)}</span>
               </TableCell>
@@ -213,17 +209,15 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                   tabIndex={0}
                   role="button"
                   aria-label={`Edit dilution factor for ${fastq.name}. Current dilution: ${
-                    fastq.dilutionFactor
-                      ? `${fastq.dilutionFactor}x`
-                      : "Unknown"
+                    fastq.dilution ? `${fastq.dilution}x` : "Unknown"
                   }`}
                   onClick={() => handleDilutionClick(fastq)}
                   onKeyDown={(e) => handleDilutionKeyDown(e, fastq)}
                 >
                   <div className="flex items-center justify-between">
                     <span>
-                      {fastq.dilutionFactor ? (
-                        `${fastq.dilutionFactor}x`
+                      {fastq.dilution ? (
+                        `${formatDilution(fastq.dilution)}`
                       ) : (
                         <TableMissingIcon />
                       )}
@@ -273,7 +267,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
         </TableBody>
       </Table>
 
-      <FastqsAssignSingle
+      <FastqsSample
         fastq={editingSampleFastq}
         isOpen={editingSampleFastq !== null}
         onClose={handleSampleDialogClose}
@@ -292,7 +286,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
         onClose={handleQualityDialogClose}
       />
 
-      <FastqsDilutionSingle
+      <FastqsDilution
         fastq={editingDilutionFastq}
         isOpen={editingDilutionFastq !== null}
         onClose={handleDilutionDialogClose}

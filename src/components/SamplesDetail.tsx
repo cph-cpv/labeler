@@ -20,20 +20,6 @@ import type { Fastq, Sample } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 
-type PocketBaseFile = {
-  id: string;
-  name: string;
-  path: string;
-  date: string;
-  quality_rating: "good" | "borderline" | "bad" | null;
-  dilution_factor: number | null;
-  type: string | null;
-  excluded: boolean | null;
-  sample: string | null;
-  created: string;
-  updated: string;
-};
-
 interface SamplesDetailProps {
   sample: Sample;
   open: boolean;
@@ -49,7 +35,7 @@ export function SamplesDetail({
 
   // Fetch FASTQs associated with this sample (server state)
   const { data: pbFastqs, isLoading: isFastqsLoading } =
-    usePocketBaseCollection<PocketBaseFile>("fastqs", {
+    usePocketBaseCollection<Fastq>("fastqs", {
       filter: `sample = "${sample.id}"`,
       sort: "name",
     });
@@ -59,7 +45,7 @@ export function SamplesDetail({
     .filter(Boolean) as Fastq[];
 
   // Mutation for updating FASTQs
-  const fastqMutation = usePocketBaseMutation<PocketBaseFile>("fastqs");
+  const fastqMutation = usePocketBaseMutation<Fastq>("fastqs");
 
   const form = useForm({
     defaultValues: {

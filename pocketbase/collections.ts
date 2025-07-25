@@ -59,14 +59,16 @@ export function createFastqsCollection(
         required: true,
       },
       {
-        name: "quality_rating",
+        name: "quality",
         type: "number",
         min: 1,
         max: 5,
       },
       {
-        name: "dilution_factor",
-        type: "number",
+        name: "dilution",
+        type: "select",
+        maxSelect: 1,
+        values: ["1", "2", "10", "20", "25", "50", "100", "200"],
       },
       {
         name: "type",

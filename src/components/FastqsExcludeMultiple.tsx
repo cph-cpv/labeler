@@ -16,7 +16,7 @@ import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-export function FastqsExclude() {
+export function FastqsExcludeMultiple() {
   const [open, setOpen] = useState(false);
   const { onClearSelection, selectedItems: selectedFastqs } =
     useSelection<Fastq>();

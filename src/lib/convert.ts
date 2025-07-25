@@ -8,7 +8,7 @@ export function convertPbToUiFastq(pbFile: any): Fastq | null {
         path: pbFile.path,
         timestamp: pbFile.date ? new Date(pbFile.date) : new Date(),
         quality: pbFile.quality_rating ?? null,
-        dilutionFactor: pbFile.dilution_factor,
+        dilution: pbFile.dilution,
         type:
           pbFile.type === "dsRNA"
             ? "dsRNA"

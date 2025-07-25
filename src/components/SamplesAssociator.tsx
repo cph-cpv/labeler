@@ -14,20 +14,6 @@ import type { Fastq } from "@/types.ts";
 import { ArrowLeftRight, X } from "lucide-react";
 import React from "react";
 
-type PocketBaseFile = {
-  id: string;
-  name: string;
-  path: string;
-  date: string;
-  quality_rating: "good" | "borderline" | "bad" | null;
-  dilution_factor: number | null;
-  type: string | null;
-  excluded: boolean | null;
-  sample: string | null;
-  created: string;
-  updated: string;
-};
-
 type SamplesAssociatorProps = {
   searchTerm: string;
   selectedFastqs: Fastq[];
@@ -97,7 +83,6 @@ export function SamplesAssociator({
   onSelectFastq,
   onDeselectFastq,
   blocked,
-  minSearchLength = 4,
   className,
 }: SamplesAssociatorProps) {
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -112,19 +97,18 @@ export function SamplesAssociator({
   }, [searchTerm]);
 
   // Fetch matching FASTQs - show all when empty, filter when searching
-  const { data: pbFastqs = [], isLoading } =
-    usePocketBaseCollection<PocketBaseFile>(
-      "fastqs",
-      debouncedSearch.length === 0
-        ? {
-            filter: `(sample = null || sample = '') && (excluded = null || excluded = false)`,
-            sort: "name",
-          }
-        : {
-            filter: `(name ~ "${debouncedSearch}" || path ~ "${debouncedSearch}") && (sample = null || sample = '') && (excluded = null || excluded = false)`,
-            sort: "name",
-          },
-    );
+  const { data: pbFastqs = [], isLoading } = usePocketBaseCollection<Fastq>(
+    "fastqs",
+    debouncedSearch.length === 0
+      ? {
+          filter: `(sample = null || sample = '') && (excluded = null || excluded = false)`,
+          sort: "name",
+        }
+      : {
+          filter: `(name ~ "${debouncedSearch}" || path ~ "${debouncedSearch}") && (sample = null || sample = '') && (excluded = null || excluded = false)`,
+          sort: "name",
+        },
+  );
 
   const allMatchingFastqs = pbFastqs
     .map((pbFile) => convertPbToUiFastq(pbFile))

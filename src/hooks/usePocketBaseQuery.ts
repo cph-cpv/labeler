@@ -171,32 +171,6 @@ export function usePocketBasePaginated<T>(
   };
 }
 
-// Count queries
-export function usePocketBaseCount(
-  collection: string,
-  filter = "",
-): QueryResult<number> {
-  const queryResult = useQuery({
-    queryKey: ["pocketbase", collection, "count", filter],
-    queryFn: async () => {
-      const options = filter ? { filter } : undefined;
-      const result = await pb.collection(collection).getList(1, 1, {
-        ...options,
-        fields: "id", // Only fetch id to minimize data transfer
-      });
-      return result.totalItems;
-    },
-    staleTime: 60 * 1000, // 1 minute
-  });
-
-  return {
-    data: queryResult.data ?? 0,
-    isLoading: queryResult.isPending,
-    error: queryResult.error,
-    refetch: queryResult.refetch,
-  };
-}
-
 // Mutation hooks for CRUD operations
 export function usePocketBaseMutation<T extends { id: string }>(
   collection: string,
@@ -248,6 +222,37 @@ export function usePocketBaseMutation<T extends { id: string }>(
     createError: create.error,
     updateError: update.error,
     removeError: remove.error,
+  };
+}
+
+// Hook to get first matching record by filter
+export function usePocketBaseFirst<T>(
+  collection: string,
+  filter: string | null,
+  options: PocketBaseQueryOptions = {},
+): { data: T | null; isLoading: boolean; error: Error | null } {
+  const queryResult = useQuery({
+    queryKey: ["pocketbase", collection, "first", filter, options],
+    queryFn: async () => {
+      if (!filter) return null;
+
+      const queryOptions: RecordOptions = {};
+      if (options.sort) queryOptions.sort = options.sort;
+      if (options.expand) queryOptions.expand = options.expand;
+      if (options.fields) queryOptions.fields = options.fields;
+
+      return await pb
+        .collection(collection)
+        .getFirstListItem<T>(filter, queryOptions);
+    },
+    enabled: !!filter,
+    staleTime: 30 * 1000,
+  });
+
+  return {
+    data: queryResult.data ?? null,
+    isLoading: queryResult.isPending,
+    error: queryResult.error,
   };
 }
 

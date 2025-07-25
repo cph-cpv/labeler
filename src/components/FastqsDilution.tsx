@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
+import { isValidDilution, parseDilution } from "@/lib/dilution.ts";
 import type { Fastq } from "@/types";
 import { VisuallyHidden } from "radix-ui";
 import React from "react";
@@ -19,7 +20,7 @@ type FastqsDilutionSingleProps = {
   onClose: () => void;
 };
 
-export function FastqsDilutionSingle({
+export function FastqsDilution({
   fastq,
   isOpen,
   onClose,
@@ -32,7 +33,7 @@ export function FastqsDilutionSingle({
   // Initialize dilution value when dialog opens
   React.useEffect(() => {
     if (fastq && isOpen) {
-      setDilutionValue(fastq.dilutionFactor?.toString() || "");
+      setDilutionValue(fastq.dilution || "");
       setIsValid(true);
     }
   }, [fastq, isOpen]);
@@ -40,20 +41,16 @@ export function FastqsDilutionSingle({
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
     setDilutionValue(value);
-
-    // Validate input - allow empty string or positive numbers
-    const isValidInput =
-      value === "" || (!isNaN(Number(value)) && Number(value) > 0);
-    setIsValid(isValidInput);
+    setIsValid(value === "" || isValidDilution(value));
   }
 
   function handleSave() {
     if (!fastq || !isValid) return;
 
-    const dilutionFactor = dilutionValue === "" ? null : Number(dilutionValue);
+    const dilution = parseDilution(dilutionValue);
 
     update(
-      { id: fastq.id, data: { dilutionFactor } },
+      { id: fastq.id, data: { dilution } },
       {
         onSuccess: () => {
           onClose();
@@ -69,7 +66,7 @@ export function FastqsDilutionSingle({
     if (!fastq) return;
 
     update(
-      { id: fastq.id, data: { dilutionFactor: null } },
+      { id: fastq.id, data: { dilution: null } },
       {
         onSuccess: () => {
           setDilutionValue("");
@@ -120,7 +117,8 @@ export function FastqsDilutionSingle({
             />
             {!isValid && (
               <p className="text-sm text-red-500">
-                Please enter a valid positive number
+                Please enter a valid dilution factor (1, 2, 10, 20, 25, 50, 100,
+                or 200)
               </p>
             )}
           </div>

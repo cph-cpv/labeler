@@ -1,4 +1,4 @@
-import { FastqsSampleCombobox } from "@/components/FastqsSampleCombobox";
+import { FastqsSampleSelector } from "@/components/FastqsSampleSelector";
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
-import type { Fastq, Sample } from "@/types";
+import type { Fastq } from "@/types";
 import { VisuallyHidden } from "radix-ui";
 import React from "react";
 
@@ -17,41 +18,33 @@ type FastqsAssignSingleProps = {
   onClose: () => void;
 };
 
-export function FastqsAssignSingle({
+export function FastqsSample({
   fastq,
   isOpen,
   onClose,
 }: FastqsAssignSingleProps) {
-  const [selectedSample, setSelectedSample] = React.useState<Sample | null>(
+  const [selectedSampleId, setSelectedSampleId] = React.useState<string | null>(
     null,
   );
 
-  const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
+  const { update } = usePocketBaseMutation<Fastq>("fastqs");
 
   // Initialize selected sample when dialog opens
   React.useEffect(() => {
     if (fastq && isOpen) {
-      // If fastq has a sample string, we need to find the Sample object
-      // For now, we'll create a mock Sample object if fastq.sample exists
-      if (fastq.sample) {
-        setSelectedSample({
-          id: "", // We don't have the ID from the string
-          name: fastq.sample,
-        });
-      } else {
-        setSelectedSample(null);
-      }
+      // If fastq has a sample ID, use it directly
+      setSelectedSampleId(fastq.sample || null);
     }
   }, [fastq, isOpen]);
 
-  function handleSampleChange(sample: Sample | null) {
-    setSelectedSample(sample);
+  function handleSampleChange(sampleId: string | null) {
+    setSelectedSampleId(sampleId);
     if (fastq) {
       update(
-        { id: fastq.id, data: { sample: sample?.name || null } },
+        { id: fastq.id, data: { sample: sampleId } },
         {
           onSuccess: () => {
-            // Keep dialog open for multiple edits
+            onClose();
           },
           onError: (error) => {
             console.error("Failed to update sample:", error);
@@ -77,11 +70,12 @@ export function FastqsAssignSingle({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Sample</label>
-            <FastqsSampleCombobox
-              value={selectedSample}
-              onValueChange={handleSampleChange}
+            <Label className="text-sm font-medium">Sample</Label>
+            <FastqsSampleSelector
+              value={selectedSampleId}
+              onChange={handleSampleChange}
               placeholder="Select or create a sample..."
+              fastqNames={[fastq.name]}
             />
           </div>
         </div>

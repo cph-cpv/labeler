@@ -1,6 +1,5 @@
 import { FastqsAnnotate } from "@/components/FastqsAnnotate.tsx";
-import { FastqsAssign } from "@/components/FastqsAssign.tsx";
-import { FastqsExclude } from "@/components/FastqsExclude.tsx";
+import { FastqsExcludeMultiple } from "@/components/FastqsExcludeMultiple.tsx";
 import { FastqsInclude } from "@/components/FastqsInclude.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { cn } from "@/lib/utils.ts";
@@ -42,8 +41,7 @@ export function FastqsSelection({ category }: FastqsSelectionProps) {
             ) : (
               <>
                 <FastqsAnnotate />
-                <FastqsAssign />
-                <FastqsExclude />
+                <FastqsExcludeMultiple />
               </>
             )}
           </div>

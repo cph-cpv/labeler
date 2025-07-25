@@ -14,27 +14,14 @@ import {
 } from "@/components/ui/pagination.tsx";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { convertPbToUiFastq } from "@/lib/convert.ts";
-import type { DateRange, FastqTypeFilter, FastqsCategory } from "@/types.ts";
+import type {
+  DateRange,
+  Fastq,
+  FastqTypeFilter,
+  FastqsCategory,
+} from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-
-// PocketBase file interface
-type PocketBaseFile = {
-  id: string;
-  name: string;
-  path: string;
-  date: string;
-  quality_rating: "good" | "borderline" | "bad" | null;
-  dilution_factor: number | null;
-  type: string | null;
-  excluded: boolean | null;
-  sample: string | null;
-  created: string;
-  updated: string;
-  expand?: {
-    sample?: { id: string; name: string };
-  };
-};
 
 export function Fastqs() {
   const navigate = useNavigate();
@@ -83,13 +70,13 @@ export function Fastqs() {
 
     if (category === "todo") {
       conditions.push(
-        "(excluded = null || excluded = false) && (type = null || quality_rating = null || dilution_factor = null || sample = null || sample = '')",
+        "(excluded = null || excluded = false) && (type = null || quality = null || dilution = null || sample = null || sample = '')",
       );
     } else if (category === "excluded") {
       conditions.push("excluded = true");
     } else if (category === "done") {
       conditions.push(
-        "(excluded = null || excluded = false) && type != null && quality_rating != null && dilution_factor != null && sample != null && sample != ''",
+        "(excluded = null || excluded = false) && type != null && quality != null && dilution != null && sample != null && sample != ''",
       );
     }
 
@@ -123,7 +110,7 @@ export function Fastqs() {
     isLoading,
     error,
     totalPages,
-  } = usePocketBasePaginated<PocketBaseFile>("fastqs", {
+  } = usePocketBasePaginated<Fastq>("fastqs", {
     expand: "sample",
     filter: computedFilter || undefined,
     page,

@@ -1,282 +1,104 @@
+import { FastqsAnnotateDilution } from "@/components/FastqsAnnotateDilution.tsx";
+import { FastqsAnnotateQuality } from "@/components/FastqsAnnotateQuality.tsx";
+import { FastqsAnnotateSample } from "@/components/FastqsAnnotateSample.tsx";
+import { FastqsAnnotateType } from "@/components/FastqsAnnotateType.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command.tsx";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
+import { Separator } from "@/components/ui/separator.tsx";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
-import { pb } from "@/lib/pocketbase.ts";
-import { cn } from "@/lib/utils.ts";
-import type { Fastq, Virus } from "@/types.ts";
-import { Check, ChevronsUpDown } from "lucide-react";
+import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-type AnnotationType = "missing" | "contamination";
-
-type AnnotateProps = {
-  onAnnotationComplete?: () => void;
-};
-
-const annotationTypes: { value: AnnotationType; label: string }[] = [
-  { value: "missing", label: "Missing" },
-  { value: "contamination", label: "Contamination" },
-];
-
-export function FastqsAnnotate({ onAnnotationComplete }: AnnotateProps) {
-  const { selectedItems: selectedFastqs, onClearSelection } =
-    useSelection<Fastq>();
-  const [selectedVirus, setSelectedVirus] = useState<Virus | null>(null);
-  const [selectedAnnotationType, setSelectedAnnotationType] =
-    useState<AnnotationType | null>(null);
+export function FastqsAnnotate() {
   const [open, setOpen] = useState(false);
-  const [virusPopoverOpen, setVirusPopoverOpen] = useState(false);
-  const [typePopoverOpen, setTypePopoverOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const [isAnnotating, setIsAnnotating] = useState(false);
-
-  const { data: viruses = [] } = usePocketBaseCollection<Virus>("viruses");
+  const [activeTab, setActiveTab] = useState("type");
+  const { selectedItems } = useSelection<Fastq>();
 
   useHotkeys(
     "a",
     () => {
-      setOpen(true);
+      if (selectedItems.length > 0) {
+        setOpen(true);
+      }
     },
     {
-      enableOnFormTags: true,
-      enabled: selectedFastqs.length > 0,
+      enabled: selectedItems.length > 0,
+      preventDefault: true,
     },
   );
 
-  const filteredViruses = viruses.filter(
-    (virus) =>
-      virus.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      virus.acronym?.toLowerCase().includes(searchValue.toLowerCase()),
-  );
+  useHotkeys("1", () => setActiveTab("type"), {
+    enabled: open,
+    preventDefault: true,
+  });
 
-  const handleAnnotate = async () => {
-    if (
-      !selectedVirus ||
-      !selectedAnnotationType ||
-      selectedFastqs.length === 0
-    ) {
-      return;
-    }
+  useHotkeys("2", () => setActiveTab("quality"), {
+    enabled: open,
+    preventDefault: true,
+  });
 
-    setIsAnnotating(true);
-    try {
-      // Create annotation records and update FASTQs.
-      await Promise.all(
-        selectedFastqs.map(async (file) => {
-          const annotation = await pb.collection("annotations").create({
-            type: selectedAnnotationType,
-            viruses: selectedVirus.id,
-          });
+  useHotkeys("3", () => setActiveTab("dilution"), {
+    enabled: open,
+    preventDefault: true,
+  });
 
-          // Update file with annotation
-          await pb.collection("fastqs").update(file.id, {
-            annotations: annotation.id,
-          });
-        }),
-      );
-
-      // Clear selection and close dialog
-      onClearSelection();
-      setOpen(false);
-      setSelectedVirus(null);
-      setSelectedAnnotationType(null);
-      setSearchValue("");
-
-      // Notify parent component if callback provided
-      if (onAnnotationComplete) {
-        onAnnotationComplete();
-      }
-    } catch (error) {
-      console.error("Failed to annotate FASTQs:", error);
-    } finally {
-      setIsAnnotating(false);
-    }
-  };
-
-  const handleVirusSelect = (virus: Virus) => {
-    setSelectedVirus(virus);
-    setVirusPopoverOpen(false);
-    setSearchValue("");
-  };
-
-  const handleTypeSelect = (type: AnnotationType) => {
-    setSelectedAnnotationType(type);
-    setTypePopoverOpen(false);
-  };
-
-  const selectedTypeData = annotationTypes.find(
-    (t) => t.value === selectedAnnotationType,
-  );
+  useHotkeys("4", () => setActiveTab("sample"), {
+    enabled: open,
+    preventDefault: true,
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          Annotate <Kbd shortcut="A" variant="invert" />
+        <Button className="flex items-center gap-2">
+          Annotate <Kbd shortcut="A" variant="subtle" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Annotate FASTQs</DialogTitle>
           <DialogDescription>
-            Annotate {selectedFastqs.length} selected{" "}
-            {selectedFastqs.length === 1 ? "FASTQ" : "FASTQs"}.
+            Annotate the metadata and sample assignment of the selected FASTQ
+            files.
           </DialogDescription>
         </DialogHeader>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="min-h-[500px]"
+        >
+          <TabsList className="mb-4">
+            <TabsTrigger value="type">
+              Type <Kbd shortcut="1" variant="subtle" />
+            </TabsTrigger>
+            <TabsTrigger value="quality">
+              Quality <Kbd shortcut="2" variant="subtle" />
+            </TabsTrigger>
+            <TabsTrigger value="dilution">
+              Dilution <Kbd shortcut="3" variant="subtle" />
+            </TabsTrigger>
+            <TabsTrigger value="sample">
+              Sample <Kbd shortcut="4" variant="subtle" />
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Virus</label>
-            <Popover open={virusPopoverOpen} onOpenChange={setVirusPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={virusPopoverOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedVirus ? (
-                    <div className="flex items-center gap-2">
-                      <span>{selectedVirus.name}</span>
-                      {selectedVirus.acronym && (
-                        <span className="text-muted-foreground">
-                          ({selectedVirus.acronym})
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    "Select virus..."
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[--radix-popper-anchor-width] p-0"
-                align="start"
-              >
-                <Command>
-                  <CommandInput
-                    placeholder="Search viruses..."
-                    value={searchValue}
-                    onValueChange={setSearchValue}
-                  />
-                  <CommandList>
-                    {filteredViruses.length === 0 && (
-                      <CommandEmpty>No viruses found.</CommandEmpty>
-                    )}
-                    <CommandGroup>
-                      {filteredViruses.map((virus) => (
-                        <CommandItem
-                          key={virus.id}
-                          value={virus.name}
-                          onSelect={() => handleVirusSelect(virus)}
-                          className="cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedVirus?.id === virus.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                          <div className="flex items-center gap-2">
-                            <span>{virus.name}</span>
-                            {virus.acronym && (
-                              <span className="text-muted-foreground">
-                                ({virus.acronym})
-                              </span>
-                            )}
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+          <Separator />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Annotation Type</label>
-            <Popover open={typePopoverOpen} onOpenChange={setTypePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={typePopoverOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedTypeData ? selectedTypeData.label : "Select type..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[--radix-popper-anchor-width] p-0"
-                align="start"
-              >
-                <Command>
-                  <CommandList>
-                    <CommandGroup>
-                      {annotationTypes.map((type) => (
-                        <CommandItem
-                          key={type.value}
-                          value={type.value}
-                          onSelect={() => handleTypeSelect(type.value)}
-                          className="cursor-pointer"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedAnnotationType === type.value
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                          {type.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button
-            onClick={handleAnnotate}
-            disabled={!selectedVirus || !selectedAnnotationType || isAnnotating}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            {isAnnotating ? "Annotating..." : "Annotate FASTQs"}
-          </Button>
-        </DialogFooter>
+          <FastqsAnnotateType selectedItems={selectedItems} />
+          <FastqsAnnotateQuality selectedItems={selectedItems} />
+          <FastqsAnnotateDilution selectedItems={selectedItems} />
+          <FastqsAnnotateSample selectedItems={selectedItems} />
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
