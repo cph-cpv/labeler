@@ -9,6 +9,7 @@ import {
   SelectAllCheckbox,
   SelectionCheckbox,
 } from "@/components/ui/selection-checkbox.tsx";
+import { TableCellEditable } from "@/components/ui/table-cell-editable.tsx";
 import {
   Table,
   TableBody,
@@ -29,7 +30,7 @@ import { useSelection } from "@/hooks/useSelection.tsx";
 import { formatDilution } from "@/lib/dilution.ts";
 import { formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
-import { EditIcon, EyeOffIcon } from "lucide-react";
+import { EyeOffIcon } from "lucide-react";
 import React from "react";
 
 type FastqsTableProps = {
@@ -168,89 +169,53 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
               <TableCell>
                 <span>{formatDate(fastq.timestamp)}</span>
               </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit type assignment for ${getFilenameFromPath(fastq.path)}. Current type: ${
-                    fastq.type || "Unset"
-                  }`}
-                  onClick={() => handleTypeClick(fastq)}
-                  onKeyDown={(e) => handleTypeKeyDown(e, fastq)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{fastq.type || <UnsetIcon />}</span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit quality rating for ${getFilenameFromPath(fastq.path)}. Current quality: ${
-                    fastq.quality ? `${fastq.quality}` : "Unset"
-                  }`}
-                  onClick={() => handleQualityClick(fastq)}
-                  onKeyDown={(e) => handleQualityKeyDown(e, fastq)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      {fastq.quality ? (
-                        <>
-                          <FastqsQualityDot quality={fastq.quality} />
-                          {fastq.quality}
-                        </>
-                      ) : (
-                        <UnsetIcon />
-                      )}
-                    </span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit dilution factor for ${getFilenameFromPath(fastq.path)}. Current dilution: ${
-                    fastq.dilution ? `${fastq.dilution}x` : "Unset"
-                  }`}
-                  onClick={() => handleDilutionClick(fastq)}
-                  onKeyDown={(e) => handleDilutionKeyDown(e, fastq)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {fastq.dilution ? (
-                        `${formatDilution(fastq.dilution)}`
-                      ) : (
-                        <UnsetIcon />
-                      )}
-                    </span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit sample assignment for ${getFilenameFromPath(fastq.path)}. Current sample: ${
-                    fastq.sample || "Unassigned"
-                  }`}
-                  onClick={() => handleSampleClick(fastq)}
-                  onKeyDown={(e) => handleSampleKeyDown(e, fastq)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{fastq.sample || <UnsetIcon />}</span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
+              <TableCellEditable
+                onClick={() => handleTypeClick(fastq)}
+                onKeyDown={(e) => handleTypeKeyDown(e, fastq)}
+                ariaLabel={`Edit type assignment for ${getFilenameFromPath(fastq.path)}. Current type: ${
+                  fastq.type || "Unset"
+                }`}
+              >
+                {fastq.type || <UnsetIcon />}
+              </TableCellEditable>
+              <TableCellEditable
+                onClick={() => handleQualityClick(fastq)}
+                onKeyDown={(e) => handleQualityKeyDown(e, fastq)}
+                ariaLabel={`Edit quality rating for ${getFilenameFromPath(fastq.path)}. Current quality: ${
+                  fastq.quality ? `${fastq.quality}` : "Unset"
+                }`}
+              >
+                {fastq.quality ? (
+                  <>
+                    <FastqsQualityDot quality={fastq.quality} />
+                    {fastq.quality}
+                  </>
+                ) : (
+                  <UnsetIcon />
+                )}
+              </TableCellEditable>
+              <TableCellEditable
+                onClick={() => handleDilutionClick(fastq)}
+                onKeyDown={(e) => handleDilutionKeyDown(e, fastq)}
+                ariaLabel={`Edit dilution factor for ${getFilenameFromPath(fastq.path)}. Current dilution: ${
+                  fastq.dilution ? `${fastq.dilution}x` : "Unset"
+                }`}
+              >
+                {fastq.dilution ? (
+                  `${formatDilution(fastq.dilution)}`
+                ) : (
+                  <UnsetIcon />
+                )}
+              </TableCellEditable>
+              <TableCellEditable
+                onClick={() => handleSampleClick(fastq)}
+                onKeyDown={(e) => handleSampleKeyDown(e, fastq)}
+                ariaLabel={`Edit sample assignment for ${getFilenameFromPath(fastq.path)}. Current sample: ${
+                  fastq.sample || "Unassigned"
+                }`}
+              >
+                {fastq.sample || <UnsetIcon />}
+              </TableCellEditable>
               <TableCell>
                 <TooltipProvider>
                   <Tooltip>

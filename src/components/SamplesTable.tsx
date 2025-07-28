@@ -2,6 +2,7 @@ import {
   SelectAllCheckbox,
   SelectionCheckbox,
 } from "@/components/ui/selection-checkbox.tsx";
+import { TableCellEditable } from "@/components/ui/table-cell-editable.tsx";
 import {
   Table,
   TableBody,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/table.tsx";
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import type { Sample } from "@/types.ts";
-import { EditIcon } from "lucide-react";
 import React from "react";
 
 type SamplesTableProps = {
@@ -73,66 +73,38 @@ export function SamplesTable({
                 getItemLabel={(item) => item.name}
               />
             </TableCell>
-            <TableCell>
-              <div
-                className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                tabIndex={0}
-                role="button"
-                aria-label={`Edit name for sample: ${sample.name}`}
-                onClick={() => onNameClick(sample)}
-                onKeyDown={(e) => onNameKeyDown(e, sample)}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{sample.name}</span>
-                  <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                tabIndex={0}
-                role="button"
-                aria-label={`Edit FASTQs for ${sample.name}. Currently has ${getFastqCount(sample.id)} FASTQs assigned`}
-                onClick={() => onFastqsClick(sample)}
-                onKeyDown={(e) => onFastqsKeyDown(e, sample)}
-              >
-                <div className="flex items-center justify-between">
-                  <span>
-                    {(() => {
-                      const count = getFastqCount(sample.id);
-                      return count ? (
-                        `${count} FASTQ${count === 1 ? "" : "s"}`
-                      ) : (
-                        <UnsetIcon />
-                      );
-                    })()}
-                  </span>
-                  <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                tabIndex={0}
-                role="button"
-                aria-label={`Edit virus labels for ${sample.name}. Currently has ${sample.viruses?.length || 0} viruses assigned`}
-                onClick={() => onVirusesClick(sample)}
-                onKeyDown={(e) => onVirusesKeyDown(e, sample)}
-              >
-                <div className="flex items-center justify-between">
-                  <span>
-                    {sample.viruses?.length ? (
-                      `${sample.viruses.length} virus${sample.viruses.length === 1 ? "" : "es"}`
-                    ) : (
-                      <UnsetIcon />
-                    )}
-                  </span>
-                  <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                </div>
-              </div>
-            </TableCell>
+            <TableCellEditable
+              onClick={() => onNameClick(sample)}
+              onKeyDown={(e) => onNameKeyDown(e, sample)}
+              ariaLabel={`Edit name for sample: ${sample.name}`}
+            >
+              <span className="font-medium">{sample.name}</span>
+            </TableCellEditable>
+            <TableCellEditable
+              onClick={() => onFastqsClick(sample)}
+              onKeyDown={(e) => onFastqsKeyDown(e, sample)}
+              ariaLabel={`Edit FASTQs for ${sample.name}. Currently has ${getFastqCount(sample.id)} FASTQs assigned`}
+            >
+              {(() => {
+                const count = getFastqCount(sample.id);
+                return count ? (
+                  `${count} FASTQ${count === 1 ? "" : "s"}`
+                ) : (
+                  <UnsetIcon />
+                );
+              })()}
+            </TableCellEditable>
+            <TableCellEditable
+              onClick={() => onVirusesClick(sample)}
+              onKeyDown={(e) => onVirusesKeyDown(e, sample)}
+              ariaLabel={`Edit virus labels for ${sample.name}. Currently has ${sample.viruses?.length || 0} viruses assigned`}
+            >
+              {sample.viruses?.length ? (
+                `${sample.viruses.length} virus${sample.viruses.length === 1 ? "" : "es"}`
+              ) : (
+                <UnsetIcon />
+              )}
+            </TableCellEditable>
           </TableRow>
         ))}
       </TableBody>
