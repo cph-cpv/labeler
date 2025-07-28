@@ -18,11 +18,7 @@ type SamplesNameEditProps = {
   onClose: () => void;
 };
 
-export function SamplesNameEdit({
-  sample,
-  isOpen,
-  onClose,
-}: SamplesNameEditProps) {
+export function SampleName({ sample, isOpen, onClose }: SamplesNameEditProps) {
   const [name, setName] = useState("");
 
   const sampleMutation = usePocketBaseMutation<Sample>("samples");

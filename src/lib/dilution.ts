@@ -28,12 +28,12 @@ export function formatDilution(factor?: string): string {
 }
 
 /**
- * Parses a string value into a valid FastqDilution or null.
+ * Parses a string value into a valid FastqsDilutionSingle or null.
  * Returns null for empty strings or invalid dilution values.
  * Valid dilution factors are: "1", "2", "10", "20", "25", "50", "100", "200".
  *
  * @param value - The string value to parse
- * @returns The parsed FastqDilution value or null if invalid/empty
+ * @returns The parsed FastqsDilutionSingle value or null if invalid/empty
  */
 export function parseDilution(value: string): FastqDilution | null {
   if (value === "") return null;

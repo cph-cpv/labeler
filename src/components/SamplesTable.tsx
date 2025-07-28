@@ -2,7 +2,6 @@ import {
   SelectAllCheckbox,
   SelectionCheckbox,
 } from "@/components/ui/selection-checkbox.tsx";
-import { TableMissingIcon } from "@/components/ui/table-missing-icon.tsx";
 import {
   Table,
   TableBody,
@@ -12,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 import type { Sample } from "@/types.ts";
 import { EditIcon } from "lucide-react";
 import React from "react";
@@ -104,7 +104,7 @@ export function SamplesTable({
                       return count ? (
                         `${count} FASTQ${count === 1 ? "" : "s"}`
                       ) : (
-                        <TableMissingIcon />
+                        <UnsetIcon />
                       );
                     })()}
                   </span>
@@ -126,7 +126,7 @@ export function SamplesTable({
                     {sample.viruses?.length ? (
                       `${sample.viruses.length} virus${sample.viruses.length === 1 ? "" : "es"}`
                     ) : (
-                      <TableMissingIcon />
+                      <UnsetIcon />
                     )}
                   </span>
                   <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />

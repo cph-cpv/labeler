@@ -62,11 +62,15 @@ export function SamplesLabel({
           </DialogDescription>
         </DialogHeader>
 
+        <h2>Viruses</h2>
+
         <SamplesLabeler
           selectedViruses={selectedViruses}
           onVirusSelect={handleVirusSelect}
           onVirusRemove={handleVirusRemove}
         />
+
+        <h2>Exceptions</h2>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

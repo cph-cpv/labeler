@@ -7,16 +7,14 @@ export function convertPbToUiFastq(pbFile: any): Fastq | null {
         name: pbFile.name,
         path: pbFile.path,
         timestamp: pbFile.date ? new Date(pbFile.date) : new Date(),
-        quality: pbFile.quality_rating ?? null,
+        quality: pbFile.quality ?? null,
         dilution: pbFile.dilution,
         type:
           pbFile.type === "dsRNA"
             ? "dsRNA"
             : pbFile.type === "smRNA"
               ? "smRNA"
-              : pbFile.type === "Unknown"
-                ? "Unknown"
-                : null,
+              : null,
         sample: pbFile.expand?.sample?.name || null,
         excluded: pbFile.excluded || false,
       }

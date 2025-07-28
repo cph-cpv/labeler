@@ -1,16 +1,14 @@
+import { SampleFastqs } from "@/components/SampleFastqs.tsx";
+import { SampleName } from "@/components/SampleName.tsx";
 import { SamplesCreate } from "@/components/SamplesCreate.tsx";
-import { SamplesFastqsEdit } from "@/components/SamplesFastqsEdit.tsx";
-import { SamplesLabel } from "@/components/SamplesLabel.tsx";
-import { SamplesNameEdit } from "@/components/SamplesNameEdit.tsx";
 import { SamplesSelection } from "@/components/SamplesSelection.tsx";
-import { SamplesVirusesEdit } from "@/components/SamplesVirusesEdit.tsx";
+import { SampleViruses } from "@/components/SampleViruses.tsx";
 import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {
   SelectAllCheckbox,
   SelectionCheckbox,
 } from "@/components/ui/selection-checkbox.tsx";
-import { TableMissingIcon } from "@/components/ui/table-missing-icon.tsx";
 import {
   Table,
   TableBody,
@@ -20,13 +18,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq, Sample } from "@/types.ts";
 import { Outlet } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 import React, { useEffect } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 export function Samples() {
   const {
@@ -39,7 +37,6 @@ export function Samples() {
   const { data: allFastqs = [] } = usePocketBaseCollection<Fastq>("fastqs");
 
   const [searchValue, setSearchValue] = React.useState("");
-  const [labelDialogOpen, setLabelDialogOpen] = React.useState(false);
   const [editingVirusesSample, setEditingVirusesSample] =
     React.useState<Sample | null>(null);
   const [editingFastqsSample, setEditingFastqsSample] =
@@ -54,14 +51,8 @@ export function Samples() {
     );
   }, [samples, searchValue]);
 
-  const {
-    isAllSelected,
-    onSelectAll,
-    onSetItems,
-    onToggle,
-    selectedIds,
-    selectedCount,
-  } = useSelection<Sample>();
+  const { isAllSelected, onSelectAll, onSetItems, onToggle, selectedIds } =
+    useSelection<Sample>();
 
   // Set the samples in the selection context when they change
   useEffect(() => {
@@ -71,16 +62,6 @@ export function Samples() {
   }, [filteredSamples, onSetItems]);
 
   // Handle keyboard shortcuts
-  useHotkeys(
-    "l",
-    () => {
-      setLabelDialogOpen(true);
-    },
-    {
-      enabled: selectedCount > 0,
-      enableOnFormTags: false,
-    },
-  );
 
   function handleVirusesClick(sample: Sample) {
     setEditingVirusesSample(sample);
@@ -175,13 +156,13 @@ export function Samples() {
         <TableCaption>Sample collection for virus detection.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHeader className="w-12">
+            <TableHead className="w-12">
               <SelectAllCheckbox
                 isAllSelected={isAllSelected}
                 items={filteredSamples}
                 onSelectAll={onSelectAll}
               />
-            </TableHeader>
+            </TableHead>
             <TableHead>Name</TableHead>
             <TableHead>FASTQs</TableHead>
             <TableHead>Viruses</TableHead>
@@ -229,7 +210,7 @@ export function Samples() {
                         return count ? (
                           `${count} FASTQ${count === 1 ? "" : "s"}`
                         ) : (
-                          <TableMissingIcon />
+                          <UnsetIcon />
                         );
                       })()}
                     </span>
@@ -251,7 +232,7 @@ export function Samples() {
                       {sample.viruses?.length ? (
                         `${sample.viruses.length} virus${sample.viruses.length === 1 ? "" : "es"}`
                       ) : (
-                        <TableMissingIcon />
+                        <UnsetIcon />
                       )}
                     </span>
                     <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
@@ -265,26 +246,19 @@ export function Samples() {
 
       <SamplesSelection />
 
-      <SamplesLabel
-        open={labelDialogOpen}
-        onOpenChange={setLabelDialogOpen}
-        selectedSampleIds={Array.from(selectedIds)}
-        selectedCount={selectedCount}
-      />
-
-      <SamplesVirusesEdit
+      <SampleViruses
         sample={editingVirusesSample}
         isOpen={editingVirusesSample !== null}
         onClose={handleVirusesDialogClose}
       />
 
-      <SamplesFastqsEdit
+      <SampleFastqs
         sample={editingFastqsSample}
         isOpen={editingFastqsSample !== null}
         onClose={handleFastqsDialogClose}
       />
 
-      <SamplesNameEdit
+      <SampleName
         sample={editingNameSample}
         isOpen={editingNameSample !== null}
         onClose={handleNameDialogClose}

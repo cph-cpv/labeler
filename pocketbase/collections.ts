@@ -60,9 +60,9 @@ export function createFastqsCollection(
       },
       {
         name: "quality",
-        type: "number",
-        min: 1,
-        max: 5,
+        type: "select",
+        maxSelect: 1,
+        values: ["1", "2", "3", "4", "5"],
       },
       {
         name: "dilution",
@@ -72,7 +72,9 @@ export function createFastqsCollection(
       },
       {
         name: "type",
-        type: "text",
+        type: "select",
+        maxSelect: 1,
+        values: ["dsRNA", "smRNA"],
       },
       {
         name: "date",

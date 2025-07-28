@@ -1,13 +1,11 @@
 import type { FastqDilution } from "@/lib/dilution.ts";
 import type { DateRange } from "react-day-picker";
 
-export type FastqQuality = 1 | 2 | 3 | 4 | 5;
+export type FastqQuality = "1" | "2" | "3" | "4" | "5";
 
-export type FastqType = "dsRNA" | "smRNA" | "Unknown";
+export type FastqType = "dsRNA" | "smRNA";
 
 export type FastqsCategory = "todo" | "excluded" | "done";
-
-export type VirusesCategory = "all" | "typed" | "untyped";
 
 export type FastqTypeFilter = {
   dsRNA: boolean;
@@ -43,14 +41,11 @@ export type Sample = {
 
 export type SampleUpdate = Sample;
 
-export type VirusType = "Satellite" | "Virus" | "Viroid";
-
 export type Virus = {
   id: string;
   acronym: string;
   name: string;
   synonyms: string[];
-  type: VirusType | null;
   uuid: string;
 };
 

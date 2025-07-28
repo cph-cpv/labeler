@@ -18,7 +18,7 @@ type SamplesVirusesEditProps = {
   onClose: () => void;
 };
 
-export function SamplesVirusesEdit({
+export function SampleViruses({
   sample,
   isOpen,
   onClose,

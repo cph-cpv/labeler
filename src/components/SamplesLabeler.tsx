@@ -4,16 +4,15 @@ import {
   TwoPanes,
   TwoPaneScrollArea,
 } from "@/components/ui/two-panes.tsx";
-import { VirusType } from "@/components/VirusType.tsx";
 import { useViruses } from "@/hooks/useViruses.ts";
 import type { Virus } from "@/types.ts";
 import { useState } from "react";
 
 type SamplesLabelerProps = {
-  selectedViruses: Virus[];
   onVirusSelect: (virus: Virus) => void;
   onVirusRemove: (virus: Virus) => void;
   onVirusesChange?: (viruses: Virus[]) => void;
+  selectedViruses: Virus[];
 };
 
 export function SamplesLabeler({
@@ -39,9 +38,6 @@ export function SamplesLabeler({
         <div className="font-medium">{virus.name}</div>
         <div className="flex items-center text-sm text-gray-700 justify-between">
           <div>{virus.acronym || <em>No Acronym</em>}</div>
-          <div>
-            {virus.type ? <VirusType type={virus.type} /> : <em>Untyped</em>}
-          </div>
         </div>
       </div>
     );
@@ -53,9 +49,6 @@ export function SamplesLabeler({
         <div className="font-medium">{virus.name}</div>
         {virus.acronym && (
           <div className="text-sm text-gray-600">{virus.acronym}</div>
-        )}
-        {virus.type && (
-          <div className="text-xs text-gray-500">{virus.type}</div>
         )}
       </div>
     );

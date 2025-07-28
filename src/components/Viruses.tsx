@@ -1,6 +1,3 @@
-import { VirusSelection } from "@/components/VirusSelection.tsx";
-import { VirusType } from "@/components/VirusType.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
@@ -23,30 +20,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs.tsx";
+import { VirusSelection } from "@/components/VirusSelection.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { useViruses } from "@/hooks/useViruses.ts";
-import type { Virus, VirusesCategory } from "@/types.ts";
+import type { Virus } from "@/types.ts";
 import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export function Viruses() {
   const navigate = useNavigate({ from: "/viruses" });
   const search = useSearch({ from: "/viruses" });
-  const activeTab = search.category ?? "all";
   const currentPage = search.page ?? 1;
   const searchTerm = search.search ?? "";
-
-  function setCategory(category: string) {
-    navigate({
-      search: { ...search, category: category as VirusesCategory, page: 1 },
-    });
-  }
 
   function setCurrentPage(page: number) {
     navigate({
@@ -61,18 +46,14 @@ export function Viruses() {
   }
 
   const {
-    counts,
     error,
     isLoading: virusesLoading,
     totalPages,
     viruses,
   } = useViruses({
-    category: activeTab,
     page: currentPage,
     search: searchTerm,
   });
-
-  const { allCount, typedCount, untypedCount } = counts;
 
   const { isAllSelected, onSelectAll, onSetItems, onToggle, selectedIds } =
     useSelection<Virus>();
@@ -97,7 +78,7 @@ export function Viruses() {
               />
             </TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead>Acronym</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -112,9 +93,7 @@ export function Viruses() {
                 />
               </TableCell>
               <TableCell className="font-medium">{virus.name}</TableCell>
-              <TableCell>
-                <VirusType type={virus.type} />
-              </TableCell>
+              <TableCell>{virus.acronym}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -144,30 +123,8 @@ export function Viruses() {
             Viruses from the Virtool reference.
           </p>
         </header>
-        <Tabs value={activeTab} onValueChange={setCategory} className="mt-4">
+        <div className="mt-4">
           <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="all">
-                All{" "}
-                <Badge variant={activeTab === "all" ? "default" : "outline"}>
-                  {allCount}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="typed">
-                Typed{" "}
-                <Badge variant={activeTab === "typed" ? "default" : "outline"}>
-                  {typedCount}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="untyped">
-                Untyped{" "}
-                <Badge
-                  variant={activeTab === "untyped" ? "default" : "outline"}
-                >
-                  {untypedCount}
-                </Badge>
-              </TabsTrigger>
-            </TabsList>
             <LoadingIndicator isLoading={virusesLoading} />
           </div>
 
@@ -181,10 +138,8 @@ export function Viruses() {
             />
           </div>
 
-          <TabsContent value="all">{renderVirusTable(viruses)}</TabsContent>
-          <TabsContent value="typed">{renderVirusTable(viruses)}</TabsContent>
-          <TabsContent value="untyped">{renderVirusTable(viruses)}</TabsContent>
-        </Tabs>
+          <div className="mt-4">{renderVirusTable(viruses)}</div>
+        </div>
 
         <Pagination className="mt-4">
           <PaginationContent>

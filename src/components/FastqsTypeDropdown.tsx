@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function FastqsTypeDropdown() {
@@ -49,13 +50,14 @@ export function FastqsTypeDropdown() {
           smRNA
         </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
-          checked={types.includes("Unknown")}
+          checked={types.includes("Unset")}
           onCheckedChange={(checked) =>
-            handleFilterChange("Unknown", checked ?? false)
+            handleFilterChange("Unset", checked ?? false)
           }
-          className="text-muted-foreground italic"
+          className="flex items-center gap-2 text-muted-foreground"
         >
-          Unknown
+          <UnsetIcon className="size-3.5" />
+          Unset
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>

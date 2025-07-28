@@ -16,7 +16,7 @@ export function formatDate(date: Date): string {
 
 export function validateQuality(value: number): FastqQuality {
   if (value >= 1 && value <= 5) {
-    return value as FastqQuality;
+    return value.toString() as FastqQuality;
   }
   throw new Error(`Invalid quality value: ${value}. Must be between 1 and 5.`);
 }

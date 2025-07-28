@@ -56,8 +56,10 @@ export function FastqsAnnotateSelection<T>({
       <h3 className="text-sm mb-3 font-semibold">Current Selection</h3>
       <Table>
         <TableHeader>
-          <TableHead>Value</TableHead>
-          <TableHead>Count</TableHead>
+          <TableRow>
+            <TableHead>Value</TableHead>
+            <TableHead>Count</TableHead>
+          </TableRow>
         </TableHeader>
         <TableBody>
           {entries.map(([value, count]) => (

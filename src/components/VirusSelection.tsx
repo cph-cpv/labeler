@@ -1,17 +1,9 @@
 import { SelectionBar } from "@/components/ui/selection-bar.tsx";
-import { VirusTypeAssign } from "@/components/VirusTypeAssign.tsx";
-import { useSelection } from "@/hooks/useSelection.tsx";
 
 export function VirusSelection() {
-  const { onClearSelection, selectedCount } = useSelection();
-
   return (
-    <SelectionBar
-      selectedCount={selectedCount}
-      itemName="virus"
-      onClearSelection={onClearSelection}
-    >
-      <VirusTypeAssign />
-    </SelectionBar>
+    <div className="fixed bottom-0 left-0 right-0 z-50">
+      <SelectionBar itemName="Virus" />
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { FastqsQualitySlider } from "@/components/FastqsQualitySlider";
+import { FastqsQualitySelect } from "@/components/FastqsQualitySelect";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,9 @@ export function FastqsQualitySingle({
   isOpen,
   onClose,
 }: FastqsQualitySingleProps) {
-  const [selectedQuality, setSelectedQuality] = React.useState<number>(1);
+  const [selectedQuality, setSelectedQuality] = React.useState<number | null>(
+    null,
+  );
 
   const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
 
@@ -36,17 +38,24 @@ export function FastqsQualitySingle({
   // Update selected quality when dialog opens with a new fastq
   React.useEffect(() => {
     if (fastq && isOpen) {
-      setSelectedQuality(fastq.quality || 1);
+      setSelectedQuality(fastq.quality ? parseInt(fastq.quality) : null);
     }
-  }, [fastqId, isOpen]);
+  }, [fastq, isOpen]);
 
-  // Memoize the handleQualityChange to prevent slider re-creation
+  // Memoize the handleQualityChange to prevent re-creation
   const handleQualityChange = React.useCallback(
-    (newQuality: number) => {
+    (newQuality: number | null) => {
       setSelectedQuality(newQuality);
       if (fastq) {
         update(
-          { id: fastq.id, data: { quality: newQuality } },
+          {
+            id: fastq.id,
+            data: {
+              quality: newQuality
+                ? (newQuality.toString() as import("@/types.ts").FastqQuality)
+                : null,
+            },
+          },
           {
             onSuccess: () => {
               // Keep dialog open for multiple edits
@@ -75,13 +84,11 @@ export function FastqsQualitySingle({
           </DialogHeader>
         </VisuallyHidden.Root>
 
-        <div className="space-y-4">
-          <FastqsQualitySlider
-            value={selectedQuality}
-            onValueChange={handleQualityChange}
-            disabled={isUpdating}
-          />
-        </div>
+        <FastqsQualitySelect
+          disabled={isUpdating}
+          onValueChange={handleQualityChange}
+          value={selectedQuality}
+        />
       </DialogContent>
     </Dialog>
   );

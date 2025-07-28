@@ -1,7 +1,4 @@
-import { FastqsAnnotateDilution } from "@/components/FastqsAnnotateDilution.tsx";
-import { FastqsAnnotateQuality } from "@/components/FastqsAnnotateQuality.tsx";
-import { FastqsAnnotateSample } from "@/components/FastqsAnnotateSample.tsx";
-import { FastqsAnnotateType } from "@/components/FastqsAnnotateType.tsx";
+import { FastqsSampleMulti } from "@/components/FastqsSampleMulti.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -26,7 +23,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsAnnotate() {
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("type");
+  const [activeTab, setActiveTab] = useState("sample");
   const { selectedItems } = useSelection<Fastq>();
 
   useHotkeys(
@@ -39,25 +36,11 @@ export function FastqsAnnotate() {
     {
       enabled: selectedItems.length > 0,
       preventDefault: true,
+      enableOnFormTags: true,
     },
   );
 
-  useHotkeys("1", () => setActiveTab("type"), {
-    enabled: open,
-    preventDefault: true,
-  });
-
-  useHotkeys("2", () => setActiveTab("quality"), {
-    enabled: open,
-    preventDefault: true,
-  });
-
-  useHotkeys("3", () => setActiveTab("dilution"), {
-    enabled: open,
-    preventDefault: true,
-  });
-
-  useHotkeys("4", () => setActiveTab("sample"), {
+  useHotkeys("1", () => setActiveTab("sample"), {
     enabled: open,
     preventDefault: true,
   });
@@ -83,33 +66,15 @@ export function FastqsAnnotate() {
           className="min-h-[500px]"
         >
           <TabsList className="mb-4">
-            <TabsTrigger value="type">
-              Type <Kbd shortcut="1" variant="subtle" />
-            </TabsTrigger>
-            <TabsTrigger value="quality">
-              Quality <Kbd shortcut="2" variant="subtle" />
-            </TabsTrigger>
-            <TabsTrigger value="dilution">
-              Dilution <Kbd shortcut="3" variant="subtle" />
-            </TabsTrigger>
             <TabsTrigger value="sample">
-              Sample <Kbd shortcut="4" variant="subtle" />
+              Sample <Kbd shortcut="1" variant="subtle" />
             </TabsTrigger>
           </TabsList>
 
           <Separator />
 
-          <TabsContent value="type">
-            <FastqsAnnotateType selectedItems={selectedItems} />
-          </TabsContent>
-          <TabsContent value="quality">
-            <FastqsAnnotateQuality selectedItems={selectedItems} />
-          </TabsContent>
-          <TabsContent value="dilution">
-            <FastqsAnnotateDilution selectedItems={selectedItems} />
-          </TabsContent>
           <TabsContent value="sample">
-            <FastqsAnnotateSample selectedItems={selectedItems} />
+            <FastqsSampleMulti selectedItems={selectedItems} />
           </TabsContent>
         </Tabs>
       </DialogContent>

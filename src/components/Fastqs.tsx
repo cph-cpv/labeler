@@ -40,7 +40,7 @@ export function Fastqs() {
   const typeFilter: FastqTypeFilter = {
     dsRNA: urlTypeFilter.includes("dsRNA"),
     smRNA: urlTypeFilter.includes("smRNA"),
-    unknown: urlTypeFilter.includes("Unknown"),
+    unknown: urlTypeFilter.includes("Unset"),
   };
 
   function setCategory(newCategory: string) {
@@ -86,7 +86,7 @@ export function Fastqs() {
       if (typeFilter.dsRNA) typeConditions.push("type = 'dsRNA'");
       if (typeFilter.smRNA) typeConditions.push("type = 'smRNA'");
       if (typeFilter.unknown) {
-        typeConditions.push("(type = 'Unknown' || type = null)");
+        typeConditions.push("type = null");
       }
 
       conditions.push(`(${typeConditions.join(" || ")})`);

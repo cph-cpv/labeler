@@ -23,7 +23,7 @@ type SamplesFastqsEditProps = {
   onClose: () => void;
 };
 
-export function SamplesFastqsEdit({
+export function SampleFastqs({
   sample,
   isOpen,
   onClose,
