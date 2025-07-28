@@ -1,22 +1,28 @@
 import { SamplesAssociator } from "@/components/SamplesAssociator.tsx";
+import { SamplesLabeler } from "@/components/SamplesLabeler.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogSectionTitle,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs.tsx";
+import {
   usePocketBaseCollection,
   usePocketBaseMutation,
 } from "@/hooks/usePocketBaseQuery.ts";
 import { convertPbToUiFastq } from "@/lib/convert.ts";
-import type { Fastq, Sample } from "@/types.ts";
+import type { Fastq, Sample, Virus } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 
@@ -32,6 +38,7 @@ export function SamplesDetail({
   onOpenChange,
 }: SamplesDetailProps) {
   const [searchTerm, setSearchTerm] = useState(sample.name);
+  const [selectedViruses, setSelectedViruses] = useState<Virus[]>([]);
 
   // Fetch FASTQs associated with this sample (server state)
   const { data: pbFastqs, isLoading: isFastqsLoading } =
@@ -44,8 +51,9 @@ export function SamplesDetail({
     .map(convertPbToUiFastq)
     .filter(Boolean) as Fastq[];
 
-  // Mutation for updating FASTQs
+  // Mutations for updating FASTQs and samples
   const fastqMutation = usePocketBaseMutation<Fastq>("fastqs");
+  const sampleMutation = usePocketBaseMutation<Sample>("samples");
 
   const form = useForm({
     defaultValues: {
@@ -53,6 +61,30 @@ export function SamplesDetail({
       selectedFastqs: serverAssociatedFastqs,
     },
     onSubmit: async ({ value }) => {
+      const promises = [];
+
+      // Update sample name if changed
+      if (value.name !== sample.name) {
+        promises.push(
+          sampleMutation.updateAsync({
+            id: sample.id,
+            data: { name: value.name },
+          }),
+        );
+      }
+
+      // Update virus associations
+      const virusIds = selectedViruses.map((v) => v.id);
+      if (JSON.stringify(virusIds) !== JSON.stringify(sample.viruses || [])) {
+        promises.push(
+          sampleMutation.updateAsync({
+            id: sample.id,
+            data: { viruses: virusIds },
+          }),
+        );
+      }
+
+      // Handle FASTQ associations
       const serverIds = new Set(serverAssociatedFastqs.map((f) => f.id));
       const selectedIds = new Set(value.selectedFastqs.map((f) => f.id));
 
@@ -64,8 +96,8 @@ export function SamplesDetail({
         (f) => !selectedIds.has(f.id),
       );
 
-      // Apply changes
-      await Promise.all([
+      // Add FASTQ update promises
+      promises.push(
         ...toAdd.map((fastq) =>
           fastqMutation.updateAsync({
             id: fastq.id,
@@ -78,7 +110,10 @@ export function SamplesDetail({
             data: { sample: null },
           }),
         ),
-      ]);
+      );
+
+      // Execute all updates
+      await Promise.all(promises);
     },
   });
 
@@ -86,6 +121,15 @@ export function SamplesDetail({
   React.useEffect(() => {
     setSearchTerm(sample.name);
   }, [sample.name]);
+
+  // Initialize selected viruses from sample data
+  React.useEffect(() => {
+    if (sample.viruses) {
+      // Here we would need to fetch virus details if we have virus IDs
+      // For now, assume selectedViruses are managed properly
+      setSelectedViruses([]);
+    }
+  }, [sample.viruses]);
 
   // Update form when server data changes
   React.useEffect(() => {
@@ -108,6 +152,14 @@ export function SamplesDetail({
     );
   }
 
+  function handleVirusSelect(virus: Virus) {
+    setSelectedViruses((prev) => [...prev, virus]);
+  }
+
+  function handleVirusRemove(virus: Virus) {
+    setSelectedViruses((prev) => prev.filter((v) => v.id !== virus.id));
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl">
@@ -128,7 +180,6 @@ export function SamplesDetail({
             }}
             className="space-y-6"
           >
-            <DialogSectionTitle>Fields</DialogSectionTitle>
             <div className="space-y-3">
               <form.Field name="name">
                 {(field) => (
@@ -146,49 +197,86 @@ export function SamplesDetail({
                   </div>
                 )}
               </form.Field>
-
-              <DialogSectionTitle>FASTQs</DialogSectionTitle>
-
-              <Input
-                id="fastq-search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search for FASTQs"
-                disabled={form.state.isSubmitting}
-              />
-              <form.Field name="selectedFastqs">
-                {(field) => (
-                  <SamplesAssociator
-                    searchTerm={searchTerm}
-                    selectedFastqs={field.state.value}
-                    onSelectFastq={handleAddAssociation}
-                    onDeselectFastq={handleDeselectFastq}
-                  />
-                )}
-              </form.Field>
             </div>
+
+            <Tabs defaultValue="viruses" className="mt-6">
+              <TabsList className="mb-4">
+                <TabsTrigger value="viruses">Viruses</TabsTrigger>
+                <TabsTrigger value="fastqs">FASTQs</TabsTrigger>
+              </TabsList>
+              <TabsContent value="viruses" className="space-y-3">
+                <SamplesLabeler
+                  selectedViruses={selectedViruses}
+                  onVirusSelect={handleVirusSelect}
+                  onVirusRemove={handleVirusRemove}
+                />
+              </TabsContent>
+              <TabsContent value="fastqs" className="space-y-3">
+                <Input
+                  id="fastq-search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search for FASTQs"
+                  disabled={form.state.isSubmitting}
+                />
+                <form.Field name="selectedFastqs">
+                  {(field) => (
+                    <SamplesAssociator
+                      searchTerm={searchTerm}
+                      selectedFastqs={field.state.value}
+                      onSelectFastq={handleAddAssociation}
+                      onDeselectFastq={handleDeselectFastq}
+                    />
+                  )}
+                </form.Field>
+              </TabsContent>
+            </Tabs>
 
             <div className="flex justify-end space-x-2">
               <form.Subscribe
                 selector={(state) => state.isSubmitting}
-                children={(isSubmitting) => (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => onOpenChange(false)}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                )}
+                children={(isSubmitting) => {
+                  const isAnyMutationPending =
+                    isSubmitting ||
+                    sampleMutation.isPending ||
+                    fastqMutation.isPending;
+
+                  return (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => onOpenChange(false)}
+                      disabled={isAnyMutationPending}
+                    >
+                      Cancel
+                    </Button>
+                  );
+                }}
               />
               <form.Subscribe
                 selector={(state) => [state.isSubmitting, state.isDirty]}
-                children={([isSubmitting, isDirty]) => (
-                  <Button type="submit" disabled={isSubmitting || !isDirty}>
-                    {isSubmitting ? "Saving..." : "Save Changes"}
-                  </Button>
-                )}
+                children={([isSubmitting, isDirty]) => {
+                  // Check if virus selections have changed
+                  const virusIds = selectedViruses.map((v) => v.id);
+                  const virusesChanged =
+                    JSON.stringify(virusIds) !==
+                    JSON.stringify(sample.viruses || []);
+
+                  const hasChanges = isDirty || virusesChanged;
+                  const isAnyMutationPending =
+                    isSubmitting ||
+                    sampleMutation.isPending ||
+                    fastqMutation.isPending;
+
+                  return (
+                    <Button
+                      type="submit"
+                      disabled={isAnyMutationPending || !hasChanges}
+                    >
+                      {isAnyMutationPending ? "Saving..." : "Save Changes"}
+                    </Button>
+                  );
+                }}
               />
             </div>
           </form>

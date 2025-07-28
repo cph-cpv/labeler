@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button.tsx";
 import { cn } from "@/lib/utils.ts";
+import { SquareX } from "lucide-react";
 
 interface SelectionBarProps {
   selectedCount: number;
@@ -40,11 +41,12 @@ export function SelectionBar({
             {selectedCount} {selectedCount === 1 ? itemName : `${itemName}s`}{" "}
             selected
           </div>
+
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClearSelection}>
-              Clear Selection
-            </Button>
             {children}
+            <Button variant="outline" onClick={onClearSelection}>
+              <SquareX /> Clear Selection
+            </Button>
           </div>
         </div>
       </div>

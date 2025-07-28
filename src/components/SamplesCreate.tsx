@@ -25,14 +25,14 @@ type PocketBaseFile = {
 };
 
 export function SamplesCreate({ onSampleCreated }: SamplesCreateProps) {
+  const [createMore, setCreateMore] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [sampleName, setSampleName] = React.useState("");
   const [selectedFastqs, setSelectedFastqs] = React.useState<Fastq[]>([]);
-  const [createMore, setCreateMore] = React.useState(false);
 
   // Mutations for creating sample and updating FASTQs
-  const sampleMutation = usePocketBaseMutation<Sample>("samples");
   const fastqMutation = usePocketBaseMutation<PocketBaseFile>("fastqs");
+  const sampleMutation = usePocketBaseMutation<Sample>("samples");
 
   const isCreating = sampleMutation.isCreating || fastqMutation.isUpdating;
 
@@ -83,7 +83,7 @@ export function SamplesCreate({ onSampleCreated }: SamplesCreateProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Create Sample</Button>
+        <Button>Create</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
@@ -134,7 +134,7 @@ export function SamplesCreate({ onSampleCreated }: SamplesCreateProps) {
                   selectedFastqs.length === 0
                 }
               >
-                {isCreating ? "Creating..." : "Create"}
+                Create
               </Button>
             </div>
           </div>

@@ -1,6 +1,3 @@
-import { SamplesDetail } from "@/components/SamplesDetail.tsx";
-import { usePocketBaseRecord } from "@/hooks/usePocketBaseQuery.ts";
-import type { Sample } from "@/types.ts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/samples/$id")({
@@ -8,28 +5,7 @@ export const Route = createFileRoute("/samples/$id")({
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
-  const navigate = Route.useNavigate();
-
-  const {
-    data: sample,
-    isLoading,
-    error,
-  } = usePocketBaseRecord<Sample>("samples", id);
-
-  const handleClose = () => {
-    navigate({ to: "/samples" });
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-8">Loading sample...</div>;
-  }
-
-  if (error || !sample) {
-    return <Navigate to="/samples" />;
-  }
-
-  return (
-    <SamplesDetail sample={sample} open={true} onOpenChange={handleClose} />
-  );
+  // Since we've moved to inline editing in the samples table,
+  // redirect individual sample routes back to the main samples page
+  return <Navigate to="/samples" />;
 }

@@ -38,6 +38,7 @@ export type FastqUpdate = {
 export type Sample = {
   id: string;
   name: string;
+  viruses: string[];
 };
 
 export type SampleUpdate = Sample;

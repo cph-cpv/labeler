@@ -75,7 +75,7 @@ export function useViruses(options: UseVirusesOptions = {}): UseVirusesResult {
     }
 
     const allCount = countsQuery.data.length;
-    const typedCount = countsQuery.data.filter((virus) => !virus.type).length;
+    const typedCount = countsQuery.data.filter((virus) => virus.type).length;
     const untypedCount = allCount - typedCount;
 
     return { allCount, typedCount, untypedCount };

@@ -1,16 +1,20 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Listbox, ListboxOption } from "@/components/ui/listbox";
 import {
   usePocketBaseFirst,
   usePocketBasePaginated,
 } from "@/hooks/usePocketBaseQuery.ts";
 import { useSampleCreation } from "@/hooks/useSampleCreation";
-import { cn, guessCommonSampleName } from "@/lib/utils.ts";
+import { guessCommonSampleName } from "@/lib/utils.ts";
 import type { Sample } from "@/types.ts";
-import { AlertCircle, Check, CircleCheck, Plus } from "lucide-react";
+import { AlertCircle, Clover, Plus } from "lucide-react";
 import * as React from "react";
+
+type SelectionValue =
+  | { type: "sample"; id: string }
+  | { type: "create"; name: string }
+  | { type: "create-guessed"; name: string };
 
 type FastqsSampleSelectorProps = {
   onChange: (sampleId: string | null) => void;
@@ -24,28 +28,33 @@ export function FastqsSampleSelector({
   onChange,
   value,
 }: FastqsSampleSelectorProps) {
-  const [searchValue, setSearchValue] = React.useState("");
-  const [firstSampleName, setFirstSampleName] = React.useState(() => {
-    const guessed = guessCommonSampleName(fastqNames);
-    return guessed || "";
-  });
-
-  const guessedSampleName = guessCommonSampleName(fastqNames);
+  const guessedSampleName = React.useMemo(
+    () => guessCommonSampleName(fastqNames),
+    [fastqNames],
+  );
   const canGuessName = guessedSampleName !== undefined;
 
-  // Try to find exact match for guessed name using PocketBase query
-  const { data: exactMatch } = usePocketBaseFirst<Sample>(
-    "samples",
-    guessedSampleName ? `name = "${guessedSampleName}"` : null,
+  const [searchValue, setSearchValue] = React.useState(
+    () => guessedSampleName || "",
   );
 
-  // Use paginated query for better performance - fetch 50 samples (app default)
-  const { data: allSamples = [], totalItems = 0 } =
-    usePocketBasePaginated<Sample>("samples", {
-      sort: "name", // Sort alphabetically for better UX
-    });
+  // Try to find exact match for guessed name using PocketBase query
+  const { data: guessedMatch } = usePocketBaseFirst<Sample>(
+    "samples",
+    guessedSampleName ? `name = "${guessedSampleName}"` : "",
+  );
 
-  const { createSample, isCreating } = useSampleCreation(onChange);
+  const { data: allSamples = [] } = usePocketBasePaginated<Sample>("samples", {
+    sort: "name",
+  });
+
+  const { createSample } = useSampleCreation();
+
+  // Find the currently selected sample
+  const selectedSample = allSamples.find((sample) => sample.id === value);
+
+  // Use the selected sample as exactMatch, or fall back to guessedMatch
+  const exactMatch = selectedSample || guessedMatch;
 
   const filteredSamples = React.useMemo(() => {
     // Client-side filtering on the fetched subset
@@ -61,76 +70,46 @@ export function FastqsSampleSelector({
     (sample) => sample.name.toLowerCase() === searchValue.toLowerCase(),
   );
 
-  const showCreateOption = Boolean(
-    searchValue &&
-      searchValue.trim() &&
-      !searchExactMatch &&
-      filteredSamples.length === 0,
-  );
+  async function handleSelect(value: SelectionValue) {
+    if (value.type === "sample") {
+      onChange(value.id);
+    } else {
+      const sample = await createSample(value.name);
 
-  function handleSampleSelect(sample: Sample) {
-    onChange(sample.id);
+      if (sample) {
+        onChange(sample.id);
+      }
+    }
   }
 
-  async function handleCreateSample() {
-    await createSample(searchValue);
-    setSearchValue("");
+  function handleClickGuessedName() {
+    if (guessedSampleName) {
+      setSearchValue(guessedSampleName);
+    }
   }
 
-  async function handleCreateGuessedSample(name: string) {
-    await createSample(name);
-  }
-
-  async function handleCreateFirstSample() {
-    await createSample(firstSampleName);
-    setFirstSampleName("");
-  }
-
-  // If no samples exist in the database, show the first sample creation UI.
-  if (totalItems === 0) {
-    return (
-      <div className="space-y-3">
-        <div className="text-sm text-muted-foreground">
-          No samples exist yet. Create your first sample to get started.
-        </div>
-        {!canGuessName && (
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertTitle>Unable to guess sample name.</AlertTitle>
-            <AlertDescription>
-              Carefully check the FASTQ file names and create a sample name
-              manually if necessary.
-            </AlertDescription>
-          </Alert>
-        )}
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search samples..."
-            value={firstSampleName}
-            onChange={(e) => setFirstSampleName(e.target.value)}
-            disabled={isCreating}
-            className="flex-1"
-          />
-          <Button
-            onClick={handleCreateFirstSample}
-            disabled={!firstSampleName.trim() || isCreating}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isCreating ? "Creating..." : "Create"}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Normal listbox when samples exist
   return (
     <div className="space-y-2">
-      {canGuessName && !exactMatch && (
+      {canGuessName ? (
         <div className="text-sm text-muted-foreground">
           Guessed sample name:{" "}
-          <span className="font-medium">{guessedSampleName}</span>
+          <button
+            type="button"
+            onClick={handleClickGuessedName}
+            className="font-medium text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:underline cursor-pointer"
+          >
+            {guessedSampleName}
+          </button>
         </div>
+      ) : (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertTitle>Unable to guess sample name.</AlertTitle>
+          <AlertDescription>
+            Carefully check the FASTQ file names and create a sample name
+            manually if necessary.
+          </AlertDescription>
+        </Alert>
       )}
 
       <div className="space-y-2">
@@ -140,95 +119,68 @@ export function FastqsSampleSelector({
           onChange={(e) => setSearchValue(e.target.value)}
         />
 
-        <ScrollArea className="border w-full rounded-md h-48">
-          <div
-            role="listbox"
-            aria-label="Available samples"
-            className="outline-none"
-          >
-            {exactMatch && (
-              <div
-                key={exactMatch.id}
-                role="option"
-                aria-selected={value === exactMatch.id}
-                className={cn(
-                  "p-2 px-4 text-sm border-b cursor-pointer hover:bg-muted/50 flex items-center justify-between",
-                  value === exactMatch.id ? "bg-muted/50" : "bg-green-50",
-                )}
-                onClick={() => handleSampleSelect(exactMatch)}
-              >
-                <div className="flex items-center">{exactMatch.name}</div>
-                {value !== exactMatch.id && (
+        <Listbox
+          placeholder="No samples found."
+          aria-label="Available samples"
+          onSelect={(value) => handleSelect(JSON.parse(value))}
+          value={value}
+        >
+          {exactMatch && (
+            <ListboxOption
+              className={
+                value !== exactMatch.id && exactMatch === guessedMatch
+                  ? "bg-green-50"
+                  : undefined
+              }
+              label={exactMatch.name}
+              value={JSON.stringify({ type: "sample", id: exactMatch.id })}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span>{exactMatch.name}</span>
+                {value !== exactMatch.id && exactMatch === guessedMatch && (
                   <div className="flex gap-2 text-sm text-green-600 font-medium items-center">
-                    <CircleCheck size={16} />
+                    <Clover size={16} />
                     <span>Found existing</span>
                   </div>
                 )}
               </div>
-            )}
+            </ListboxOption>
+          )}
 
-            {canGuessName && !exactMatch && (
-              <div
-                role="option"
-                className="p-2 px-4 text-sm border-b cursor-pointer bg-blue-50 text-blue-800 hover:bg-blue-100 flex items-center justify-between"
-                onClick={() => {
-                  if (guessedSampleName) {
-                    handleCreateGuessedSample(guessedSampleName);
-                  }
-                }}
-              >
-                <div className="flex items-center">{guessedSampleName}</div>
+          {/* Add create new option based on search input or guessed name */}
+          {((canGuessName && !guessedMatch && guessedSampleName) ||
+            (searchValue && searchValue.trim() && !searchExactMatch)) && (
+            <ListboxOption
+              className="bg-blue-50 text-blue-800 hover:bg-blue-100"
+              label={searchValue || guessedSampleName || ""}
+              value={JSON.stringify({
+                type: "create",
+                name: searchValue.trim() || guessedSampleName || "",
+              })}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span>{searchValue || guessedSampleName}</span>
                 <div className="flex gap-2 text-sm text-blue-600 font-medium items-center">
                   <Plus size={16} />
                   <span>Create new</span>
                 </div>
               </div>
-            )}
+            </ListboxOption>
+          )}
 
-            {filteredSamples
-              .filter((sample) => sample.id !== exactMatch?.id)
-              .map((sample) => (
-                <div
-                  key={sample.id}
-                  role="option"
-                  aria-selected={value === sample.id}
-                  className="p-2 px-4 text-sm border-b last:border-b-0 cursor-pointer hover:bg-muted/50 flex items-center"
-                  onClick={() => handleSampleSelect(sample)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === sample.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {sample.name}
-                </div>
-              ))}
-
-            {showCreateOption && (
-              <div
-                role="option"
-                className="p-2 text-sm cursor-pointer bg-green-50 text-green-800 hover:bg-green-100 mx-2 my-1 rounded-md border-t border-green-200 flex items-center"
-                onClick={handleCreateSample}
+          {/* Add filtered samples */}
+          {filteredSamples
+            .filter((sample) => sample.id !== exactMatch?.id)
+            .map((sample) => (
+              <ListboxOption
+                key={sample.id}
+                label={sample.name}
+                value={JSON.stringify({ type: "sample", id: sample.id })}
               >
-                <Plus className="mr-2 h-4 w-4 text-green-600" />
-                {isCreating
-                  ? `Creating "${searchValue}"...`
-                  : `Create new sample "${searchValue}"`}
-              </div>
-            )}
-
-            {filteredSamples.length === 0 && !showCreateOption && (
-              <div
-                className="p-2 text-sm text-muted-foreground text-center"
-                role="status"
-              >
-                No samples found.
-              </div>
-            )}
-          </div>
-          <ScrollBar />
-        </ScrollArea>
+                {sample.name}
+              </ListboxOption>
+            ))}
+        </Listbox>
       </div>
     </div>
   );

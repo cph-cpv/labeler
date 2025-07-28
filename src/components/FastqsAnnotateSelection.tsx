@@ -1,11 +1,17 @@
-import { Badge } from "@/components/ui/badge.tsx";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card.tsx";
-import { X } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table.tsx";
 
 type FastqsAnnotateSelectionSummaryProps<T> = {
   selectedItems: T[];
@@ -48,13 +54,20 @@ export function FastqsAnnotateSelection<T>({
   return (
     <div className="mt-6">
       <h3 className="text-sm mb-3 font-semibold">Current Selection</h3>
-      {entries.map(([value, count]) => (
-        <div className="flex items-center gap-2" key={value}>
-          <Badge className="w-8">{count}</Badge>
-          <X size={12} />
-          <span>{value}</span>
-        </div>
-      ))}
+      <Table>
+        <TableHeader>
+          <TableHead>Value</TableHead>
+          <TableHead>Count</TableHead>
+        </TableHeader>
+        <TableBody>
+          {entries.map(([value, count]) => (
+            <TableRow key={value}>
+              <TableCell>{value}</TableCell>
+              <TableCell>{count}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

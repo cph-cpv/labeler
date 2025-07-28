@@ -2,7 +2,7 @@ import type Pocketbase from "pocketbase";
 import {
   createExceptionsCollection,
   createFastqsCollection,
-  createSampleCollection,
+  createSamplesCollection,
   virusCollection as virusCollectionSchema,
 } from "./collections";
 
@@ -37,7 +37,7 @@ export async function resetCollections(pb: Pocketbase) {
   const virusCollection = await createCollection(pb, virusCollectionSchema);
   const sampleCollection = await createCollection(
     pb,
-    createSampleCollection(virusCollection.id),
+    createSamplesCollection(virusCollection.id),
   );
   const fastqAnnotationCollection = await createCollection(
     pb,

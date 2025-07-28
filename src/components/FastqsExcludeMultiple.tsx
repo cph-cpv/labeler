@@ -50,7 +50,7 @@ export function FastqsExcludeMultiple() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="outline">
+      <Button variant="secondary" onClick={() => setOpen(true)}>
         Exclude <Kbd shortcut="E" />
       </Button>
 

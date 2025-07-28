@@ -29,6 +29,11 @@ export function FastqsSample({
 
   const { update } = usePocketBaseMutation<Fastq>("fastqs");
 
+  const fastqNames = React.useMemo(
+    () => (fastq ? [fastq.name] : []),
+    [fastq?.name],
+  );
+
   // Initialize selected sample when dialog opens
   React.useEffect(() => {
     if (fastq && isOpen) {
@@ -75,7 +80,7 @@ export function FastqsSample({
               value={selectedSampleId}
               onChange={handleSampleChange}
               placeholder="Select or create a sample..."
-              fastqNames={[fastq.name]}
+              fastqNames={fastqNames}
             />
           </div>
         </div>

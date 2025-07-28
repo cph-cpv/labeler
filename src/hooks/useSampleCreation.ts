@@ -2,36 +2,32 @@ import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery";
 import type { Sample } from "@/types";
 import { useCallback, useState } from "react";
 
-export function useSampleCreation(onChange: (id: string) => void) {
-  const { create } = usePocketBaseMutation<Sample>("samples");
+export function useSampleCreation() {
+  const { createAsync } = usePocketBaseMutation<Sample>("samples");
+  const [error, setError] = useState<Error | undefined>();
   const [isCreating, setIsCreating] = useState(false);
 
   const createSample = useCallback(
-    async (name: string) => {
-      if (!name.trim() || isCreating) return;
+    async (name: string): Promise<Sample | undefined> => {
+      if (!name.trim() || isCreating) return undefined;
 
       setIsCreating(true);
+      setError(undefined);
+
       try {
-        create(
-          { name: name.trim() },
-          {
-            onSuccess: (sample) => {
-              onChange(sample.id);
-              setIsCreating(false);
-            },
-            onError: (error) => {
-              console.error("Failed to create sample:", error);
-              setIsCreating(false);
-            },
-          },
-        );
-      } catch (error) {
-        console.error("Failed to create sample:", error);
+        const sample = await createAsync({ name: name.trim() });
         setIsCreating(false);
+        return sample;
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error("Failed to create sample");
+        setError(error);
+        setIsCreating(false);
+        return undefined;
       }
     },
-    [create, onChange, isCreating],
+    [createAsync],
   );
 
-  return { createSample, isCreating };
+  return { createSample, error, isCreating };
 }

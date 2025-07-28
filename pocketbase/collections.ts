@@ -104,7 +104,7 @@ export function createFastqsCollection(
   };
 }
 
-export function createSampleCollection(virusesCollectionId: string) {
+export function createSamplesCollection(virusesCollectionId: string) {
   return {
     ...ACCESS_ALL_USERS,
     name: "samples",
@@ -114,6 +114,7 @@ export function createSampleCollection(virusesCollectionId: string) {
         name: "name",
         type: "text",
         required: true,
+        unique: true,
       },
       {
         name: "viruses",
@@ -124,6 +125,7 @@ export function createSampleCollection(virusesCollectionId: string) {
         maxSelect: 999,
       },
     ],
+    indexes: ["CREATE UNIQUE INDEX idx_name ON samples (name)"],
   };
 }
 

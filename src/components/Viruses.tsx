@@ -2,7 +2,6 @@ import { VirusSelection } from "@/components/VirusSelection.tsx";
 import { VirusType } from "@/components/VirusType.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Link } from "@/components/ui/link.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
   Pagination,
@@ -112,11 +111,7 @@ export function Viruses() {
                   getItemLabel={(item) => item.name}
                 />
               </TableCell>
-              <TableCell className="font-medium">
-                <Link to="/viruses/$id" params={{ id: virus.id.toString() }}>
-                  {virus.name}
-                </Link>
-              </TableCell>
+              <TableCell className="font-medium">{virus.name}</TableCell>
               <TableCell>
                 <VirusType type={virus.type} />
               </TableCell>
