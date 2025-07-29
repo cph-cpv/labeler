@@ -1,8 +1,30 @@
+# Source
+
+- Use src/components/ui/link.tsx for links.
+- Reuseable components are in src/components/ui.
 - Types are in src/types.ts.
-- Reuseable components are in src/components/ui. Look here before writing common
-  components from scratch.
-- Use Context7 MCP to look up library documentation.
-- Links use the component in src/components/ui/link.tsx.
-- Always use path aliases in importrs.
-- Look up docs for specific libraries and tools in Context7 MCP.
+
+# Style
+
+- Use path aliases in imports.
+- Use function declarations for named functions.
+
+# Libraries
+
+- We use `react-hotkeys-hook` for hotkeys.
+
+# MCP
+
+- Refer to docs with Context7 MCP.
+- Use Playwright MCP to debug in browser. Port 3000. Stop and advise if it's not running
+
+# Typescript
+
 - Use `type` over `interface` wherever possible.
+- Use `npm run typecheck` when necessary.
+- Don't use `any`.
+
+# Testing
+
+- Don't use testid.
+- Run playwright with --reporter=line.

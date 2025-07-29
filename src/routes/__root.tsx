@@ -1,6 +1,5 @@
 import { AuthButton } from "@/components/AuthButton.tsx";
 import { AuthLogin } from "@/components/AuthLogin.tsx";
-import { DevtoolsDialog } from "@/components/DevtoolsDialog.tsx";
 import {
   Card,
   CardContent,
@@ -14,7 +13,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu.tsx";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 
 function AppShell() {
@@ -61,8 +60,8 @@ function AppShell() {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/files" activeProps={{ "data-active": true }}>
-                  Files
+                <Link to="/fastqs" activeProps={{ "data-active": true }}>
+                  FASTQs
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -83,7 +82,6 @@ function AppShell() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2">
-          <DevtoolsDialog />
           <AuthButton />
         </div>
       </header>
@@ -95,9 +93,5 @@ function AppShell() {
 }
 
 export const Route = createRootRoute({
-  component: () => (
-    <AuthProvider>
-      <AppShell />
-    </AuthProvider>
-  ),
+  component: AppShell,
 });

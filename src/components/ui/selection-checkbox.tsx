@@ -1,9 +1,9 @@
-import type { SelectableItem } from "@/hooks/useSelection.ts";
+import type { SelectableItem } from "@/hooks/useSelection.tsx";
 
 interface SelectionCheckboxProps<T extends SelectableItem> {
   item: T;
   selectedItems: Set<string>;
-  onItemSelect: (itemId: string) => void;
+  onItemSelect: (item: T, event?: React.MouseEvent) => void;
   getItemLabel: (item: T) => string;
 }
 
@@ -13,12 +13,22 @@ export function SelectionCheckbox<T extends SelectableItem>({
   onItemSelect,
   getItemLabel,
 }: SelectionCheckboxProps<T>) {
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    onItemSelect(item, event);
+  };
+
+  const handleChange = () => {
+    // onChange is required by React but we handle the logic in onClick
+    // to properly capture the mouse event with shiftKey
+  };
+
   return (
     <label className="flex items-center justify-center cursor-pointer p-2">
       <input
         type="checkbox"
         checked={selectedItems.has(item.id.toString())}
-        onChange={() => onItemSelect(item.id.toString())}
+        onClick={handleClick}
+        onChange={handleChange}
         className="rounded"
         aria-label={`Select ${getItemLabel(item)}`}
       />
@@ -33,7 +43,6 @@ interface SelectAllCheckboxProps<T extends SelectableItem> {
 }
 
 export function SelectAllCheckbox<T extends SelectableItem>({
-  items,
   isAllSelected,
   onSelectAll,
 }: SelectAllCheckboxProps<T>) {

@@ -1,19 +1,16 @@
 import { Button } from "@/components/ui/button.tsx";
+import { useSelection } from "@/hooks/useSelection.tsx";
 import { cn } from "@/lib/utils.ts";
+import { SquareX } from "lucide-react";
 
 interface SelectionBarProps {
-  selectedCount: number;
+  children: React.ReactNode;
   itemName: string;
-  onClearSelection: () => void;
-  children?: React.ReactNode;
 }
 
-export function SelectionBar({
-  selectedCount,
-  itemName,
-  onClearSelection,
-  children,
-}: SelectionBarProps) {
+export function SelectionBar({ itemName, children }: SelectionBarProps) {
+  const { selectedCount, onClearSelection } = useSelection();
+
   const isVisible = selectedCount > 0;
 
   return (
@@ -40,11 +37,12 @@ export function SelectionBar({
             {selectedCount} {selectedCount === 1 ? itemName : `${itemName}s`}{" "}
             selected
           </div>
+
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClearSelection}>
-              Clear Selection
-            </Button>
             {children}
+            <Button variant="outline" onClick={onClearSelection}>
+              <SquareX /> Clear Selection
+            </Button>
           </div>
         </div>
       </div>

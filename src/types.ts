@@ -1,32 +1,77 @@
+import type { ExceptionType } from "@/hooks/useExceptions.ts";
+import type { FastqDilution } from "@/lib/dilution.ts";
+import type { FastqQuality } from "@/lib/quality.ts";
 import type { DateRange } from "react-day-picker";
 
-export type FastqType = "dsRNA" | "smRNA" | "Unknown";
-export type VirusType = "Satellite" | "Virus" | "Viroid";
+export type FastqType = "dsRNA" | "smRNA";
+
+export type FastqsCategory = "todo" | "excluded" | "done";
+
+export type FastqTypeFilter = {
+  dsRNA: boolean;
+  smRNA: boolean;
+  unknown: boolean;
+};
 
 export type Fastq = {
   id: string;
-  dilutionFactor: number | null;
+  dilution: FastqDilution | null;
+  excluded: boolean;
   name: string;
   path: string;
-  quality: number | null;
+  quality: FastqQuality | null;
   timestamp: Date;
   type: FastqType | null;
+  sample: string | null;
+};
+
+export type FastqUpdate = {
+  id: string;
+  dilution: FastqDilution | null;
   excluded: boolean;
+  quality: FastqQuality | null;
   sample: string | null;
 };
 
 export type Sample = {
-  id: number;
+  id: string;
   name: string;
+  viruses: string[];
+};
+
+export type SampleExpanded = {
+  id: string;
+  expand: {
+    viruses: Virus[];
+  };
+};
+
+export type SampleUpdate = Sample;
+
+export type Exception = {
+  id: string;
+  type: ExceptionType;
+  virus: Virus;
 };
 
 export type Virus = {
-  id: number;
+  id: string;
   acronym: string;
   name: string;
   synonyms: string[];
-  type: VirusType | null;
   uuid: string;
+};
+
+export type ClientResponseError = Error & {
+  url: string;
+  status: number;
+  response: Record<string, any>;
+  isAbort: boolean;
+  originalError: Error | null;
+};
+
+export type PocketBaseError = ClientResponseError & {
+  notFound: boolean;
 };
 
 export type { DateRange };
