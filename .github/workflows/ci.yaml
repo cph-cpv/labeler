@@ -29,8 +29,8 @@ jobs:
       - name: Run TypeScript
         run: npx tsr generate && npm run typecheck
 
-  docker-build:
-    name: "Release / Build"
+  build:
+    name: "Build"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
