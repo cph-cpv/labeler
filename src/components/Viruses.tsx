@@ -23,7 +23,7 @@ import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
 export function Viruses() {
   const navigate = useNavigate({ from: "/viruses" });
   const search = useSearch({ from: "/viruses" });
-  const currentPage = search.page ?? 1;
+  const currentPage: number = search.page ?? 1;
   const searchTerm = search.search ?? "";
 
   function setCurrentPage(page: number) {

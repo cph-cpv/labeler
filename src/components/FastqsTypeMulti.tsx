@@ -13,6 +13,7 @@ import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
+import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq, FastqType } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -35,6 +36,8 @@ export function FastqsTypeMulti() {
       preventDefault: true,
     },
   );
+
+  const currentValue = getCommonValue(selectedItems, "type");
 
   function handleChange(value: FastqType | null) {
     batchUpdate({
@@ -65,7 +68,7 @@ export function FastqsTypeMulti() {
               Set type for all selected FASTQs:
             </Label>
             <div className="mt-3">
-              <FastqsTypeSelect onSelect={handleChange} />
+              <FastqsTypeSelect value={currentValue} onSelect={handleChange} />
             </div>
           </div>
 

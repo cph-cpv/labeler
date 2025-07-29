@@ -22,7 +22,7 @@ type DilutionProps = {
   disabled?: boolean;
 };
 
-export function FastqsDilution({
+export function FastqsDilutionSelect({
   value,
   onValueChange,
   placeholder = "Select dilution...",

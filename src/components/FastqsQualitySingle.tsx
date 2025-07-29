@@ -18,9 +18,8 @@ export function FastqsQualitySingle({
   fastq,
   trigger,
 }: FastqsQualitySingleProps) {
-  const [selectedQuality, setSelectedQuality] = React.useState<number | null>(
-    null,
-  );
+  const [selectedQuality, setSelectedQuality] =
+    React.useState<FastqQuality | null>(null);
   const [open, setOpen] = React.useState(false);
 
   const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
@@ -28,13 +27,13 @@ export function FastqsQualitySingle({
   // Update selected quality when fastq changes
   React.useEffect(() => {
     if (fastq) {
-      setSelectedQuality(fastq.quality ? parseInt(fastq.quality) : null);
+      setSelectedQuality(fastq.quality);
     }
   }, [fastq]);
 
   // Memoize the handleQualityChange to prevent re-creation
   const handleQualityChange = React.useCallback(
-    (newQuality: number | null) => {
+    (newQuality: FastqQuality | null) => {
       setSelectedQuality(newQuality);
       setOpen(false);
       if (fastq) {
@@ -42,9 +41,7 @@ export function FastqsQualitySingle({
           {
             id: fastq.id,
             data: {
-              quality: newQuality
-                ? (newQuality.toString() as FastqQuality)
-                : null,
+              quality: newQuality,
             },
           },
           {
