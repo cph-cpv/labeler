@@ -1,4 +1,4 @@
-import type { FastqQuality } from "@/types";
+import type { FastqQuality } from "@/lib/quality.ts";
 
 type FastqsQualityDotProps = {
   quality: FastqQuality;

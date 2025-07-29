@@ -1,4 +1,4 @@
-import { FastqsAnnotateSelection } from "@/components/FastqsAnnotateSelection.tsx";
+import { FastqsSummary } from "@/components/FastqsSummary.tsx";
 import { FastqsTypeSelect } from "@/components/FastqsTypeSelect.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
+import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq, FastqType } from "@/types.ts";
 import { useState } from "react";
@@ -20,7 +20,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 export function FastqsTypeMulti() {
   const [open, setOpen] = useState(false);
   const { selectedItems } = useSelection<Fastq>();
-  const { update } = usePocketBaseMutation<any>("fastqs");
+  const { batchUpdate } = usePocketBaseBatchUpdate<Fastq>("fastqs");
 
   useHotkeys(
     "t",
@@ -31,10 +31,19 @@ export function FastqsTypeMulti() {
     },
     {
       enabled: selectedItems.length > 0,
-      preventDefault: true,
       enableOnFormTags: true,
+      preventDefault: true,
     },
   );
+
+  function handleChange(value: FastqType | null) {
+    batchUpdate({
+      updates: selectedItems.map((fastq) => ({
+        id: fastq.id,
+        data: { type: value },
+      })),
+    });
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -56,24 +65,11 @@ export function FastqsTypeMulti() {
               Set type for all selected FASTQs:
             </Label>
             <div className="mt-3">
-              <FastqsTypeSelect
-                onValueChange={async (value: FastqType) => {
-                  const updates = selectedItems.map((fastq) =>
-                    update({ id: fastq.id, data: { type: value } }),
-                  );
-                  await Promise.all(updates);
-                }}
-                onUnset={async () => {
-                  const updates = selectedItems.map((fastq) =>
-                    update({ id: fastq.id, data: { type: null } }),
-                  );
-                  await Promise.all(updates);
-                }}
-              />
+              <FastqsTypeSelect onSelect={handleChange} />
             </div>
           </div>
 
-          <FastqsAnnotateSelection
+          <FastqsSummary
             selectedItems={selectedItems}
             fieldExtractor={(fastq) => fastq.type}
           />

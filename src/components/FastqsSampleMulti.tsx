@@ -1,5 +1,5 @@
-import { FastqsAnnotateSelection } from "@/components/FastqsAnnotateSelection.tsx";
 import { FastqsSampleSelector } from "@/components/FastqsSampleSelector.tsx";
+import { FastqsSummary } from "@/components/FastqsSummary.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -88,7 +88,7 @@ export function FastqsSampleMulti() {
             />
           </div>
 
-          <FastqsAnnotateSelection
+          <FastqsSummary
             selectedItems={selectedItems}
             fieldExtractor={(fastq) => fastq.sample}
           />

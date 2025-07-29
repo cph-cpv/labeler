@@ -28,7 +28,7 @@ import {
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { formatDilution } from "@/lib/dilution.ts";
-import { formatDate } from "@/lib/utils.ts";
+import { cn, formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { EyeOffIcon } from "lucide-react";
 import React from "react";
@@ -46,14 +46,6 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
     useSelection<Fastq>();
 
   const [editingSampleFastq, setEditingSampleFastq] =
-    React.useState<Fastq | null>(null);
-  const [editingTypeFastq, setEditingTypeFastq] = React.useState<Fastq | null>(
-    null,
-  );
-  const [editingQualityFastqId, setEditingQualityFastqId] = React.useState<
-    string | null
-  >(null);
-  const [editingDilutionFastq, setEditingDilutionFastq] =
     React.useState<Fastq | null>(null);
   const [excludingFastq, setExcludingFastq] = React.useState<Fastq | null>(
     null,
@@ -75,53 +67,8 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
     }
   }
 
-  function handleTypeClick(fastq: Fastq) {
-    setEditingTypeFastq(fastq);
-  }
-
-  function handleTypeKeyDown(event: React.KeyboardEvent, fastq: Fastq) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setEditingTypeFastq(fastq);
-    }
-  }
-
-  function handleQualityClick(fastq: Fastq) {
-    setEditingQualityFastqId(fastq.id);
-  }
-
-  function handleQualityKeyDown(event: React.KeyboardEvent, fastq: Fastq) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setEditingQualityFastqId(fastq.id);
-    }
-  }
-
-  function handleDilutionClick(fastq: Fastq) {
-    setEditingDilutionFastq(fastq);
-  }
-
-  function handleDilutionKeyDown(event: React.KeyboardEvent, fastq: Fastq) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setEditingDilutionFastq(fastq);
-    }
-  }
-
   function handleSampleDialogClose() {
     setEditingSampleFastq(null);
-  }
-
-  function handleTypeDialogClose() {
-    setEditingTypeFastq(null);
-  }
-
-  function handleQualityDialogClose() {
-    setEditingQualityFastqId(null);
-  }
-
-  function handleDilutionDialogClose() {
-    setEditingDilutionFastq(null);
   }
 
   function handleExcludeClick(fastq: Fastq) {
@@ -169,44 +116,72 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
               <TableCell>
                 <span>{formatDate(fastq.timestamp)}</span>
               </TableCell>
-              <TableCellEditable
-                onClick={() => handleTypeClick(fastq)}
-                onKeyDown={(e) => handleTypeKeyDown(e, fastq)}
-                ariaLabel={`Edit type assignment for ${getFilenameFromPath(fastq.path)}. Current type: ${
-                  fastq.type || "Unset"
-                }`}
-              >
-                {fastq.type || <UnsetIcon />}
-              </TableCellEditable>
-              <TableCellEditable
-                onClick={() => handleQualityClick(fastq)}
-                onKeyDown={(e) => handleQualityKeyDown(e, fastq)}
-                ariaLabel={`Edit quality rating for ${getFilenameFromPath(fastq.path)}. Current quality: ${
-                  fastq.quality ? `${fastq.quality}` : "Unset"
-                }`}
-              >
-                {fastq.quality ? (
-                  <>
-                    <FastqsQualityDot quality={fastq.quality} />
-                    {fastq.quality}
-                  </>
-                ) : (
-                  <UnsetIcon />
-                )}
-              </TableCellEditable>
-              <TableCellEditable
-                onClick={() => handleDilutionClick(fastq)}
-                onKeyDown={(e) => handleDilutionKeyDown(e, fastq)}
-                ariaLabel={`Edit dilution factor for ${getFilenameFromPath(fastq.path)}. Current dilution: ${
-                  fastq.dilution ? `${fastq.dilution}x` : "Unset"
-                }`}
-              >
-                {fastq.dilution ? (
-                  `${formatDilution(fastq.dilution)}`
-                ) : (
-                  <UnsetIcon />
-                )}
-              </TableCellEditable>
+              <TableCell>
+                <FastqsTypeSingle
+                  fastq={fastq}
+                  trigger={
+                    <div
+                      className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1 min-h-8 flex items-center"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Edit type assignment for ${getFilenameFromPath(fastq.path)}. Current type: ${
+                        fastq.type || "Unset"
+                      }`}
+                    >
+                      {fastq.type || <UnsetIcon />}
+                    </div>
+                  }
+                />
+              </TableCell>
+              <TableCell>
+                <FastqsQualitySingle
+                  fastq={fastq}
+                  trigger={
+                    <div
+                      className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1 min-h-8 flex items-center"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Edit quality rating for ${getFilenameFromPath(fastq.path)}. Current quality: ${
+                        fastq.quality ? `${fastq.quality}` : "Unset"
+                      }`}
+                    >
+                      {fastq.quality ? (
+                        <>
+                          <FastqsQualityDot quality={fastq.quality} />
+                          {fastq.quality}
+                        </>
+                      ) : (
+                        <UnsetIcon />
+                      )}
+                    </div>
+                  }
+                />
+              </TableCell>
+              <TableCell>
+                <FastqsDilutionSingle
+                  fastq={fastq}
+                  trigger={
+                    <div
+                      className={cn(
+                        "group relative cursor-pointer",
+                        "transition-colors hover:bg-muted/70 focus:bg-muted/70",
+                        "focus:outline-none rounded px-2 py-1 -mx-2 -my-1 min-h-8 flex items-center",
+                      )}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Edit dilution factor for ${getFilenameFromPath(fastq.path)}. Current dilution: ${
+                        fastq.dilution ? `${fastq.dilution}x` : "Unset"
+                      }`}
+                    >
+                      {fastq.dilution ? (
+                        `${formatDilution(fastq.dilution)}`
+                      ) : (
+                        <UnsetIcon />
+                      )}
+                    </div>
+                  }
+                />
+              </TableCell>
               <TableCellEditable
                 onClick={() => handleSampleClick(fastq)}
                 onKeyDown={(e) => handleSampleKeyDown(e, fastq)}
@@ -244,25 +219,6 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
         fastq={editingSampleFastq}
         isOpen={editingSampleFastq !== null}
         onClose={handleSampleDialogClose}
-      />
-
-      <FastqsTypeSingle
-        fastq={editingTypeFastq}
-        isOpen={editingTypeFastq !== null}
-        onClose={handleTypeDialogClose}
-      />
-
-      <FastqsQualitySingle
-        fastqs={fastqs}
-        fastqId={editingQualityFastqId}
-        isOpen={editingQualityFastqId !== null}
-        onClose={handleQualityDialogClose}
-      />
-
-      <FastqsDilutionSingle
-        fastq={editingDilutionFastq}
-        isOpen={editingDilutionFastq !== null}
-        onClose={handleDilutionDialogClose}
       />
 
       <FastqsExcludeSingle

@@ -2,12 +2,11 @@ import {
   usePocketBaseCollection,
   usePocketBasePaginated,
 } from "@/hooks/usePocketBaseQuery";
-import type { Virus, VirusesCategory } from "@/types";
+import type { Virus } from "@/types";
 import { useMemo } from "react";
 
 type UseVirusesOptions = {
   page?: number;
-  category?: VirusesCategory;
   search?: string;
 };
 
@@ -30,18 +29,7 @@ type UseVirusesResult = {
 };
 
 export function useViruses(options: UseVirusesOptions = {}): UseVirusesResult {
-  const { page = 1, category = "all", search = "" } = options;
-
-  const categoryFilter = useMemo(() => {
-    switch (category) {
-      case "typed":
-        return "type != null";
-      case "untyped":
-        return "type = null";
-      default:
-        return "";
-    }
-  }, [category]);
+  const { page = 1, search = "" } = options;
 
   const searchFilter = useMemo(() => {
     if (!search) return "";
@@ -49,9 +37,9 @@ export function useViruses(options: UseVirusesOptions = {}): UseVirusesResult {
   }, [search]);
 
   const filter = useMemo(() => {
-    const filters = [categoryFilter, searchFilter].filter(Boolean);
+    const filters = [searchFilter].filter(Boolean);
     return filters.join(" && ");
-  }, [categoryFilter, searchFilter]);
+  }, [searchFilter]);
 
   // Query for paginated data
   const paginatedQuery = usePocketBasePaginated<Virus>("viruses", {

@@ -4,10 +4,21 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Select({
+function Select<T extends string = string>({
+  onValueChange,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />;
+}: Omit<React.ComponentProps<typeof SelectPrimitive.Root>, "onValueChange"> & {
+  onValueChange?: (value: T) => void;
+}) {
+  return (
+    <SelectPrimitive.Root
+      data-slot="select"
+      onValueChange={
+        onValueChange ? (value: string) => onValueChange(value as T) : undefined
+      }
+      {...props}
+    />
+  );
 }
 
 function SelectGroup({

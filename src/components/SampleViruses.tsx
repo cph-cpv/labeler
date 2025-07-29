@@ -1,3 +1,4 @@
+import { Exceptions } from "@/components/Exceptions.tsx";
 import { SamplesLabeler } from "@/components/SamplesLabeler.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -19,9 +20,9 @@ type SamplesVirusesEditProps = {
 };
 
 export function SampleViruses({
-  sample,
   isOpen,
   onClose,
+  sample,
 }: SamplesVirusesEditProps) {
   const [selectedViruses, setSelectedViruses] = useState<Virus[]>([]);
 
@@ -76,6 +77,9 @@ export function SampleViruses({
           onVirusSelect={handleVirusSelect}
           onVirusRemove={handleVirusRemove}
         />
+
+        <h2>Exceptions</h2>
+        <Exceptions sampleId={sample.id} />
 
         <div className="flex justify-end space-x-2 mt-6">
           <Button

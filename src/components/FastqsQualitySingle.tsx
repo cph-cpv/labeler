@@ -1,65 +1,53 @@
 import { FastqsQualitySelect } from "@/components/FastqsQualitySelect";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
+import type { FastqQuality } from "@/lib/quality.ts";
 import type { Fastq } from "@/types";
-import { VisuallyHidden } from "radix-ui";
 import React from "react";
 
 type FastqsQualitySingleProps = {
-  fastqs: Fastq[];
-  fastqId: string | null;
-  isOpen: boolean;
-  onClose: () => void;
+  fastq: Fastq | null;
+  trigger: React.ReactNode;
 };
 
 export function FastqsQualitySingle({
-  fastqs,
-  fastqId,
-  isOpen,
-  onClose,
+  fastq,
+  trigger,
 }: FastqsQualitySingleProps) {
   const [selectedQuality, setSelectedQuality] = React.useState<number | null>(
     null,
   );
+  const [open, setOpen] = React.useState(false);
 
   const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
 
-  const fastq = React.useMemo(
-    () => fastqs.find((f) => f.id === fastqId) || null,
-    [fastqs, fastqId],
-  );
-
-  // Update selected quality when dialog opens with a new fastq
+  // Update selected quality when fastq changes
   React.useEffect(() => {
-    if (fastq && isOpen) {
+    if (fastq) {
       setSelectedQuality(fastq.quality ? parseInt(fastq.quality) : null);
     }
-  }, [fastq, isOpen]);
+  }, [fastq]);
 
   // Memoize the handleQualityChange to prevent re-creation
   const handleQualityChange = React.useCallback(
     (newQuality: number | null) => {
       setSelectedQuality(newQuality);
+      setOpen(false);
       if (fastq) {
         update(
           {
             id: fastq.id,
             data: {
               quality: newQuality
-                ? (newQuality.toString() as import("@/types.ts").FastqQuality)
+                ? (newQuality.toString() as FastqQuality)
                 : null,
             },
           },
           {
-            onSuccess: () => {
-              // Keep dialog open for multiple edits
-            },
             onError: (error) => {
               console.error("Failed to update quality:", error);
             },
@@ -73,23 +61,23 @@ export function FastqsQualitySingle({
   if (!fastq) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <VisuallyHidden.Root>
-          <DialogHeader>
-            <DialogTitle>Edit Quality Rating</DialogTitle>
-            <DialogDescription>
-              Set quality rating for <strong>{fastq.name}</strong>
-            </DialogDescription>
-          </DialogHeader>
-        </VisuallyHidden.Root>
-
-        <FastqsQualitySelect
-          disabled={isUpdating}
-          onValueChange={handleQualityChange}
-          value={selectedQuality}
-        />
-      </DialogContent>
-    </Dialog>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent className="w-80">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Quality Rating</h4>
+            <p className="text-sm text-muted-foreground">
+              Set quality rating for <strong>{fastq?.name}</strong>
+            </p>
+          </div>
+          <FastqsQualitySelect
+            disabled={isUpdating}
+            onValueChange={handleQualityChange}
+            value={selectedQuality}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

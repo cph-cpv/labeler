@@ -70,8 +70,6 @@ export function SamplesLabel({
           onVirusRemove={handleVirusRemove}
         />
 
-        <h2>Exceptions</h2>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel

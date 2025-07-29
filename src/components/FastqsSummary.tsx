@@ -20,7 +20,7 @@ type FastqsAnnotateSelectionSummaryProps<T> = {
   fieldValueFormatter?: (value: string | number | null | undefined) => string;
 };
 
-export function FastqsAnnotateSelection<T>({
+export function FastqsSummary<T>({
   selectedItems,
   fieldExtractor,
   emptyMessage = "No FASTQs selected",

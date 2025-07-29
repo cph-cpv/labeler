@@ -171,6 +171,30 @@ export function usePocketBasePaginated<T>(
   };
 }
 
+// Creation-only hook for types without id constraint
+export function usePocketBaseCreation<
+  TCreation extends Record<string, any>,
+  TResult extends { id: string },
+>(collection: string) {
+  const queryClient = useQueryClient();
+
+  const create = useMutation({
+    mutationFn: async (data: TCreation) => {
+      return await pb.collection(collection).create<TResult>(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pocketbase", collection] });
+    },
+  });
+
+  return {
+    create: create.mutate,
+    createAsync: create.mutateAsync,
+    isCreating: create.isPending,
+    createError: create.error,
+  };
+}
+
 // Mutation hooks for CRUD operations
 export function usePocketBaseMutation<T extends { id: string }>(
   collection: string,

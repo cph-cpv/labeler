@@ -1,7 +1,7 @@
+import type { ExceptionType } from "@/hooks/useExceptions.ts";
 import type { FastqDilution } from "@/lib/dilution.ts";
+import type { FastqQuality } from "@/lib/quality.ts";
 import type { DateRange } from "react-day-picker";
-
-export type FastqQuality = "1" | "2" | "3" | "4" | "5";
 
 export type FastqType = "dsRNA" | "smRNA";
 
@@ -39,7 +39,20 @@ export type Sample = {
   viruses: string[];
 };
 
+export type SampleExpanded = {
+  id: string;
+  expand: {
+    viruses: Virus[];
+  };
+};
+
 export type SampleUpdate = Sample;
+
+export type Exception = {
+  id: string;
+  type: ExceptionType;
+  virus: Virus;
+};
 
 export type Virus = {
   id: string;

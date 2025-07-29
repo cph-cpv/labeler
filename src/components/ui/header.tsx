@@ -9,7 +9,7 @@ function Header({ title, subtitle }: HeaderProps) {
       <h1 className="font-bold text-2xl" data-slot="header">
         {title}
       </h1>
-      {subtitle && <p>{subtitle}</p>}
+      {subtitle && <p className="font-medium text-gray-500">{subtitle}</p>}
     </header>
   );
 }

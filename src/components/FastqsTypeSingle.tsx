@@ -1,67 +1,41 @@
 import { FastqsTypeSelect } from "@/components/FastqsTypeSelect";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import type { Fastq, FastqType } from "@/types";
-import { VisuallyHidden } from "radix-ui";
 import React from "react";
 
 type FastqsTypeSingleProps = {
   fastq: Fastq | null;
-  isOpen: boolean;
-  onClose: () => void;
+  trigger: React.ReactNode;
 };
 
-export function FastqsTypeSingle({
-  fastq,
-  isOpen,
-  onClose,
-}: FastqsTypeSingleProps) {
+export function FastqsTypeSingle({ fastq, trigger }: FastqsTypeSingleProps) {
   const [selectedType, setSelectedType] = React.useState<FastqType | null>(
     null,
   );
+  const [open, setOpen] = React.useState(false);
 
   const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
 
-  // Initialize selected type when dialog opens
   React.useEffect(() => {
-    if (fastq && isOpen) {
+    if (fastq) {
       setSelectedType(fastq.type || null);
     }
-  }, [fastq, isOpen]);
+  }, [fastq]);
 
-  function handleTypeChange(value: FastqType) {
+  function handleSelect(value: FastqType | null) {
     setSelectedType(value);
+    setOpen(false);
+
     if (fastq) {
       update(
         { id: fastq.id, data: { type: value } },
         {
-          onSuccess: () => {
-            // Keep dialog open for multiple edits
-          },
-          onError: (error) => {
-            console.error("Failed to update type:", error);
-          },
-        },
-      );
-    }
-  }
-
-  function handleUnset() {
-    setSelectedType(null);
-    if (fastq) {
-      update(
-        { id: fastq.id, data: { type: null } },
-        {
-          onSuccess: () => {
-            // Keep dialog open for multiple edits
-          },
           onError: (error) => {
             console.error("Failed to update type:", error);
           },
@@ -73,29 +47,26 @@ export function FastqsTypeSingle({
   if (!fastq) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <VisuallyHidden.Root>
-            <DialogTitle>Edit Type Assignment</DialogTitle>
-            <DialogDescription>
-              Assign a type to <strong>{fastq.name}</strong>
-            </DialogDescription>
-          </VisuallyHidden.Root>
-        </DialogHeader>
-
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent className="w-80">
         <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Type Assignment</h4>
+            <p className="text-sm text-muted-foreground">
+              Assign a type to <strong>{fastq?.name}</strong>
+            </p>
+          </div>
           <div className="space-y-3">
             <Label className="text-sm font-medium">Type</Label>
             <FastqsTypeSelect
               value={selectedType}
-              onValueChange={handleTypeChange}
-              onUnset={handleUnset}
+              onSelect={handleSelect}
               disabled={isUpdating}
             />
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }

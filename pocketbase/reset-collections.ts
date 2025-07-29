@@ -29,22 +29,25 @@ async function deleteCollection(pb: Pocketbase, collectionName: string) {
 
 export async function resetCollections(pb: Pocketbase) {
   // Delete in reverse dependency order
+  await deleteCollection(pb, "exceptions");
   await deleteCollection(pb, "fastqs");
   await deleteCollection(pb, "samples");
-  await deleteCollection(pb, "exceptions");
   await deleteCollection(pb, "viruses");
 
   const virusCollection = await createCollection(pb, virusCollectionSchema);
+
   const sampleCollection = await createCollection(
     pb,
     createSamplesCollection(virusCollection.id),
   );
-  const fastqAnnotationCollection = await createCollection(
+
+  const fastqsCollection = await createCollection(
     pb,
-    createExceptionsCollection(virusCollection.id),
+    createFastqsCollection(sampleCollection.id),
   );
+
   await createCollection(
     pb,
-    createFastqsCollection(fastqAnnotationCollection.id, sampleCollection.id),
+    createExceptionsCollection(fastqsCollection.id, virusCollection.id),
   );
 }

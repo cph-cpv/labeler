@@ -1,5 +1,5 @@
-import { FastqsAnnotateSelection } from "@/components/FastqsAnnotateSelection.tsx";
 import { FastqsDilution } from "@/components/FastqsDilution.tsx";
+import { FastqsSummary } from "@/components/FastqsSummary.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -62,7 +62,7 @@ export function FastqsDilutionMulti() {
             }}
           />
 
-          <FastqsAnnotateSelection
+          <FastqsSummary
             selectedItems={selectedItems}
             fieldExtractor={(fastq) =>
               fastq.dilution !== null ? formatDilution(fastq.dilution) : "Unset"

@@ -1,4 +1,4 @@
-import type { FastqQuality } from "@/types.ts";
+import type { FastqQuality } from "@/lib/quality.ts";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 

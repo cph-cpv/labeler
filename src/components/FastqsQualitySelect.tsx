@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/select";
 import { UnsetButton } from "@/components/ui/unset";
 
+import { type FastqQuality, QUALITIES } from "@/lib/quality.ts";
+
 type FastqsQualitySelectProps = {
-  value: number | null;
-  onValueChange: (value: number | null) => void;
+  value: FastqQuality | null;
+  onValueChange: (value: FastqQuality | null) => void;
   disabled?: boolean;
   id?: string;
 };
@@ -22,11 +24,11 @@ export function FastqsQualitySelect({
   disabled = false,
   id,
 }: FastqsQualitySelectProps) {
-  function handleSelectChange(stringValue: string) {
-    if (stringValue === "") {
-      onValueChange(null);
+  function handleSelectChange(value: string) {
+    if (["1", "2", "3", "4", "5"].includes(value)) {
+      onValueChange(value as FastqQuality);
     } else {
-      onValueChange(parseInt(stringValue));
+      onValueChange(null);
     }
   }
 
@@ -49,21 +51,15 @@ export function FastqsQualitySelect({
             <SelectValue placeholder="Select quality rating" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="flex items-center gap-2" value="1">
-              <FastqsQualityDot quality="1" /> 1
-            </SelectItem>
-            <SelectItem className="flex items-center gap-2" value="2">
-              <FastqsQualityDot quality="2" /> 2
-            </SelectItem>
-            <SelectItem className="flex items-center gap-2" value="3">
-              <FastqsQualityDot quality="3" /> 3
-            </SelectItem>
-            <SelectItem className="flex items-center gap-2" value="4">
-              <FastqsQualityDot quality="4" /> 4
-            </SelectItem>
-            <SelectItem className="flex items-center gap-2" value="5">
-              <FastqsQualityDot quality="5" /> 5
-            </SelectItem>
+            {QUALITIES.map((quality) => (
+              <SelectItem
+                className="flex items-center gap-2"
+                key={quality}
+                value={quality}
+              >
+                <FastqsQualityDot quality={quality} /> {quality}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <UnsetButton onUnset={handleUnset} disabled={disabled} />

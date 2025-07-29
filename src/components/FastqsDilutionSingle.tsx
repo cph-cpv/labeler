@@ -1,44 +1,41 @@
 import { FastqsDilution } from "@/components/FastqsDilution.tsx";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import type { FastqDilution } from "@/lib/dilution.ts";
 import type { Fastq } from "@/types";
-import { VisuallyHidden } from "radix-ui";
 import React from "react";
 
 type FastqsDilutionSingleProps = {
   fastq: Fastq | null;
-  isOpen: boolean;
-  onClose: () => void;
+  trigger: React.ReactNode;
 };
 
 export function FastqsDilutionSingle({
   fastq,
-  isOpen,
-  onClose,
+  trigger,
 }: FastqsDilutionSingleProps) {
   const [dilutionValue, setDilutionValue] =
     React.useState<FastqDilution | null>(null);
+  const [open, setOpen] = React.useState(false);
 
   const { update, isUpdating } = usePocketBaseMutation<Fastq>("fastqs");
 
-  // Initialize dilution value when dialog opens
+  // Initialize dilution value when fastq changes
   React.useEffect(() => {
-    if (fastq && isOpen) {
+    if (fastq) {
       setDilutionValue(fastq.dilution || null);
     }
-  }, [fastq, isOpen]);
+  }, [fastq]);
 
   function handleValueChange(value: FastqDilution | null) {
     if (!fastq) return;
 
     setDilutionValue(value);
+    setOpen(false);
 
     update(
       { id: fastq.id, data: { dilution: value } },
@@ -53,18 +50,16 @@ export function FastqsDilutionSingle({
   if (!fastq) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <VisuallyHidden.Root>
-          <DialogHeader>
-            <DialogTitle>Dilution Factor</DialogTitle>
-            <DialogDescription>
-              Set dilution factor for <strong>{fastq.name}</strong>
-            </DialogDescription>
-          </DialogHeader>
-        </VisuallyHidden.Root>
-
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent className="w-80">
         <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Dilution Factor</h4>
+            <p className="text-sm text-muted-foreground">
+              Set dilution factor for <strong>{fastq?.name}</strong>
+            </p>
+          </div>
           <FastqsDilution
             value={dilutionValue}
             onValueChange={handleValueChange}
@@ -72,7 +67,7 @@ export function FastqsDilutionSingle({
             disabled={isUpdating}
           />
         </div>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }

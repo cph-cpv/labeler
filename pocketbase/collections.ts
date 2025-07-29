@@ -30,19 +30,10 @@ export const virusCollection = {
       name: "synonyms",
       type: "text",
     },
-    {
-      name: "type",
-      type: "select",
-      maxSelect: 1,
-      values: ["Satellite", "Virus", "Viroid"],
-    },
   ],
 };
 
-export function createFastqsCollection(
-  fastqAnnotationCollectionId: string,
-  samplesCollectionId: string,
-) {
+export function createFastqsCollection(samplesCollectionId: string) {
   return {
     ...ACCESS_ALL_USERS,
     name: "fastqs",
@@ -93,15 +84,6 @@ export function createFastqsCollection(
         minSelect: 0,
         maxSelect: 1,
       },
-      {
-        name: "exceptions",
-        type: "relation",
-        collectionId: fastqAnnotationCollectionId,
-        cascadeDelete: false,
-        required: false,
-        minSelect: 0,
-        maxSelect: 1,
-      },
     ],
   };
 }
@@ -131,14 +113,26 @@ export function createSamplesCollection(virusesCollectionId: string) {
   };
 }
 
-export function createExceptionsCollection(virusesCollectionId: string) {
+export function createExceptionsCollection(
+  fastqsCollectionId: string,
+  virusesCollectionId: string,
+) {
   return {
     ...ACCESS_ALL_USERS,
     name: "exceptions",
     type: "base",
     fields: [
       {
-        name: "viruses",
+        name: "fastq",
+        type: "relation",
+        required: true,
+        collectionId: fastqsCollectionId,
+        cascadeDelete: true,
+        minSelect: 1,
+        maxSelect: 1,
+      },
+      {
+        name: "virus",
         type: "relation",
         required: true,
         collectionId: virusesCollectionId,
@@ -151,7 +145,7 @@ export function createExceptionsCollection(virusesCollectionId: string) {
         type: "select",
         required: true,
         maxSelect: 1,
-        values: ["missing", "contamination"],
+        values: ["Missing", "Contamination"],
       },
     ],
   };

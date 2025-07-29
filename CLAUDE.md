@@ -21,7 +21,8 @@
 # Typescript
 
 - Use `type` over `interface` wherever possible.
-- Use `npm run typecheck` when necessary..
+- Use `npm run typecheck` when necessary.
+- Don't use `any`.
 
 # Testing
 

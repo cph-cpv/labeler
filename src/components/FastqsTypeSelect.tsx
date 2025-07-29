@@ -7,71 +7,48 @@ import {
 } from "@/components/ui/select";
 import { UnsetButton } from "@/components/ui/unset";
 import type { FastqType } from "@/types";
-import { useNavigate, useSearch } from "@tanstack/react-router";
 
 type TypeSelectProps = {
-  value?: FastqType | null;
-  onValueChange?: (value: FastqType) => void;
-  onUnset?: () => void;
-  disabled?: boolean;
-  placeholder?: string;
   className?: string;
+  disabled?: boolean;
+  onSelect: (value: FastqType | null) => void;
+  placeholder?: string;
+  value: FastqType | null;
 };
 
-export function FastqsTypeSelect(props?: TypeSelectProps) {
-  const navigate = useNavigate();
-  const search = useSearch({ strict: false });
-
-  const isControlled = props !== undefined;
-  const selectedType = isControlled
-    ? props.value
-    : (search.type?.[0] as FastqType | undefined);
-
-  function handleValueChange(value: string) {
-    const typedValue = value as FastqType;
-    if (isControlled && props.onValueChange) {
-      props.onValueChange(typedValue);
-    } else {
-      navigate({
-        search: (prev) => ({
-          ...prev,
-          type: [typedValue],
-        }),
-      });
+export function FastqsTypeSelect({
+  className = "",
+  disabled = false,
+  onSelect,
+  placeholder = "Select type...",
+  value,
+}: TypeSelectProps) {
+  function handleValueChange(newValue: string) {
+    if (["dsRNA", "smRNA"].includes(newValue)) {
+      onSelect(newValue as FastqType);
     }
-  }
 
-  function handleUnset() {
-    if (isControlled && props.onUnset) {
-      props.onUnset();
-    } else {
-      navigate({
-        search: (prev) => ({
-          ...prev,
-          type: undefined,
-        }),
-      });
+    if (newValue === "") {
+      onSelect(null);
     }
   }
 
   return (
     <div className="flex items-center gap-2">
       <Select
-        value={selectedType || ""}
+        value={value || ""}
         onValueChange={handleValueChange}
-        disabled={props?.disabled}
+        disabled={disabled}
       >
-        <SelectTrigger className={props?.className || "w-[180px]"}>
-          <SelectValue placeholder={props?.placeholder || "Select type"} />
+        <SelectTrigger className={className || "w-[180px]"}>
+          <SelectValue placeholder={placeholder || "Select type"} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="dsRNA">dsRNA</SelectItem>
           <SelectItem value="smRNA">smRNA</SelectItem>
         </SelectContent>
       </Select>
-      {selectedType && (
-        <UnsetButton onUnset={handleUnset} disabled={props?.disabled} />
-      )}
+      <UnsetButton onUnset={() => onSelect(null)} disabled={disabled} />
     </div>
   );
 }

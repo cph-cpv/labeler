@@ -14,7 +14,7 @@ export async function populateViruses(pb: Pocketbase, path: string) {
 
     for (const virus of batchData) {
       batch.collection("viruses").create({
-        acronym: virus[1],
+        acronym: virus[1] || "",
         name: virus[2],
         uuid: virus[0],
       });

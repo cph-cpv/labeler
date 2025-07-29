@@ -1,4 +1,5 @@
-import { FastqsAnnotateSelection } from "@/components/FastqsAnnotateSelection.tsx";
+import { FastqsQualitySelect } from "@/components/FastqsQualitySelect";
+import { FastqsSummary } from "@/components/FastqsSummary.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -9,16 +10,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
-import { Label } from "@/components/ui/label.tsx";
-import { UnsetButton } from "@/components/ui/unset.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
+import type { FastqQuality } from "@/lib/quality.ts";
 import type { Fastq, FastqUpdate } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsQualityMulti() {
   const [open, setOpen] = useState(false);
+  const [quality, setQuality] = useState<FastqQuality | null>(null);
   const { selectedItems } = useSelection<Fastq>();
   const { batchUpdateAsync } = usePocketBaseBatchUpdate<FastqUpdate>("fastqs");
 
@@ -51,50 +52,21 @@ export function FastqsQualityMulti() {
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div>
-            <Label className="font-semibold">
-              Set quality for all selected FASTQs:
-            </Label>
-            <div className="mt-3 flex gap-2">
-              {["1", "2", "3", "4", "5"].map((quality) => (
-                <Button
-                  key={quality}
-                  type="button"
-                  variant="outline"
-                  onClick={async () => {
-                    const updates = selectedItems.map((fastq) => ({
-                      id: fastq.id,
-                      data: {
-                        quality: quality as import("@/types.ts").FastqQuality,
-                      },
-                    }));
-                    console.log({ updates });
-                    await batchUpdateAsync({ updates });
-                  }}
-                  className="min-w-[40px]"
-                >
-                  {quality}
-                </Button>
-              ))}
-              <UnsetButton
-                onUnset={async () => {
-                  try {
-                    const updates = selectedItems.map((fastq) => ({
-                      id: fastq.id,
-                      data: { quality: null },
-                    }));
-                    console.log("Batch updating quality to null:", updates);
-                    await batchUpdateAsync({ updates });
-                    console.log("Batch update completed");
-                  } catch (error) {
-                    console.error("Batch update failed:", error);
-                  }
-                }}
-              />
-            </div>
-          </div>
+          <FastqsQualitySelect
+            value={quality}
+            onValueChange={async (value) => {
+              setQuality(value);
+              const updates = selectedItems.map((fastq) => ({
+                id: fastq.id,
+                data: {
+                  quality: value as FastqQuality,
+                },
+              }));
+              await batchUpdateAsync({ updates });
+            }}
+          />
 
-          <FastqsAnnotateSelection
+          <FastqsSummary
             selectedItems={selectedItems}
             fieldExtractor={(fastq) => fastq.quality}
             fieldValueFormatter={(value) => (value ? `${value}` : "Unset")}

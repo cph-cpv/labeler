@@ -135,7 +135,10 @@ export function Fastqs() {
   if (error) {
     return (
       <>
-        <Header title="FASTQs" />
+        <Header
+          title="FASTQs"
+          subtitle="FASTQ file from CPH's raw data storage"
+        />
         <div className="flex items-center justify-center h-64">
           <div className="text-lg text-red-500">
             Error loading FASTQs: {error.message}
@@ -147,7 +150,10 @@ export function Fastqs() {
 
   return (
     <>
-      <Header title="FASTQs" />
+      <Header
+        title="FASTQs"
+        subtitle="FASTQ files from CPH's raw data storage"
+      />
       <div className="flex items-center gap-2 mb-4">
         <FastqsTabs
           category={category}

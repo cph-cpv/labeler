@@ -1,27 +1,25 @@
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import type { Sample } from "@/types.ts";
 import { useEffect, useState } from "react";
 
-type SamplesNameEditProps = {
+type SampleNameProps = {
   sample: Sample | null;
-  isOpen: boolean;
-  onClose: () => void;
+  trigger: React.ReactNode;
 };
 
-export function SampleName({ sample, isOpen, onClose }: SamplesNameEditProps) {
+export function SampleName({ sample, trigger }: SampleNameProps) {
   const [name, setName] = useState("");
+  const [open, setOpen] = useState(false);
 
-  const sampleMutation = usePocketBaseMutation<Sample>("samples");
+  const { update, isUpdating } = usePocketBaseMutation<Sample>("samples");
 
   useEffect(() => {
     if (sample) {
@@ -32,12 +30,20 @@ export function SampleName({ sample, isOpen, onClose }: SamplesNameEditProps) {
   async function handleSave() {
     if (!sample || !name.trim()) return;
 
-    await sampleMutation.updateAsync({
-      id: sample.id,
-      data: { name: name.trim() },
-    });
-
-    onClose();
+    update(
+      {
+        id: sample.id,
+        data: { name: name.trim() },
+      },
+      {
+        onSuccess: () => {
+          setOpen(false);
+        },
+        onError: (error) => {
+          console.error("Failed to update sample name:", error);
+        },
+      },
+    );
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
@@ -46,7 +52,7 @@ export function SampleName({ sample, isOpen, onClose }: SamplesNameEditProps) {
       handleSave();
     } else if (event.key === "Escape") {
       event.preventDefault();
-      onClose();
+      setOpen(false);
     }
   }
 
@@ -55,48 +61,51 @@ export function SampleName({ sample, isOpen, onClose }: SamplesNameEditProps) {
   const hasChanges = name.trim() !== sample.name;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Sample Name</DialogTitle>
-          <DialogDescription>
-            Change the name for this sample.
-          </DialogDescription>
-        </DialogHeader>
-
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent className="w-80">
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="sample-name">Sample Name</Label>
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Edit Sample Name</h4>
+            <p className="text-sm text-muted-foreground">
+              Change the name for <strong>{sample.name}</strong>
+            </p>
+          </div>
+          <div className="space-y-3">
+            <Label htmlFor="sample-name" className="text-sm font-medium">
+              Sample Name
+            </Label>
             <Input
               id="sample-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter sample name"
-              disabled={sampleMutation.isUpdating}
+              disabled={isUpdating}
               autoFocus
             />
           </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setOpen(false)}
+              disabled={isUpdating}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleSave}
+              disabled={isUpdating || !hasChanges || !name.trim()}
+            >
+              {isUpdating ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
-
-        <div className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={sampleMutation.isUpdating}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={sampleMutation.isUpdating || !hasChanges || !name.trim()}
-          >
-            {sampleMutation.isUpdating ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }

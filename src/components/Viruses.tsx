@@ -1,3 +1,4 @@
+import { Header } from "@/components/ui/header.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { LoadingIndicator } from "@/components/ui/loading-indicator.tsx";
 import {
@@ -9,10 +10,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
 import {
-  SelectAllCheckbox,
-  SelectionCheckbox,
-} from "@/components/ui/selection-checkbox.tsx";
-import {
   Table,
   TableBody,
   TableCell,
@@ -20,12 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { VirusSelection } from "@/components/VirusSelection.tsx";
-import { useSelection } from "@/hooks/useSelection.tsx";
 import { useViruses } from "@/hooks/useViruses.ts";
-import type { Virus } from "@/types.ts";
 import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect } from "react";
 
 export function Viruses() {
   const navigate = useNavigate({ from: "/viruses" });
@@ -55,28 +48,11 @@ export function Viruses() {
     search: searchTerm,
   });
 
-  const { isAllSelected, onSelectAll, onSetItems, onToggle, selectedIds } =
-    useSelection<Virus>();
-
-  // Set the viruses in the selection context when they change
-  useEffect(() => {
-    if (viruses) {
-      onSetItems(viruses);
-    }
-  }, [viruses, onSetItems]);
-
   function renderVirusTable(virusList: typeof viruses) {
     return (
-      <Table>
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12">
-              <SelectAllCheckbox
-                isAllSelected={isAllSelected}
-                items={virusList}
-                onSelectAll={onSelectAll}
-              />
-            </TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Acronym</TableHead>
           </TableRow>
@@ -84,14 +60,6 @@ export function Viruses() {
         <TableBody>
           {virusList.map((virus) => (
             <TableRow key={virus.id}>
-              <TableCell>
-                <SelectionCheckbox
-                  item={virus}
-                  selectedItems={selectedIds}
-                  onItemSelect={(item, event) => onToggle(item.id, event)}
-                  getItemLabel={(item) => item.name}
-                />
-              </TableCell>
               <TableCell className="font-medium">{virus.name}</TableCell>
               <TableCell>{virus.acronym}</TableCell>
             </TableRow>
@@ -117,12 +85,7 @@ export function Viruses() {
   return (
     <>
       <div>
-        <header>
-          <h1 className="font-bold text-2xl">Viruses</h1>
-          <p className="font-medium text-gray-500">
-            Viruses from the Virtool reference.
-          </p>
-        </header>
+        <Header title="Viruses" subtitle="Viruses from the Virtool reference" />
         <div className="mt-4">
           <div className="flex items-center justify-between">
             <LoadingIndicator isLoading={virusesLoading} />
@@ -203,7 +166,6 @@ export function Viruses() {
         </Pagination>
       </div>
 
-      <VirusSelection />
       <Outlet />
     </>
   );
