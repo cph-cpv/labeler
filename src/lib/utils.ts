@@ -55,3 +55,21 @@ export function guessCommonSampleName(
 
   return allSame ? firstSampleName : undefined;
 }
+
+/**
+ * Gets the common value from an array of items if all items have the same value for a field.
+ *
+ * @param items - Array of items to check
+ * @param fieldName - Name of the field to check
+ * @returns The common value if all items have the same value, null otherwise
+ */
+export function getCommonValue<T, K extends keyof T>(
+  items: T[],
+  fieldName: K,
+): T[K] | null {
+  if (items.length === 0) return null;
+  const firstValue = items[0][fieldName];
+  return items.every((item) => item[fieldName] === firstValue)
+    ? firstValue
+    : null;
+}

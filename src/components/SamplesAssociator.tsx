@@ -8,8 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
-import { usePocketBaseCollection } from "@/hooks/usePocketBaseQuery.ts";
-import { convertPbToUiFastq } from "@/lib/convert.ts";
+import { useSampleFastqs } from "@/hooks/useSampleFastqs.ts";
 import type { Fastq } from "@/types.ts";
 import { ArrowLeftRight, X } from "lucide-react";
 import React from "react";
@@ -25,9 +24,9 @@ type SamplesAssociatorProps = {
 };
 
 function FastqScrollArea({
+  emptyStateText,
   items,
   onItemClick,
-  emptyStateText,
   showRemoveButton = false,
 }: {
   items: Fastq[];
@@ -96,23 +95,12 @@ export function SamplesAssociator({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch matching FASTQs - show all when empty, filter when searching
-  const { data: pbFastqs = [], isLoading } = usePocketBaseCollection<Fastq>(
-    "fastqs",
-    debouncedSearch.length === 0
-      ? {
-          filter: `(sample = null || sample = '') && (excluded = null || excluded = false)`,
-          sort: "name",
-        }
-      : {
-          filter: `(name ~ "${debouncedSearch}" || path ~ "${debouncedSearch}") && (sample = null || sample = '') && (excluded = null || excluded = false)`,
-          sort: "name",
-        },
-  );
+  const { searchResults } = useSampleFastqs({
+    sampleId: null,
+    searchTerm: debouncedSearch,
+  });
 
-  const allMatchingFastqs = pbFastqs
-    .map((pbFile) => convertPbToUiFastq(pbFile))
-    .filter(Boolean) as Fastq[];
+  const { fastqs: allMatchingFastqs, isLoading } = searchResults;
 
   // Filter out already selected FASTQs
   const selectedIds = new Set(selectedFastqs.map((f) => f.id));

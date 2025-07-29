@@ -12,7 +12,11 @@ export function FastqsTypeDropdown() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
 
-  const types: string[] = search.type || [];
+  const types: string[] = Array.isArray(search.type)
+    ? search.type
+    : search.type
+      ? [search.type]
+      : [];
 
   function handleFilterChange(type: string, checked: boolean) {
     const newTypes = checked
@@ -20,6 +24,7 @@ export function FastqsTypeDropdown() {
       : types.filter((t) => t !== type);
 
     navigate({
+      to: "/fastqs",
       search: (prev) => ({
         ...prev,
         type: newTypes.length ? newTypes : undefined,

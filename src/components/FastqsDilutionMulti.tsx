@@ -1,4 +1,4 @@
-import { FastqsDilution } from "@/components/FastqsDilution.tsx";
+import { FastqsDilutionSelect } from "@/components/FastqsDilutionSelect.tsx";
 import { FastqsSummary } from "@/components/FastqsSummary.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -13,6 +13,7 @@ import { Kbd } from "@/components/ui/kbd.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { formatDilution } from "@/lib/dilution.ts";
+import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -21,6 +22,8 @@ export function FastqsDilutionMulti() {
   const [open, setOpen] = useState(false);
   const { selectedItems } = useSelection<Fastq>();
   const { batchUpdateAsync } = usePocketBaseBatchUpdate<Fastq>("fastqs");
+
+  const currentValue = getCommonValue(selectedItems, "dilution");
 
   useHotkeys(
     "d",
@@ -51,7 +54,8 @@ export function FastqsDilutionMulti() {
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <FastqsDilution
+          <FastqsDilutionSelect
+            value={currentValue}
             label="Set dilution factor for all selected FASTQs:"
             onValueChange={async (dilution) => {
               const updates = selectedItems.map((fastq) => ({

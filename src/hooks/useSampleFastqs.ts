@@ -1,0 +1,69 @@
+import { convertPbToUiFastq } from "@/lib/convert.ts";
+import type { Fastq } from "@/types.ts";
+import {
+  usePocketBaseCollection,
+  usePocketBasePaginated,
+} from "./usePocketBaseQuery.ts";
+
+type UseSampleFastqsParams = {
+  sampleId: string | null;
+  searchTerm?: string;
+  page?: number;
+};
+
+type UseSampleFastqsReturn = {
+  associatedFastqs: Fastq[];
+  searchResults: {
+    fastqs: Fastq[];
+    isLoading: boolean;
+    totalPages: number;
+  };
+  isLoadingAssociated: boolean;
+};
+
+export function useSampleFastqs({
+  sampleId,
+  searchTerm = "",
+  page = 1,
+}: UseSampleFastqsParams): UseSampleFastqsReturn {
+  // Fetch FASTQs associated with this sample
+  const { data: pbAssociatedFastqs = [], isLoading: isLoadingAssociated } =
+    usePocketBaseCollection<Fastq>("fastqs", {
+      filter: sampleId ? `sample = "${sampleId}"` : undefined,
+      sort: "name",
+    });
+
+  const associatedFastqs = pbAssociatedFastqs
+    .map(convertPbToUiFastq)
+    .filter((fastq): fastq is Fastq => fastq !== null);
+
+  // Fetch unassigned FASTQs for search (paginated)
+  const searchFilter =
+    searchTerm.trim().length === 0
+      ? `(sample = null || sample = '') && (excluded = null || excluded = false)`
+      : `(name ~ "${searchTerm}" || path ~ "${searchTerm}") && (sample = null || sample = '') && (excluded = null || excluded = false)`;
+
+  const {
+    data: pbSearchFastqs = [],
+    isLoading: isLoadingSearch,
+    totalPages,
+  } = usePocketBasePaginated<Fastq>("fastqs", {
+    filter: searchFilter,
+    sort: "name",
+    page,
+  });
+
+  const searchFastqs = pbSearchFastqs
+    .map(convertPbToUiFastq)
+    .filter((fastq): fastq is Fastq => fastq !== null);
+
+  return {
+    associatedFastqs,
+    searchResults: {
+      fastqs: searchFastqs,
+      isLoading: isLoadingSearch,
+      totalPages,
+    },
+    isLoadingAssociated,
+  };
+}

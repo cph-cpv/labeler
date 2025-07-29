@@ -1,4 +1,4 @@
-import { FastqsDilution } from "@/components/FastqsDilution.tsx";
+import { FastqsDilutionSelect } from "@/components/FastqsDilutionSelect.tsx";
 import {
   Popover,
   PopoverContent,
@@ -60,7 +60,7 @@ export function FastqsDilutionSingle({
               Set dilution factor for <strong>{fastq?.name}</strong>
             </p>
           </div>
-          <FastqsDilution
+          <FastqsDilutionSelect
             value={dilutionValue}
             onValueChange={handleValueChange}
             label="Dilution Factor"

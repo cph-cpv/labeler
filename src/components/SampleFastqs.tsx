@@ -9,11 +9,8 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import {
-  usePocketBaseCollection,
-  usePocketBaseMutation,
-} from "@/hooks/usePocketBaseQuery.ts";
-import { convertPbToUiFastq } from "@/lib/convert.ts";
+import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
+import { useSampleFastqs } from "@/hooks/useSampleFastqs.ts";
 import type { Fastq, Sample } from "@/types.ts";
 import { useEffect, useState } from "react";
 
@@ -31,15 +28,9 @@ export function SampleFastqs({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFastqs, setSelectedFastqs] = useState<Fastq[]>([]);
 
-  // Fetch FASTQs associated with this sample (server state)
-  const { data: pbFastqs = [] } = usePocketBaseCollection<Fastq>("fastqs", {
-    filter: sample ? `sample = "${sample.id}"` : undefined,
-    sort: "name",
+  const { associatedFastqs: serverAssociatedFastqs } = useSampleFastqs({
+    sampleId: sample?.id || null,
   });
-
-  const serverAssociatedFastqs = pbFastqs
-    .map(convertPbToUiFastq)
-    .filter(Boolean) as Fastq[];
 
   const fastqMutation = usePocketBaseMutation<Fastq>("fastqs");
 

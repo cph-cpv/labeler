@@ -12,16 +12,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
-import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
-import { convertPbToUiFastq } from "@/lib/convert.ts";
-import type {
-  DateRange,
-  Fastq,
-  FastqTypeFilter,
-  FastqsCategory,
-} from "@/types.ts";
+import { useFastqs } from "@/hooks/useFastqs.ts";
+import type { DateRange, FastqTypeFilter, FastqsCategory } from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function Fastqs() {
   const navigate = useNavigate();
@@ -43,12 +37,16 @@ export function Fastqs() {
     unknown: urlTypeFilter.includes("Unset"),
   };
 
-  function setCategory(newCategory: string) {
-    navigate({ search: (prev) => ({ ...prev, category: newCategory }) });
+  function setCategory(newCategory: FastqsCategory) {
+    navigate({
+      to: "/fastqs",
+      search: (prev) => ({ ...prev, category: newCategory }),
+    });
   }
 
   function setSearchQuery(newSearchQuery: string) {
     navigate({
+      to: "/fastqs",
       search: (prev) => ({
         ...prev,
         search: newSearchQuery || undefined,
@@ -65,65 +63,19 @@ export function Fastqs() {
     };
   }
 
-  const computedFilter = useMemo(() => {
-    const conditions: string[] = [];
-
-    if (category === "todo") {
-      conditions.push(
-        "(excluded = null || excluded = false) && (type = null || quality = null || dilution = null || sample = null || sample = '')",
-      );
-    } else if (category === "excluded") {
-      conditions.push("excluded = true");
-    } else if (category === "done") {
-      conditions.push(
-        "(excluded = null || excluded = false) && type != null && quality != null && dilution != null && sample != null && sample != ''",
-      );
-    }
-
-    if (typeFilter.dsRNA || typeFilter.smRNA || typeFilter.unknown) {
-      const typeConditions: string[] = [];
-
-      if (typeFilter.dsRNA) typeConditions.push("type = 'dsRNA'");
-      if (typeFilter.smRNA) typeConditions.push("type = 'smRNA'");
-      if (typeFilter.unknown) {
-        typeConditions.push("type = null");
-      }
-
-      conditions.push(`(${typeConditions.join(" || ")})`);
-    }
-
-    if (dateRange?.from) {
-      const fromDate = dateRange.from.toISOString();
-      const toDate = (dateRange.to || dateRange.from).toISOString();
-      conditions.push(`date >= '${fromDate}' && date <= '${toDate}'`);
-    }
-
-    if (searchQuery.trim()) {
-      conditions.push(`(name ~ '${searchQuery}' || path ~ '${searchQuery}')`);
-    }
-
-    return conditions.join(" && ");
-  }, [category, dateRange, typeFilter, searchQuery]);
-
-  const {
-    data: pbFastqs = [],
-    isLoading,
-    error,
-    totalPages,
-  } = usePocketBasePaginated<Fastq>("fastqs", {
-    expand: "sample",
-    filter: computedFilter || undefined,
+  const { fastqs, isLoading, error, totalPages } = useFastqs({
+    category,
+    typeFilter,
+    searchQuery,
+    dateRange,
     page,
   });
-
-  const fastqs = pbFastqs
-    .map((pbFile) => convertPbToUiFastq(pbFile))
-    .filter(Boolean);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     if (page !== 1) {
       navigate({
+        to: "/fastqs",
         search: (prev) => ({
           ...prev,
           page: undefined,
