@@ -8,7 +8,7 @@ on:
 
 jobs:
   typecheck:
-    name: "Type Check"
+    name: "TSC"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
