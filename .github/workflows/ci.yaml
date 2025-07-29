@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Run TypeScript
-        run: npx run gen && npm run typecheck
+        run: npx tsr generate && npm run typecheck
   docker-build:
     name: Build
     runs-on: ubuntu-latest
