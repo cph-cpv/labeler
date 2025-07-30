@@ -1,28 +1,6 @@
 services:
-  pocketbase-test:
+  pocketbase:
     build: ./pocketbase/
-    environment:
-      - PB_DATA=/pb/pb_data
     ports:
       - "8081:8080"
     restart: unless-stopped
-    volumes:
-      - pocketbase-data:/pb/pb_data
-
-  pocketbase-test-init:
-    build: ./pocketbase/
-    depends_on:
-      - pocketbase-test
-    volumes:
-      - ./pocketbase/create_superuser.sh:/create_superuser.sh
-      - pocketbase-data:/pb/pb_data
-    environment:
-      - POCKETBASE_ADMIN_EMAIL=test@example.com
-      - POCKETBASE_ADMIN_PASSWORD=testpass123
-      - PB_DATA=/pb/pb_data
-      - POCKETBASE_URL=http://pocketbase-test:8080
-    command: /bin/sh /create_superuser.sh
-    restart: "no"
-
-volumes:
-  pocketbase-data:

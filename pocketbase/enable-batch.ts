@@ -1,8 +1,6 @@
 import Pocketbase from "pocketbase";
 
 export async function enableBatch(pb: Pocketbase) {
-  console.log("⚡ Enabling batch operations...");
-
   // Get current settings
   const settings = await pb.settings.getAll();
 
@@ -16,6 +14,4 @@ export async function enableBatch(pb: Pocketbase) {
       maxBodySize: 0,
     },
   });
-
-  console.log("✅ Batch operations enabled");
 }

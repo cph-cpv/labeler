@@ -9,8 +9,6 @@ import {
 import { UnsetButton } from "@/components/ui/unset.tsx";
 import {
   DILUTIONS,
-  formatDilution,
-  parseDilution,
   type FastqDilution,
 } from "@/lib/dilution.ts";
 
@@ -39,8 +37,7 @@ export function FastqsDilutionSelect({
             if (stringValue === "") {
               onValueChange(null);
             } else {
-              const dilutionValue = parseDilution(stringValue);
-              onValueChange(dilutionValue);
+              onValueChange(stringValue as FastqDilution);
             }
           }}
           disabled={disabled}
@@ -50,8 +47,8 @@ export function FastqsDilutionSelect({
           </SelectTrigger>
           <SelectContent>
             {DILUTIONS.map((dilution) => (
-              <SelectItem key={dilution} value={dilution.toString()}>
-                {formatDilution(dilution)}
+              <SelectItem key={dilution} value={dilution}>
+                {dilution}
               </SelectItem>
             ))}
           </SelectContent>

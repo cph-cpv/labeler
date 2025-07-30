@@ -1,17 +1,10 @@
-import * as dotenv from "dotenv";
 import Pocketbase from "pocketbase";
+import { ADMIN_CREDENTIALS } from "./constants";
 
-dotenv.config({ path: ".env.local" });
-
-export async function createAuthenticatedClient(url?: string) {
-  const pbUrl =
-    url || process.env.VITE_POCKETBASE_URL || "http://localhost:8080";
-  const pb = new Pocketbase(pbUrl);
+export async function createAuthenticatedClient(url: string) {
+  const pb = new Pocketbase(url);
   await pb
     .collection("_superusers")
-    .authWithPassword(
-      process.env.POCKETBASE_ADMIN_EMAIL || "admin@example.com",
-      process.env.POCKETBASE_ADMIN_PASSWORD || "password123",
-    );
+    .authWithPassword(ADMIN_CREDENTIALS.EMAIL, ADMIN_CREDENTIALS.PASSWORD);
   return pb;
 }

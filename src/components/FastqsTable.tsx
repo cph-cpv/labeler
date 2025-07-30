@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/tooltip";
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useSelection } from "@/hooks/useSelection.tsx";
-import { formatDilution } from "@/lib/dilution.ts";
 import { cn, formatDate } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { EyeOffIcon } from "lucide-react";
@@ -81,7 +80,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
 
   return (
     <>
-      <Table className="table">
+      <Table className="table" data-testid="fastqs-table">
         <TableCaption>All available FASTQs.</TableCaption>
         <TableHeader>
           <TableRow>
@@ -170,11 +169,11 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                       tabIndex={0}
                       role="button"
                       aria-label={`Edit dilution factor for ${getFilenameFromPath(fastq.path)}. Current dilution: ${
-                        fastq.dilution ? `${fastq.dilution}x` : "Unset"
+                        fastq.dilution ? fastq.dilution : "Unset"
                       }`}
                     >
                       {fastq.dilution ? (
-                        `${formatDilution(fastq.dilution)}`
+                        fastq.dilution
                       ) : (
                         <UnsetIcon />
                       )}

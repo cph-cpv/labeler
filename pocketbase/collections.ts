@@ -59,7 +59,16 @@ export function createFastqsCollection(samplesCollectionId: string) {
         name: "dilution",
         type: "select",
         maxSelect: 1,
-        values: ["1", "2", "10", "20", "25", "50", "100", "200"],
+        values: [
+          "1:1",
+          "1:2",
+          "1:10",
+          "1:20",
+          "1:25",
+          "1:50",
+          "1:100",
+          "1:200",
+        ],
       },
       {
         name: "type",

@@ -1,16 +1,18 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 test.describe("FASTQs Page", () => {
-  test("click-based multi selection and deselection", async ({ page }) => {
+  let rows: Locator;
+  let table: Locator;
+
+  test.beforeEach(async ({ page }) => {
     await page.goto("/fastqs");
-
-    // Wait for the table to load
-    await page.waitForSelector("table");
-
-    // Get the first few rows
-    const rows = page.locator("table tbody tr");
+    table = page.getByTestId("fastqs-table");
+    await table.waitFor();
+    rows = table.locator("tbody tr");
     await expect(rows).not.toHaveCount(0);
+  });
 
+  test("click-based multi selection and deselection", async ({ page }) => {
     // Select first FASTQ with click
     const firstCheckbox = rows.nth(0).locator("input[type='checkbox']");
     await firstCheckbox.click();
@@ -48,69 +50,59 @@ test.describe("FASTQs Page", () => {
   test("shift-click based multi selection and deselection", async ({
     page,
   }) => {
-    await page.goto("/fastqs");
-
-    // Wait for the table to load
-    await page.waitForSelector("table");
-    const rows = page.locator("table tbody tr");
-    await expect(rows).not.toHaveCount(0);
-
-    // Select first FASTQ with click
-    const firstCheckbox = rows.nth(0).locator("input[type='checkbox']");
-    await firstCheckbox.click();
-
-    // Verify 1 FASTQ selected
+    // 1. Click #1 - #1 is checked
+    const checkbox1 = rows.nth(0).locator("input[type='checkbox']");
+    await checkbox1.click();
+    await expect(checkbox1).toBeChecked();
     await expect(page.locator("text=1 FASTQ selected")).toBeVisible();
 
-    // Select range from first to fourth with Shift+click
-    const fourthCheckbox = rows.nth(3).locator("input[type='checkbox']");
-    await fourthCheckbox.click({ modifiers: ["Shift"] });
+    // 2. Hold shift, click #8 - #1-#8 are checked
+    const checkbox8 = rows.nth(7).locator("input[type='checkbox']");
+    await checkbox8.click({ modifiers: ["Shift"] });
+    await expect(page.locator("text=8 FASTQs selected")).toBeVisible();
+    for (let i = 0; i < 8; i++) {
+      await expect(rows.nth(i).locator("input[type='checkbox']")).toBeChecked();
+    }
 
-    // Verify 4 FASTQs selected (range selection)
+    // 3. Click #10 (shift still held) - #1-#10 are checked
+    const checkbox10 = rows.nth(9).locator("input[type='checkbox']");
+    await checkbox10.click({ modifiers: ["Shift"] });
+    await expect(page.locator("text=10 FASTQs selected")).toBeVisible();
+    for (let i = 0; i < 10; i++) {
+      await expect(rows.nth(i).locator("input[type='checkbox']")).toBeChecked();
+    }
+
+    // 4. Click #5 (shift still held) - #1-#4 are checked, #5 is NOT checked
+    const checkbox5 = rows.nth(4).locator("input[type='checkbox']");
+    await checkbox5.click({ modifiers: ["Shift"] });
     await expect(page.locator("text=4 FASTQs selected")).toBeVisible();
+    for (let i = 0; i < 4; i++) {
+      await expect(rows.nth(i).locator("input[type='checkbox']")).toBeChecked();
+    }
+    await expect(checkbox5).not.toBeChecked();
+    for (let i = 5; i < 10; i++) {
+      await expect(
+        rows.nth(i).locator("input[type='checkbox']"),
+      ).not.toBeChecked();
+    }
 
-    // Verify all four checkboxes in range are checked
-    await expect(rows.nth(0).locator("input[type='checkbox']")).toBeChecked();
-    await expect(rows.nth(1).locator("input[type='checkbox']")).toBeChecked();
-    await expect(rows.nth(2).locator("input[type='checkbox']")).toBeChecked();
-    await expect(rows.nth(3).locator("input[type='checkbox']")).toBeChecked();
-
-    // Shift+click on second checkbox should select range from first to second (rows 1-2)
-    // This deselects rows 3-4 from the previous 1-4 selection
-    const secondCheckbox = rows.nth(1).locator("input[type='checkbox']");
-    await secondCheckbox.click({ modifiers: ["Shift"] });
-
-    // After shift-clicking the second checkbox, should have only row 1 selected
-    // (row 2 is deselected because it was the clicked item and was previously selected)
-    await expect(rows.nth(0).locator("input[type='checkbox']")).toBeChecked();
-    await expect(
-      rows.nth(1).locator("input[type='checkbox']"),
-    ).not.toBeChecked();
-    await expect(
-      rows.nth(2).locator("input[type='checkbox']"),
-    ).not.toBeChecked();
-    await expect(
-      rows.nth(3).locator("input[type='checkbox']"),
-    ).not.toBeChecked();
-
-    // Count should be 1
-    await expect(page.locator("text=1 FASTQ selected")).toBeVisible();
+    // 5. Click #1 (shift still held) - Nothing is checked
+    await checkbox1.click({ modifiers: ["Shift"] });
+    await expect(page.locator("text=0 FASTQs selected")).toBeVisible();
+    for (let i = 0; i < 10; i++) {
+      await expect(
+        rows.nth(i).locator("input[type='checkbox']"),
+      ).not.toBeChecked();
+    }
   });
 
-  test("search functionality with URL parameters", async ({ page }) => {
-    await page.goto("/fastqs");
-
-    // Wait for the table to load
-    await page.waitForSelector("table");
-
+  test("Search functionality with URL parameters", async ({ page }) => {
     // Find the search input
     const searchInput = page.getByPlaceholder("Search");
     await expect(searchInput).toBeVisible();
 
     // Start empty - verify >5 items match 14G4 pattern
-    const cellsWithPattern14G4 = page
-      .locator("table tbody tr td")
-      .getByText(/^14G4/);
+    const cellsWithPattern14G4 = rows.locator("td").getByText(/^14G4/);
     const countOf14G4 = await cellsWithPattern14G4.count();
     expect(countOf14G4).toBeGreaterThan(5);
 
@@ -123,9 +115,7 @@ test.describe("FASTQs Page", () => {
     // Wait for table to update and verify 0 items match 14G4, but >5 match 14SP
     await expect(cellsWithPattern14G4).toHaveCount(0);
 
-    const cellsWithPattern14SP = page
-      .locator("table tbody tr td")
-      .getByText(/14SP/);
+    const cellsWithPattern14SP = rows.locator("td").getByText(/14SP/);
     const countOf14SP = await cellsWithPattern14SP.count();
     expect(countOf14SP).toBeGreaterThan(5);
 
@@ -140,16 +130,12 @@ test.describe("FASTQs Page", () => {
   });
 
   test.describe("Multi-FASTQ Assignment", () => {
+    // Reuse setup from parent beforeEach
     test("should assign multiple FASTQs to a sample and refresh table", async ({
       page,
     }) => {
-      await page.goto("/fastqs");
-
-      // Wait for the table to load
-      await page.waitForSelector("table");
-
       // Select the first 3 FASTQs by clicking their checkboxes
-      const checkboxes = page.locator("table tbody tr input[type='checkbox']");
+      const checkboxes = rows.locator("input[type='checkbox']");
       await checkboxes.nth(0).check();
       await checkboxes.nth(1).check();
       await checkboxes.nth(2).check();
@@ -194,13 +180,8 @@ test.describe("FASTQs Page", () => {
     test("should handle keyboard shortcut to open assign dialog", async ({
       page,
     }) => {
-      await page.goto("/fastqs");
-      await page.waitForSelector("table");
-
       // Select a FASTQ
-      const checkbox = page
-        .locator("table tbody tr input[type='checkbox']")
-        .first();
+      const checkbox = rows.locator("input[type='checkbox']").first();
       await checkbox.check();
 
       // Use keyboard shortcut 'S' to open dialog
@@ -209,20 +190,14 @@ test.describe("FASTQs Page", () => {
       // Verify dialog opens
       const dialog = page.locator('[role="dialog"]');
       await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText("Assign FASTQs");
+      await expect(dialog).toContainText("Assign Sample");
     });
 
     test("should disable assign button when no sample is selected", async ({
       page,
     }) => {
-      await page.goto("/fastqs");
-      await page.waitForSelector("table");
-
       // Select a FASTQ
-      await page
-        .locator("table tbody tr input[type='checkbox']")
-        .first()
-        .check();
+      await rows.locator("input[type='checkbox']").first().check();
 
       // Open assign dialog
       await page.getByRole("button", { name: /Assign/ }).click();
@@ -247,14 +222,8 @@ test.describe("FASTQs Page", () => {
     test("should show correct count in dialog for single vs multiple FASTQs", async ({
       page,
     }) => {
-      await page.goto("/fastqs");
-      await page.waitForSelector("table");
-
       // Test single FASTQ
-      await page
-        .locator("table tbody tr input[type='checkbox']")
-        .first()
-        .check();
+      await rows.locator("input[type='checkbox']").first().check();
 
       await page.getByRole("button", { name: /Assign/ }).click();
 
@@ -265,7 +234,7 @@ test.describe("FASTQs Page", () => {
       await page.keyboard.press("Escape");
 
       // Test multiple FASTQs
-      const checkboxes = page.locator("table tbody tr input[type='checkbox']");
+      const checkboxes = rows.locator("input[type='checkbox']");
       await checkboxes.nth(1).check();
       await checkboxes.nth(2).check();
 
@@ -273,6 +242,56 @@ test.describe("FASTQs Page", () => {
 
       dialog = page.locator('[role="dialog"]');
       await expect(dialog).toContainText("Assign a sample for the 3 selected");
+    });
+  });
+
+  test.describe("Multi-FASTQ Dilution", () => {
+    test("should select two FASTQs, click Dilution button, and set dilution to 1:20", async ({
+      page,
+    }) => {
+      // Select the first two FASTQs by clicking their checkboxes
+      const checkboxes = rows.locator("input[type='checkbox']");
+      await checkboxes.nth(0).check();
+      await checkboxes.nth(1).check();
+
+      // Click the Dilution button to open dialog
+      await page.getByRole("button", { name: /Dilution/ }).click();
+
+      // Wait for dialog to appear
+      const dialog = page.getByRole("dialog", { name: "Dilution Factor" });
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText("Dilution Factor");
+      await expect(dialog).toContainText(
+        "Set the dilution factor for all selected FASTQ files",
+      );
+
+      // Open the dilution dropdown within the dialog
+      await dialog.locator('button[role="combobox"]').click();
+
+      // Select the 1:20 dilution option within the dialog
+      const dilutionOption = dialog.locator('div[role="option"]:has-text("1:20")');
+      await dilutionOption.click();
+
+      // Verify the selection is shown in the dropdown within the dialog
+      await expect(dialog.locator('button[role="combobox"]')).toContainText(
+        "1:20",
+      );
+    });
+
+    test("should handle keyboard shortcut 'D' to open dilution dialog", async ({
+      page,
+    }) => {
+      // Select a FASTQ
+      const checkbox = rows.locator("input[type='checkbox']").first();
+      await checkbox.check();
+
+      // Use keyboard shortcut 'D' to open dialog
+      await page.keyboard.press("d");
+
+      // Verify dialog opens
+      const dialog = page.getByRole("dialog", { name: "Dilution Factor" });
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText("Dilution Factor");
     });
   });
 });

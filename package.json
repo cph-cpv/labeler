@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build && tsc",
-    "dev": "vite --port 3000",
+    "build": "vite build",
+    "dev": "vite",
     "format": "prettier --write .",
     "reset": "tsx pocketbase/reset.ts",
     "serve": "vite preview",
-    "start": "vite --port 3000",
     "test": "playwright test",
+    "test:quick": "playwright test --project chromium --reporter line",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

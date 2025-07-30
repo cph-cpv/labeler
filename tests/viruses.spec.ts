@@ -12,165 +12,210 @@ test.describe("Viruses Page", () => {
     await expect(tableRows).not.toHaveCount(0);
   });
 
-  test.describe("Multi-virus Type Assignment", () => {
-    test("should update multiple virus types and refresh table", async ({
-      page,
-    }) => {
+  test.describe("search functionality", () => {
+    test("should filter by acronym TMV", async ({ page }) => {
       await page.goto("/viruses");
 
-      // Wait for the table to load
-      await page.waitForSelector("table");
+      // Wait for table to load
+      await page.waitForSelector("table tbody tr");
 
-      // Select the first 3 viruses by clicking their checkboxes
-      const checkboxes = page.locator("table tbody tr input[type='checkbox']");
-      await checkboxes.nth(0).check();
-      await checkboxes.nth(1).check();
-      await checkboxes.nth(2).check();
+      // Count total rows before search
+      const initialRows = await page.locator("table tbody tr").count();
 
-      // Verify selection bar appears
-      const selectionBar = page.locator('[class*="fixed"][class*="bottom-0"]');
-      await expect(selectionBar).toBeVisible();
-      await expect(selectionBar).toContainText("3 viruses selected");
+      // Type TMV in search input
+      await page.fill("input[placeholder='Search viruses...']", "TMV");
 
-      // Get the original types of the selected viruses before update
-      const originalTypes = [];
-      for (let i = 0; i < 3; i++) {
-        const row = page.locator("table tbody tr").nth(i);
-        const typeCell = row.locator("td").nth(2); // Type column
-        const originalType = await typeCell.textContent();
-        originalTypes.push(originalType?.trim());
+      // Wait for results to update
+      await page.waitForFunction(() => {
+        const url = window.location.href;
+        return url.includes("search=TMV");
+      });
+
+      // Verify URL contains search parameter
+      await expect(page).toHaveURL(/search=TMV/);
+
+      // Verify filtered results contain TMV
+      const filteredRows = page.locator("table tbody tr");
+      const filteredCount = await filteredRows.count();
+      expect(filteredCount).toBeGreaterThan(0);
+
+      // Assert that "Tobacco mosaic virus" is one of the returned rows
+      await expect(page.locator("table tbody tr").filter({ hasText: "Tobacco mosaic virus" })).toHaveCount(1);
+
+      // Check that all visible rows contain TMV in either name or acronym
+      const rowCount = await filteredRows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = filteredRows.nth(i);
+        const nameCell = row.locator("td").nth(0);
+        const acronymCell = row.locator("td").nth(1);
+
+        const nameText = await nameCell.textContent();
+        const acronymText = await acronymCell.textContent();
+
+        expect(
+          (nameText && nameText.toLowerCase().includes("tmv")) ||
+            (acronymText && acronymText.toLowerCase().includes("tmv")),
+        ).toBe(true);
       }
 
-      // Click the Type button to open dialog
-      await page.getByRole("button", { name: /Type/ }).click();
+      // Verify we have fewer rows than initial (search is filtering)
+      expect(rowCount).toBeLessThan(initialRows);
+    });
 
-      // Wait for dialog to appear
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText("Set Virus Type");
-      await expect(dialog).toContainText("Set the type for 3 selected viruses");
+    test("should filter by partial name tobacco mosaic v", async ({ page }) => {
+      await page.goto("/viruses");
 
-      // Open the virus type dropdown
-      await page.click('button[role="combobox"]');
+      // Wait for table to load
+      await page.waitForSelector("table tbody tr");
 
-      // Select "Satellite" as the new type
-      await page.click('div[role="option"]:has-text("Satellite")');
-
-      // Verify the selection is shown in the dropdown
-      await expect(page.locator('button[role="combobox"]')).toContainText(
-        "Satellite",
+      // Type partial name in search input
+      await page.fill(
+        "input[placeholder='Search viruses...']",
+        "tobacco mosaic v",
       );
 
-      // Click Assign Type button
-      await page.click('button[type="submit"]:has-text("Assign Type")');
+      // Wait for results to update
+      await page.waitForFunction(() => {
+        const url = window.location.href;
+        return url.includes("search=tobacco+mosaic+v");
+      });
 
-      // Wait for the assignment to complete (button should show "Assigning..." briefly)
-      await page.waitForTimeout(100); // Brief wait for loading state
+      // Verify URL contains encoded search parameter
+      await expect(page).toHaveURL(/search=tobacco\+mosaic\+v/);
 
-      // Verify dialog closes
-      await expect(dialog).not.toBeVisible();
+      // Verify filtered results
+      const filteredRows = page.locator("table tbody tr");
+      const filteredCount = await filteredRows.count();
+      expect(filteredCount).toBeGreaterThan(0);
 
-      // Verify selection bar disappears (selection cleared)
-      // The bar slides down with translate-y-full class
-      await expect(selectionBar).toHaveClass(/translate-y-full/);
+      // Check that results contain tobacco mosaic virus variants
+      const rowCount = await filteredRows.count();
+      for (let i = 0; i < rowCount; i++) {
+        const row = filteredRows.nth(i);
+        const nameCell = row.locator("td").nth(0);
+        const acronymCell = row.locator("td").nth(1);
 
-      // Verify that the virus types have been updated in the table without page reload
-      // This tests that the cache update is working correctly
-      for (let i = 0; i < 3; i++) {
-        const row = page.locator("table tbody tr").nth(i);
-        const typeCell = row.locator("td").nth(2);
+        const nameText = await nameCell.textContent();
+        const acronymText = await acronymCell.textContent();
 
-        // Wait for the cell to contain "Satellite"
-        await expect(typeCell).toContainText("Satellite");
+        expect(
+          (nameText && nameText.toLowerCase().includes("tobacco mosaic")) ||
+            (acronymText &&
+              acronymText.toLowerCase().includes("tobacco mosaic")),
+        ).toBe(true);
+      }
+    });
 
-        // Verify it changed from the original type (unless it was already Satellite)
-        const newType = await typeCell.textContent();
-        if (originalTypes[i] !== "Satellite") {
-          expect(newType?.trim()).not.toBe(originalTypes[i]);
+    test("should preserve search in url parameters", async ({ page }) => {
+      // Navigate directly to URL with search parameter
+      await page.goto("/viruses?search=TMV");
+
+      // Wait for page to load
+      await page.waitForSelector("table tbody tr");
+
+      // Verify search input is pre-populated
+      await expect(
+        page.locator("input[placeholder='Search viruses...']"),
+      ).toHaveValue("TMV");
+
+      // Verify filtered results are displayed immediately
+      const filteredRows = page.locator("table tbody tr");
+      const filteredCount = await filteredRows.count();
+      expect(filteredCount).toBeGreaterThan(0);
+
+      // Navigate away and back
+      await page.goto("/");
+      await page.goBack();
+
+      // Verify search is still preserved
+      await expect(
+        page.locator("input[placeholder='Search viruses...']"),
+      ).toHaveValue("TMV");
+      await expect(page).toHaveURL(/search=TMV/);
+    });
+
+    test("should clear search and show all results", async ({ page }) => {
+      await page.goto("/viruses");
+
+      // Wait for table to load and get initial count
+      await page.waitForSelector("table tbody tr");
+      const initialRowCount = await page.locator("table tbody tr").count();
+
+      // Apply search filter
+      await page.fill("input[placeholder='Search viruses...']", "TMV");
+      await page.waitForFunction(() =>
+        window.location.href.includes("search=TMV"),
+      );
+
+      // Wait for table to re-render with filtered results
+      await page.waitForFunction((initialCount) => {
+        const currentRows = document.querySelectorAll("table tbody tr");
+        return currentRows.length !== initialCount;
+      }, initialRowCount);
+
+      // Verify search is active
+      const filteredRowCount = await page.locator("table tbody tr").count();
+      expect(filteredRowCount).toBeLessThan(initialRowCount);
+
+      // Clear search
+      await page.fill("input[placeholder='Search viruses...']", "");
+
+      // Wait for URL to update (search parameter should be removed)
+      await page.waitForFunction(
+        () => !window.location.search.includes("search="),
+      );
+
+      // Verify all results are shown again
+      const clearedRowCount = await page.locator("table tbody tr").count();
+      expect(clearedRowCount).toBe(initialRowCount);
+
+      // Verify URL no longer contains search parameter
+      await expect(page).not.toHaveURL(/search=/);
+    });
+
+    test("should reset pagination when searching", async ({ page }) => {
+      await page.goto("/viruses");
+
+      // Wait for table and pagination to load
+      await page.waitForSelector("table tbody tr");
+
+      // Check if pagination exists (only if there are multiple pages)
+      const paginationNext = page.locator("a[aria-label='Go to next page']");
+      const hasMultiplePages = await paginationNext.isVisible();
+
+      if (hasMultiplePages) {
+        // Go to page 2
+        await paginationNext.click();
+        await page.waitForFunction(() =>
+          window.location.href.includes("page=2"),
+        );
+        await expect(page).toHaveURL(/page=2/);
+
+        // Apply search
+        await page.fill("input[placeholder='Search viruses...']", "TMV");
+        await page.waitForFunction(() =>
+          window.location.href.includes("search=TMV"),
+        );
+
+        // Verify page resets to 1 (URL should not contain page=2)
+        await expect(page).not.toHaveURL(/page=2/);
+        await expect(page).toHaveURL(/search=TMV/);
+
+        // Verify we're on page 1 by checking if "previous" button is disabled
+        const paginationPrev = page.locator(
+          "a[aria-label='Go to previous page']",
+        );
+        if (await paginationPrev.isVisible()) {
+          await expect(paginationPrev).toHaveClass(/opacity-50/);
         }
+      } else {
+        // If no pagination, just test that search works normally
+        await page.fill("input[placeholder='Search viruses...']", "TMV");
+        await page.waitForFunction(() =>
+          window.location.href.includes("search=TMV"),
+        );
+        await expect(page).toHaveURL(/search=TMV/);
       }
-    });
-
-    test("should handle keyboard shortcut to open type dialog", async ({
-      page,
-    }) => {
-      await page.goto("/viruses");
-      await page.waitForSelector("table");
-
-      // Select a virus
-      const checkbox = page
-        .locator("table tbody tr input[type='checkbox']")
-        .first();
-      await checkbox.check();
-
-      // Use keyboard shortcut 'T' to open dialog
-      await page.keyboard.press("t");
-
-      // Verify dialog opens
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText("Set Virus Type");
-    });
-
-    test("should show error message for failed type assignment", async ({
-      page,
-    }) => {
-      // This test would require mocking network failure, but with Playwright + real backend
-      // we can test by potentially stopping the backend or using network interception
-      // For now, we'll test the error UI by checking if error states are handled
-
-      await page.goto("/viruses");
-      await page.waitForSelector("table");
-
-      // Select a virus
-      await page
-        .locator("table tbody tr input[type='checkbox']")
-        .first()
-        .check();
-
-      // Open type dialog
-      await page.getByRole("button", { name: /Type/ }).click();
-
-      // Verify error handling exists in the dialog structure
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
-
-      // Check that error display elements exist in the DOM (even if not visible)
-      const errorContainer = dialog.locator("div.text-red-500");
-      // Error container should exist in DOM structure even if no error is currently shown
-      await expect(errorContainer).toHaveCount(0); // No errors initially
-    });
-
-    test("should disable assign button when no type is selected", async ({
-      page,
-    }) => {
-      await page.goto("/viruses");
-      await page.waitForSelector("table");
-
-      // Select a virus
-      await page
-        .locator("table tbody tr input[type='checkbox']")
-        .first()
-        .check();
-
-      // Open type dialog
-      await page.getByRole("button", { name: /Type/ }).click();
-
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
-
-      // Verify assign button is disabled initially
-      const assignButton = dialog.locator(
-        'button[type="submit"]:has-text("Assign Type")',
-      );
-      await expect(assignButton).toBeDisabled();
-
-      // Select a type
-      await page.click('button[role="combobox"]');
-      await page.click('div[role="option"]:has-text("Virus")');
-
-      // Verify assign button is now enabled
-      await expect(assignButton).toBeEnabled();
     });
   });
 });

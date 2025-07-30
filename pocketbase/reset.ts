@@ -5,13 +5,14 @@ import { populateViruses } from "./populate-viruses";
 import { resetCollections } from "./reset-collections";
 
 async function reset() {
-  const pb = await createAuthenticatedClient();
+  const pb = await createAuthenticatedClient("http://localhost:8080");
 
   console.log("📋 Resetting collections...");
   await resetCollections(pb);
   console.log("✅ Finished resetting collections.");
 
   await enableBatch(pb);
+  console.log("✅ Batch operations enabled");
 
   console.log("🦠 Populating viruses...");
   const virusCount = await populateViruses(pb, "input/viruses.csv");
