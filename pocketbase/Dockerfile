@@ -18,5 +18,8 @@ RUN unzip /tmp/pb.zip -d /pb/
 
 EXPOSE 8080
 
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # start PocketBase
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
+CMD ["/start.sh"]

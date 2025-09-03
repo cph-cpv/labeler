@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { TEST_CREDENTIALS } from "./constants";
 
 test.describe("Authentication", () => {
   test("shows authenticated content when logged in", async ({ page }) => {
@@ -22,15 +23,33 @@ test.describe("Authentication", () => {
       await expect(page.locator('input[type="email"]')).toBeVisible();
 
       // Fill in login form
-      await page.locator('input[type="email"]').fill("test@example.com");
-      await page.locator('input[type="password"]').fill("testpassword123");
+      await page
+        .locator('input[type="email"]')
+        .fill(TEST_CREDENTIALS.USER_EMAIL);
+      await page
+        .locator('input[type="password"]')
+        .fill(TEST_CREDENTIALS.USER_PASSWORD);
 
       // Submit form
       await page.getByRole("button", { name: /sign in/i }).click();
 
-      // Wait for login to complete - should see authenticated content
-      // The login form should disappear and app content should appear
-      await expect(page.locator('input[type="email"]')).not.toBeVisible();
+      // Check for authentication failure first
+      const authFailedLocator = page.getByText("Authentication failed");
+      const emailInputLocator = page.locator('input[type="email"]');
+
+      // Race between authentication failure and successful login
+      const result = await Promise.race([
+        authFailedLocator
+          .waitFor({ state: "visible", timeout: 10000 })
+          .then(() => "failed"),
+        emailInputLocator
+          .waitFor({ state: "hidden", timeout: 10000 })
+          .then(() => "success"),
+      ]);
+
+      if (result === "failed") {
+        throw new Error("Authentication failed - test should not continue");
+      }
 
       // Should see authenticated app content (navigation)
       await expect(page.getByRole("navigation")).toBeVisible();

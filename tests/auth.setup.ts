@@ -1,6 +1,7 @@
 import { expect, test as setup } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
+import { TEST_CREDENTIALS } from "./constants";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const authFile = path.join(__dirname, "../playwright/.auth/user.json");
@@ -10,8 +11,10 @@ setup("authenticate", async ({ page }) => {
   await page.goto("/");
 
   // Fill in login form
-  await page.locator('input[type="email"]').fill("test@example.com");
-  await page.locator('input[type="password"]').fill("testpassword123");
+  await page.locator('input[type="email"]').fill(TEST_CREDENTIALS.USER_EMAIL);
+  await page
+    .locator('input[type="password"]')
+    .fill(TEST_CREDENTIALS.USER_PASSWORD);
 
   // Submit form
   await page.getByRole("button", { name: /sign in/i }).click();

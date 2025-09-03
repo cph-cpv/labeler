@@ -13,11 +13,16 @@ export default defineConfig({
     trace: "on-first-retry",
   },
 
-  globalSetup: "./tests/global-setup.ts",
-  globalTeardown: "./tests/global-teardown.ts",
-
   projects: [
-    { name: "setup", testMatch: /.*\.setup\.ts/ },
+    {
+      name: "setup",
+      testMatch: /.*\/setup\.ts/,
+      teardown: "teardown",
+    },
+    {
+      name: "teardown",
+      testMatch: /.*\/teardown\.ts/,
+    },
     {
       name: "chromium",
       use: {
@@ -47,10 +52,9 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3001",
-    reuseExistingServer: false,
     env: {
-      VITE_POCKETBASE_URL: "http://localhost:8081",
       PORT: "3001",
+      POCKETBASE_PORT: "8081",
     },
   },
 });

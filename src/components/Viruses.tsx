@@ -33,9 +33,13 @@ export function Viruses() {
   }
 
   function setSearchTerm(searchTerm: string) {
-    navigate({
-      search: { ...search, search: searchTerm, page: 1 },
-    });
+    const newSearch = { ...search, page: 1 };
+    if (searchTerm.trim()) {
+      newSearch.search = searchTerm;
+    } else {
+      delete newSearch.search;
+    }
+    navigate({ search: newSearch });
   }
 
   const {

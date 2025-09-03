@@ -93,65 +93,50 @@ export function useSelection<T extends SelectableItem>() {
       setSelectedIds((prev) => {
         const newSet = new Set(prev);
 
-        // Handle shift-key range selection
         if (
           event?.shiftKey &&
           anchorIndexRef.current !== null &&
           itemIndex !== -1
         ) {
-          const startIndex = Math.min(anchorIndexRef.current, itemIndex);
-          let endIndex = Math.max(anchorIndexRef.current, itemIndex);
-
-          // Determine if we're expanding or contracting the selection
-          if (lastClickedIndexRef.current !== null) {
-            const lastWasAboveAnchor =
-              lastClickedIndexRef.current > anchorIndexRef.current;
-            const currentIsAboveAnchor = itemIndex > anchorIndexRef.current;
-
-            let isExpanding = false;
-
-            if (lastWasAboveAnchor && currentIsAboveAnchor) {
-              // Both above anchor: expanding if current is further from anchor
-              isExpanding = itemIndex > lastClickedIndexRef.current;
-            } else if (!lastWasAboveAnchor && !currentIsAboveAnchor) {
-              // Both below anchor: expanding if current is further from anchor
-              isExpanding = itemIndex < lastClickedIndexRef.current;
-            } else {
-              // Crossing anchor: always expanding
-              isExpanding = true;
-            }
-
-            // If contracting, exclude the last clicked item from selection
-            if (!isExpanding && lastClickedIndexRef.current === endIndex) {
-              endIndex -= 1;
-            }
+          // If clicking the anchor point, clear all selections
+          if (itemIndex === anchorIndexRef.current) {
+            newSet.clear();
+            lastClickedIndexRef.current = null;
+            return newSet;
           }
 
-          // For shift-click: clear all selections and select only the range
-          // from anchor to the clicked item (inclusive)
+          // Determine if we're expanding or contracting
+          const isExpanding =
+            lastClickedIndexRef.current === null ||
+            Math.abs(itemIndex - anchorIndexRef.current) >
+              Math.abs(lastClickedIndexRef.current - anchorIndexRef.current);
+
+          // Clear and select new range
           newSet.clear();
+          const startIndex = Math.min(anchorIndexRef.current, itemIndex);
+          const endIndex = Math.max(anchorIndexRef.current, itemIndex);
 
           for (let i = startIndex; i <= endIndex; i++) {
             if (i < items.length) {
-              const rangeItemId = (items as T[])[i].id.toString();
-              newSet.add(rangeItemId);
+              // Include clicked item when expanding, exclude when contracting
+              if (i !== itemIndex || isExpanding) {
+                const rangeItemId = (items as T[])[i].id.toString();
+                newSet.add(rangeItemId);
+              }
             }
           }
 
-          // Don't update anchor for shift-clicks - keep the original anchor point
+          lastClickedIndexRef.current = itemIndex;
         } else {
-          // Regular toggle behavior
+          // Regular toggle
           if (newSet.has(itemId)) {
             newSet.delete(itemId);
           } else {
             newSet.add(itemId);
           }
-
-          // Update anchor point only for non-shift clicks
           anchorIndexRef.current = itemIndex;
+          lastClickedIndexRef.current = itemIndex;
         }
-
-        lastClickedIndexRef.current = itemIndex;
 
         return newSet;
       });

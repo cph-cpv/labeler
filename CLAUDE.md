@@ -26,5 +26,5 @@
 
 # Testing
 
-- Don't use testid.
 - Run playwright with --reporter=line.
+- Use all-lowercase for test naming.

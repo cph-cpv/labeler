@@ -12,7 +12,6 @@ import {
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
-import { formatDilution } from "@/lib/dilution.ts";
 import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
@@ -69,7 +68,7 @@ export function FastqsDilutionMulti() {
           <FastqsSummary
             selectedItems={selectedItems}
             fieldExtractor={(fastq) =>
-              fastq.dilution !== null ? formatDilution(fastq.dilution) : "Unset"
+              fastq.dilution !== null ? fastq.dilution : "Unset"
             }
           />
         </div>
