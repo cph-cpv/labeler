@@ -40,7 +40,11 @@ test.describe("Viruses Page", () => {
       expect(filteredCount).toBeGreaterThan(0);
 
       // Assert that "Tobacco mosaic virus" is one of the returned rows
-      await expect(page.locator("table tbody tr").filter({ hasText: "Tobacco mosaic virus" })).toHaveCount(1);
+      await expect(
+        page
+          .locator("table tbody tr")
+          .filter({ hasText: "Tobacco mosaic virus" }),
+      ).toHaveCount(1);
 
       // Check that all visible rows contain TMV in either name or acronym
       const rowCount = await filteredRows.count();

@@ -7,10 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { UnsetButton } from "@/components/ui/unset.tsx";
-import {
-  DILUTIONS,
-  type FastqDilution,
-} from "@/lib/dilution.ts";
+import { DILUTIONS, type FastqDilution } from "@/lib/dilution.ts";
 
 type DilutionProps = {
   value?: FastqDilution | null;

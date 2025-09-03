@@ -172,11 +172,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                         fastq.dilution ? fastq.dilution : "Unset"
                       }`}
                     >
-                      {fastq.dilution ? (
-                        fastq.dilution
-                      ) : (
-                        <UnsetIcon />
-                      )}
+                      {fastq.dilution ? fastq.dilution : <UnsetIcon />}
                     </div>
                   }
                 />

@@ -1,3 +1,4 @@
+import type { TypedPocketBase } from "@/lib/typed-pocketbase.ts";
 import { expect, test as setup } from "@playwright/test";
 import { exec } from "child_process";
 import path from "path";
@@ -38,7 +39,7 @@ setup.describe("Test Environment Setup", () => {
     const startTime = Date.now();
     const maxWaitTime = 10000; // 10 seconds
     let attempt = 0;
-    let pb;
+    let pb: TypedPocketBase | undefined;
 
     while (Date.now() - startTime < maxWaitTime) {
       attempt++;
@@ -51,15 +52,14 @@ setup.describe("Test Environment Setup", () => {
         console.log(
           `ℹ Attempt ${attempt} failed after ${elapsed}s, retrying...`,
         );
-
-        if (Date.now() - startTime >= maxWaitTime) {
-          throw new Error(
-            "Pocketbase authentication timed out after 10s. Is it running and configured correctly?",
-          );
-        }
-
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
+    }
+
+    if (pb == undefined) {
+      throw new Error(
+        "Pocketbase authentication timed out after 10s. Is it running and configured correctly?",
+      );
     }
 
     console.log("⚡ Enabling batch operations...");
@@ -74,7 +74,7 @@ setup.describe("Test Environment Setup", () => {
         passwordConfirm: TEST_CREDENTIALS.USER_PASSWORD,
       });
       console.log("✔ Test user created");
-    } catch (error) {
+    } catch (error: any) {
       console.log("❗ Error creating test user:", error);
       console.log("ℹ Error details:", JSON.stringify(error.response, null, 2));
 

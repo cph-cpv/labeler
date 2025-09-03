@@ -269,7 +269,9 @@ test.describe("FASTQs Page", () => {
       await dialog.locator('button[role="combobox"]').click();
 
       // Select the 1:20 dilution option within the dialog
-      const dilutionOption = dialog.locator('div[role="option"]:has-text("1:20")');
+      const dilutionOption = dialog.locator(
+        'div[role="option"]:has-text("1:20")',
+      );
       await dilutionOption.click();
 
       // Verify the selection is shown in the dropdown within the dialog
