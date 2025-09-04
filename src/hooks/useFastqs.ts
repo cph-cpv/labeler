@@ -73,6 +73,7 @@ export function useFastqs({
     totalPages,
   } = usePocketBasePaginated<Fastq>("fastqs", {
     filter: computedFilter || undefined,
+    expand: "sample",
     page,
   });
 
