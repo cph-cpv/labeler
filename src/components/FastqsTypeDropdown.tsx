@@ -5,8 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { FastqTypes } from "@/types.ts";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 
 export function FastqsTypeDropdown() {
   const navigate = useNavigate();
@@ -32,28 +33,26 @@ export function FastqsTypeDropdown() {
     });
   }
 
+
+
+  const dropdownOptions = FastqTypes.map(type =>
+    <DropdownMenuCheckboxItem
+      checked={types.includes(type)}
+      onCheckedChange={(checked) =>
+        handleFilterChange(type, checked ?? false)
+      }
+    >
+      {type}
+    </DropdownMenuCheckboxItem>,
+  );
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">Type</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuCheckboxItem
-          checked={types.includes("dsRNA")}
-          onCheckedChange={(checked) =>
-            handleFilterChange("dsRNA", checked ?? false)
-          }
-        >
-          dsRNA
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={types.includes("smRNA")}
-          onCheckedChange={(checked) =>
-            handleFilterChange("smRNA", checked ?? false)
-          }
-        >
-          smRNA
-        </DropdownMenuCheckboxItem>
+        {dropdownOptions}
         <DropdownMenuCheckboxItem
           checked={types.includes("Unset")}
           onCheckedChange={(checked) =>

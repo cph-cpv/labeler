@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/select";
 import { UnsetButton } from "@/components/ui/unset";
 import type { FastqType } from "@/types";
+import { FastqTypes } from "@/types";
 
 type TypeSelectProps = {
   className?: string;
@@ -24,12 +25,8 @@ export function FastqsTypeSelect({
   value,
 }: TypeSelectProps) {
   function handleValueChange(newValue: string) {
-    if (["dsRNA", "smRNA"].includes(newValue)) {
+    if (FastqTypes.includes(newValue)) {
       onSelect(newValue as FastqType);
-    }
-
-    if (newValue === "") {
-      onSelect(null);
     }
   }
 
@@ -46,6 +43,8 @@ export function FastqsTypeSelect({
         <SelectContent>
           <SelectItem value="dsRNA">dsRNA</SelectItem>
           <SelectItem value="smRNA">smRNA</SelectItem>
+          <SelectItem value="ribominus">Ribominus</SelectItem>
+          <SelectItem value="totRNA">totRNA</SelectItem>
         </SelectContent>
       </Select>
       <UnsetButton onUnset={() => onSelect(null)} disabled={disabled} />

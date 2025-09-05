@@ -41,13 +41,15 @@ export function useFastqs({
       );
     }
 
-    if (typeFilter.dsRNA || typeFilter.smRNA || typeFilter.unknown) {
+    if (typeFilter.dsRNA || typeFilter.smRNA || typeFilter.ribominus || typeFilter.totRNA || typeFilter.unknown) {
       const typeConditions: string[] = [];
 
-      if (typeFilter.dsRNA) typeConditions.push("type = 'dsRNA'");
-      if (typeFilter.smRNA) typeConditions.push("type = 'smRNA'");
+      if (typeFilter.dsRNA) typeConditions.push("type='dsRNA'");
+      if (typeFilter.smRNA) typeConditions.push("type='smRNA'");
+      if (typeFilter.ribominus) typeConditions.push("type='ribominus'");
+      if (typeFilter.totRNA) typeConditions.push("type='totRNA'");
       if (typeFilter.unknown) {
-        typeConditions.push("type = null");
+        typeConditions.push("type=null");
       }
 
       conditions.push(`(${typeConditions.join(" || ")})`);

@@ -34,6 +34,8 @@ export function Fastqs() {
   const typeFilter: FastqTypeFilter = {
     dsRNA: urlTypeFilter.includes("dsRNA"),
     smRNA: urlTypeFilter.includes("smRNA"),
+    ribominus: urlTypeFilter.includes("ribominus"),
+    totRNA: urlTypeFilter.includes("totRNA"),
     unknown: urlTypeFilter.includes("Unset"),
   };
 
