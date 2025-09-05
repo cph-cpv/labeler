@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { FastqTypes } from "@/types.ts";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 
 export function FastqsTypeDropdown() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export function FastqsTypeDropdown() {
 
 
 
-  const dropdownOptions = [...FastqTypes, "Unset"].map(type =>
+  const dropdownOptions = FastqTypes.map(type =>
     <DropdownMenuCheckboxItem
       checked={types.includes(type)}
       onCheckedChange={(checked) =>
@@ -53,6 +53,16 @@ export function FastqsTypeDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         {dropdownOptions}
+        <DropdownMenuCheckboxItem
+          checked={types.includes("Unset")}
+          onCheckedChange={(checked) =>
+            handleFilterChange("Unset", checked ?? false)
+          }
+          className="flex items-center gap-2 text-muted-foreground"
+        >
+          <UnsetIcon className="size-3.5" />
+          Unset
+        </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
