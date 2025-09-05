@@ -7,6 +7,5 @@ services:
     volumes:
       - labeler-pocketbase:/pb/pb_data
 
-
 volumes:
   labeler-pocketbase:
