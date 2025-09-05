@@ -53,13 +53,6 @@ function AppShell() {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/" activeProps={{ "data-active": true }}>
-                  Dash
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
                 <Link to="/fastqs" activeProps={{ "data-active": true }}>
                   FASTQs
                 </Link>
