@@ -74,7 +74,7 @@ export function createFastqsCollection(samplesCollectionId: string) {
         name: "type",
         type: "select",
         maxSelect: 1,
-        values: ["dsRNA", "smRNA"],
+        values: ["dsRNA", "smRNA", "ribominus", "totRNA"],
       },
       {
         name: "date",

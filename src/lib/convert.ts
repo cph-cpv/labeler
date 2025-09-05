@@ -1,4 +1,5 @@
 import type { Fastq } from "@/types.ts";
+import { FastqTypes } from "@/types.ts";
 
 export function convertPbToUiFastq(pbFile: any): Fastq | null {
   return pbFile
@@ -9,12 +10,7 @@ export function convertPbToUiFastq(pbFile: any): Fastq | null {
         timestamp: pbFile.date ? new Date(pbFile.date) : new Date(),
         quality: pbFile.quality ?? null,
         dilution: pbFile.dilution,
-        type:
-          pbFile.type === "dsRNA"
-            ? "dsRNA"
-            : pbFile.type === "smRNA"
-              ? "smRNA"
-              : null,
+        type: FastqTypes.includes(pbFile.type) ? pbFile.type : null,
         sample: pbFile.expand?.sample?.name || null,
         excluded: pbFile.excluded || false,
       }
