@@ -3,14 +3,13 @@ import type { FastqDilution } from "@/lib/dilution.ts";
 import type { FastqQuality } from "@/lib/quality.ts";
 import type { DateRange } from "react-day-picker";
 
-export const FastqTypes = [
-  "dsRNA" ,
-  "smRNA",
-  "ribominus",
-  "totRNA"
-]
+export const FastqTypes = ["dsRNA", "smRNA", "ribominus", "totRNA"];
 
-export type FastqType = (typeof FastqTypes)[number]
+export const FastqExtractions = ["manual", "presto", "kingfisher", "external"];
+
+export type FastqType = (typeof FastqTypes)[number];
+
+export type FastqExtraction = (typeof FastqExtractions)[number];
 
 export type FastqsCategory = "todo" | "excluded" | "done";
 
@@ -31,6 +30,7 @@ export type Fastq = {
   quality: FastqQuality | null;
   timestamp: Date;
   type: FastqType | null;
+  extraction: FastqExtraction | null;
   sample: string | null;
 };
 

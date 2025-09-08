@@ -41,7 +41,13 @@ export function useFastqs({
       );
     }
 
-    if (typeFilter.dsRNA || typeFilter.smRNA || typeFilter.ribominus || typeFilter.totRNA || typeFilter.unknown) {
+    if (
+      typeFilter.dsRNA ||
+      typeFilter.smRNA ||
+      typeFilter.ribominus ||
+      typeFilter.totRNA ||
+      typeFilter.unknown
+    ) {
       const typeConditions: string[] = [];
 
       if (typeFilter.dsRNA) typeConditions.push("type='dsRNA'");

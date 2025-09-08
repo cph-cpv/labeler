@@ -1,5 +1,6 @@
 import { FastqsDilutionMulti } from "@/components/FastqsDilutionMulti.tsx";
 import { FastqsExcludeMultiple } from "@/components/FastqsExcludeMultiple.tsx";
+import { FastqsExtractionMulti } from "@/components/FastqsExtractionMulti.tsx";
 import { FastqsInclude } from "@/components/FastqsInclude.tsx";
 import { FastqsQualityMulti } from "@/components/FastqsQualityMulti.tsx";
 import { FastqsSampleMulti } from "@/components/FastqsSampleMulti.tsx";
@@ -18,6 +19,7 @@ export function FastqsSelection({ category }: FastqsSelectionProps) {
       ) : (
         <>
           <FastqsTypeMulti />
+          <FastqsExtractionMulti />
           <FastqsQualityMulti />
           <FastqsDilutionMulti />
           <FastqsSampleMulti />

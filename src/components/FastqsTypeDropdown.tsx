@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { FastqTypes } from "@/types.ts";
 import { UnsetIcon } from "@/components/ui/unset.tsx";
+import { FastqTypes } from "@/types.ts";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function FastqsTypeDropdown() {
   const navigate = useNavigate();
@@ -33,18 +33,14 @@ export function FastqsTypeDropdown() {
     });
   }
 
-
-
-  const dropdownOptions = FastqTypes.map(type =>
+  const dropdownOptions = FastqTypes.map((type) => (
     <DropdownMenuCheckboxItem
       checked={types.includes(type)}
-      onCheckedChange={(checked) =>
-        handleFilterChange(type, checked ?? false)
-      }
+      onCheckedChange={(checked) => handleFilterChange(type, checked ?? false)}
     >
       {type}
-    </DropdownMenuCheckboxItem>,
-  );
+    </DropdownMenuCheckboxItem>
+  ));
 
   return (
     <DropdownMenu>

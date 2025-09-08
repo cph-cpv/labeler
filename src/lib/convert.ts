@@ -11,6 +11,7 @@ export function convertPbToUiFastq(pbFile: any): Fastq | null {
         quality: pbFile.quality ?? null,
         dilution: pbFile.dilution,
         type: FastqTypes.includes(pbFile.type) ? pbFile.type : null,
+        extraction: pbFile.extraction ? pbFile.extraction : null,
         sample: pbFile.expand?.sample?.name || null,
         excluded: pbFile.excluded || false,
       }
