@@ -7,7 +7,7 @@ import {
 } from "@/hooks/usePocketBaseQuery.ts";
 import { useSampleCreation } from "@/hooks/useSampleCreation";
 import { guessCommonSampleName } from "@/lib/utils.ts";
-import type { Sample } from "@/types.ts";
+import type { BaseSample } from "@/types.ts";
 import { AlertCircle, Clover, Plus } from "lucide-react";
 import * as React from "react";
 
@@ -39,14 +39,17 @@ export function FastqsSampleSelector({
   );
 
   // Try to find exact match for guessed name using PocketBase query
-  const { data: guessedMatch } = usePocketBaseFirst<Sample>(
+  const { data: guessedMatch } = usePocketBaseFirst<BaseSample>(
     "samples",
     guessedSampleName ? `name = "${guessedSampleName}"` : "",
   );
 
-  const { data: allSamples = [] } = usePocketBasePaginated<Sample>("samples", {
-    sort: "name",
-  });
+  const { data: allSamples = [] } = usePocketBasePaginated<BaseSample>(
+    "samples",
+    {
+      sort: "name",
+    },
+  );
 
   const { createSample } = useSampleCreation();
 

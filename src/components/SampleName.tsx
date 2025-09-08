@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
-import type { Sample } from "@/types.ts";
+import type { BaseSample, Sample } from "@/types.ts";
 import { useEffect, useState } from "react";
 
 type SampleNameProps = {
@@ -19,7 +19,7 @@ export function SampleName({ sample, trigger }: SampleNameProps) {
   const [name, setName] = useState("");
   const [open, setOpen] = useState(false);
 
-  const { update, isUpdating } = usePocketBaseMutation<Sample>("samples");
+  const { update, isUpdating } = usePocketBaseMutation<BaseSample>("samples");
 
   useEffect(() => {
     if (sample) {

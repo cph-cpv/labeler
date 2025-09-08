@@ -1,4 +1,4 @@
-import type { Fastq, Sample, Virus } from "@/types";
+import type { BaseSample, Fastq, Virus } from "@/types";
 import PocketBase, { type RecordService } from "pocketbase";
 
 // Exception types
@@ -25,7 +25,7 @@ type FastqRecord = Fastq & {
   };
 };
 
-type SampleRecord = Sample & {
+type SampleRecord = BaseSample & {
   created: string;
   updated: string;
   collectionId: string;

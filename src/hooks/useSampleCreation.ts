@@ -1,14 +1,14 @@
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery";
-import type { Sample } from "@/types";
+import type { BaseSample } from "@/types";
 import { useCallback, useState } from "react";
 
 export function useSampleCreation() {
-  const { createAsync } = usePocketBaseMutation<Sample>("samples");
+  const { createAsync } = usePocketBaseMutation<BaseSample>("samples");
   const [error, setError] = useState<Error | undefined>();
   const [isCreating, setIsCreating] = useState(false);
 
   const createSample = useCallback(
-    async (name: string): Promise<Sample | undefined> => {
+    async (name: string): Promise<BaseSample | undefined> => {
       if (!name.trim() || isCreating) return undefined;
 
       setIsCreating(true);
