@@ -93,6 +93,12 @@ export function createFastqsCollection(samplesCollectionId: string) {
         minSelect: 0,
         maxSelect: 1,
       },
+      {
+        name: "extraction",
+        type: "select",
+        maxSelect: 1,
+        values: ["manual", "presto", "kingfisher", "external"],
+      },
     ],
   };
 }

@@ -38,7 +38,7 @@ export function FastqsExcludeMultiple() {
   }
 
   useHotkeys(
-    "e",
+    "x",
     () => {
       setOpen(true);
     },
@@ -51,7 +51,7 @@ export function FastqsExcludeMultiple() {
   return (
     <>
       <Button onClick={() => setOpen(true)}>
-        Exclude <Kbd shortcut="E" />
+        Exclude <Kbd shortcut="X" />
       </Button>
 
       <AlertDialog open={open} onOpenChange={setOpen}>

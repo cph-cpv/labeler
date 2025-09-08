@@ -1,5 +1,6 @@
 import { FastqsDilutionSingle } from "@/components/FastqsDilutionSingle.tsx";
 import { FastqsExcludeSingle } from "@/components/FastqsExcludeSingle.tsx";
+import { FastqsExtractionSingle } from "@/components/FastqsExtractionSingle.tsx";
 import { FastqsQualityDot } from "@/components/FastqsQualityDot.tsx";
 import { FastqsQualitySingle } from "@/components/FastqsQualitySingle.tsx";
 import { FastqsSample } from "@/components/FastqsSample.tsx";
@@ -96,6 +97,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
             <TableHead className="w-20">Type</TableHead>
             <TableHead className="w-24">Quality</TableHead>
             <TableHead className="w-24">Dilution</TableHead>
+            <TableHead className="w-24">Extraction</TableHead>
             <TableHead className="flex-1">Sample</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
@@ -173,6 +175,27 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                       }`}
                     >
                       {fastq.dilution ? fastq.dilution : <UnsetIcon />}
+                    </div>
+                  }
+                />
+              </TableCell>
+              <TableCell>
+                <FastqsExtractionSingle
+                  fastq={fastq}
+                  trigger={
+                    <div
+                      className={cn(
+                        "group relative cursor-pointer",
+                        "transition-colors hover:bg-muted/70 focus:bg-muted/70",
+                        "focus:outline-none rounded px-2 py-1 -mx-2 -my-1 min-h-8 flex items-center",
+                      )}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Edit extraction for ${getFilenameFromPath(fastq.path)}. Current extraction: ${
+                        fastq.extraction ? fastq.extraction : "Unset"
+                      }`}
+                    >
+                      {fastq.extraction ? fastq.extraction : <UnsetIcon />}
                     </div>
                   }
                 />
