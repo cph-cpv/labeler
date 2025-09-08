@@ -42,20 +42,21 @@ export type FastqUpdate = {
   sample: string | null;
 };
 
-export type Sample = {
+export type BaseSample = {
   id: string;
   name: string;
   viruses: string[];
 };
 
-export type SampleExpanded = {
-  id: string;
-  expand: {
-    viruses: Virus[];
-  };
+export type Sample = Omit<BaseSample, "viruses"> & {
+  viruses: Virus[];
 };
 
-export type SampleUpdate = Sample;
+export type SampleExpanded = BaseSample & {
+  expand: {
+    viruses?: Virus[];
+  };
+};
 
 export type Exception = {
   id: string;

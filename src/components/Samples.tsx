@@ -28,24 +28,28 @@ import {
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
-import type { Fastq, Sample } from "@/types.ts";
+import type { Fastq, Sample, SampleExpanded } from "@/types.ts";
+import { formatSamples } from "@/utils/samples.ts";
 import { Outlet } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 export function Samples() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [searchValue, setSearchValue] = React.useState("");
 
   const {
-    data: samples = [],
+    data: baseSamples = [],
     isLoading,
     error,
     totalPages = 1,
-  } = usePocketBasePaginated<Sample>("samples", {
+  } = usePocketBasePaginated<SampleExpanded>("samples", {
     page: currentPage,
     filter: searchValue ? `name ~ "${searchValue}"` : undefined,
+    expand: "viruses",
   });
+
+  const samples = useMemo(() => formatSamples(baseSamples), [baseSamples]);
 
   // Fetch all FASTQs to calculate counts
   const { data: allFastqs = [] } = usePocketBasePaginated<Fastq>("fastqs", {

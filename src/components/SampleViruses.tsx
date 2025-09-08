@@ -9,8 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
-import { useViruses } from "@/hooks/useViruses.ts";
-import type { Sample, Virus } from "@/types.ts";
+import type { BaseSample, Sample, Virus } from "@/types.ts";
 import { useEffect, useState } from "react";
 
 type SamplesVirusesEditProps = {
@@ -26,19 +25,14 @@ export function SampleViruses({
 }: SamplesVirusesEditProps) {
   const [selectedViruses, setSelectedViruses] = useState<Virus[]>([]);
 
-  const { viruses: allViruses } = useViruses({});
-  const sampleMutation = usePocketBaseMutation<Sample>("samples");
+  const sampleMutation = usePocketBaseMutation<BaseSample>("samples");
 
   // Initialize selected viruses from sample data
   useEffect(() => {
-    if (sample && allViruses) {
-      const sampleVirusIds = new Set(sample.viruses || []);
-      const initialSelectedViruses = allViruses.filter((virus) =>
-        sampleVirusIds.has(virus.id),
-      );
-      setSelectedViruses(initialSelectedViruses);
+    if (sample) {
+      setSelectedViruses(sample.viruses);
     }
-  }, [sample, allViruses]);
+  }, [sample]);
 
   async function handleSave() {
     if (!sample) return;

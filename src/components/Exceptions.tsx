@@ -106,7 +106,7 @@ export function Exceptions({ sampleId }: ExceptionsProps) {
   )
     return null;
 
-  const viruses = expandedSample.expand.viruses;
+  const viruses = expandedSample.expand.viruses || [];
 
   return (
     <>
