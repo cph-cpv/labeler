@@ -12,6 +12,12 @@ type LoginCredentials = {
   password: string;
 };
 
+type ChangePasswordCredentials = {
+  oldPassword: string;
+  newPassword: string;
+  newPasswordConfirm: string;
+};
+
 export function useAuth() {
   const queryClient = useQueryClient();
 
@@ -70,6 +76,38 @@ export function useAuth() {
     },
   });
 
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async ({
+      oldPassword,
+      newPassword,
+      newPasswordConfirm,
+    }: ChangePasswordCredentials) => {
+      if (!authQuery.data?.user) {
+        throw new Error("User not authenticated");
+      }
+      await pb.collection("users").update(authQuery.data.user.id, {
+        oldPassword,
+        password: newPassword,
+        passwordConfirm: newPasswordConfirm,
+      });
+    },
+    onSuccess: (_, { newPassword }) => {
+      if (!authQuery.data?.user) {
+        return;
+      }
+      // After a successful password change, log the user back in
+      loginMutation.mutate({
+        email: authQuery.data.user.email,
+        password: newPassword,
+      });
+    },
+    onError: (error) => {
+      // Handle password change errors
+      console.error("Password change failed:", error);
+    },
+  });
+
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -104,6 +142,11 @@ export function useAuth() {
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
     logoutError: logoutMutation.error,
+
+    // Change password
+    changePassword: changePasswordMutation.mutateAsync,
+    isChangingPassword: changePasswordMutation.isPending,
+    changePasswordError: changePasswordMutation.error,
 
     // Utility functions
     refetch: authQuery.refetch,
