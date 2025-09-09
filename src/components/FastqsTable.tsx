@@ -3,6 +3,7 @@ import { FastqsExcludeSingle } from "@/components/FastqsExcludeSingle.tsx";
 import { FastqsExtractionSingle } from "@/components/FastqsExtractionSingle.tsx";
 import { FastqsQualityDot } from "@/components/FastqsQualityDot.tsx";
 import { FastqsQualitySingle } from "@/components/FastqsQualitySingle.tsx";
+import { FastqsRoboticPrepToggle } from "@/components/FastqsRoboticPrepToggle.tsx";
 import { FastqsSample } from "@/components/FastqsSample.tsx";
 import { FastqsTypeSingle } from "@/components/FastqsTypeSingle.tsx";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
             <TableHead className="w-24">Quality</TableHead>
             <TableHead className="w-24">Dilution</TableHead>
             <TableHead className="w-24">Extraction</TableHead>
+            <TableHead className="w-24">Robotic Prep</TableHead>
             <TableHead className="flex-1">Sample</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
@@ -199,6 +201,9 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                     </div>
                   }
                 />
+              </TableCell>
+              <TableCell>
+                <FastqsRoboticPrepToggle fastq={fastq} />
               </TableCell>
               <TableCellEditable
                 onClick={() => handleSampleClick(fastq)}
