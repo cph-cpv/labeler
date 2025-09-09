@@ -32,6 +32,7 @@ export type Fastq = {
   type: FastqType | null;
   extraction: FastqExtraction | null;
   sample: string | null;
+  robotic_prep: boolean;
 };
 
 export type FastqUpdate = {
