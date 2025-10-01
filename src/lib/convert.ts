@@ -14,7 +14,7 @@ export function convertPbToUiFastq(pbFile: any): Fastq | null {
         extraction: pbFile.extraction ? pbFile.extraction : null,
         sample: pbFile.expand?.sample?.name || null,
         excluded: pbFile.excluded || false,
-        robotic_prep: pbFile.robotic_prep || false,
+        library_prep: pbFile.library_prep,
       }
     : null;
 }

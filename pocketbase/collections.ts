@@ -100,8 +100,10 @@ export function createFastqsCollection(samplesCollectionId: string) {
         values: ["manual", "presto", "kingfisher", "external"],
       },
       {
-        name: "robotic_prep",
-        type: "bool",
+        name: "library_prep",
+        type: "select",
+        maxSelect: 1,
+        values: ["manual", "robotic", "external"]
       },
     ],
   };
