@@ -22,7 +22,7 @@ export async function populateFastqs(pb: Pocketbase, filePath: string) {
         name: fileName,
         date: date,
         extraction: determineExtractionTypeFromDate(date),
-        robotic_prep: determinePrepTypeFromDate(date)
+        library_prep: determinePrepTypeFromDate(date)
       });
     }
 
@@ -39,9 +39,19 @@ function determinePrepTypeFromDate(date: string) {
     new Date("2025-02-21").getTime(),
   ];
   const creationTime = new Date(date).getTime();
-  const roboticThreshold = new Date("2024-01-10").getTime();
 
-  return creationTime > roboticThreshold && !exceptions.includes(creationTime);
+  const roboticThreshold = new Date("2024-01-10").getTime();
+  const manualThreshold = new Date("2022-04-08").getTime();
+
+  if  (creationTime > roboticThreshold && !exceptions.includes(creationTime)){
+    return "robotic"
+  }
+
+  if (creationTime < manualThreshold){
+    return "manual"
+  }
+
+  return null
 }
 
 function determineExtractionTypeFromDate(date: string) {
