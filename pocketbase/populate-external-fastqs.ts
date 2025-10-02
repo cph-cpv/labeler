@@ -16,7 +16,6 @@ export async function populateExternalFastqs(pb: Pocketbase, filePath: string) {
     for (const filePath of batchLines) {
       const fileName = getBaseName(filePath);
       const yearString = extractYearFromFilePath(filePath);
-
       batch.collection("fastqs").create({
         path: filePath,
         name: fileName,
@@ -35,7 +34,7 @@ export async function populateExternalFastqs(pb: Pocketbase, filePath: string) {
 
 function getBaseName(filePath: string) {
   let baseName = path.basename(filePath);
-  const extensions = [".fq.gz", ".fastq.gz", ".fp.fq.gz"];
+  const extensions = [".fp.fastq.gz", ".fastq.gz", ".fq.gz"];
 
   for (const ext of extensions) {
     if (baseName.endsWith(ext)) {
@@ -47,13 +46,20 @@ function getBaseName(filePath: string) {
 }
 
 function extractYearFromFilePath(filePath: string) {
-  if (!filePath.startsWith("/mnt/raw/rott/grdi")){
-    return "15"
+  const patterns = [
+    { prefix: "/mnt/raw/rott/grdi", regex: /^\/mnt\/raw\/rott\/grdi\/13C\/?(\d{2}).*$/ },
+    { prefix: "/mnt/raw/rott/quads", regex: /^\/mnt\/raw\/rott\/quads\/.*_(\d{4}).*$/ },
+  ];
+
+  for (const pattern of patterns) {
+    if (filePath.startsWith(pattern.prefix)) {
+      const match = filePath.match(pattern.regex);
+      if (match && match[1]) {
+        const year = match[1];
+        return year.length === 2 ? 20 + year : year;
+      }
+    }
   }
 
-  const yearString = filePath.match(
-    /^\/mnt\/raw\/rott\/grdi\/13C\/?(\d{2}).*$/,
-  )?.[1];
-  if (!yearString) throw new Error(`Could not extract date from: ${filePath}`);
-  return yearString
+  return null;
 }
