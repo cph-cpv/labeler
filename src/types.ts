@@ -7,9 +7,13 @@ export const FastqTypes = ["dsRNA", "smRNA", "ribominus", "totRNA"];
 
 export const FastqExtractions = ["manual", "presto", "kingfisher", "external"];
 
+export const FastqLibraryPreps = ["manual", "robotic", "external"];
+
 export type FastqType = (typeof FastqTypes)[number];
 
 export type FastqExtraction = (typeof FastqExtractions)[number];
+
+export type FastqLibraryPrep = (typeof FastqLibraryPreps)[number];
 
 export type FastqsCategory = "todo" | "excluded" | "done";
 
@@ -32,7 +36,7 @@ export type Fastq = {
   type: FastqType | null;
   extraction: FastqExtraction | null;
   sample: string | null;
-  robotic_prep: boolean;
+  library_prep: FastqLibraryPrep | null;
 };
 
 export type FastqUpdate = {

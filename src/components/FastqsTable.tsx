@@ -3,7 +3,7 @@ import { FastqsExcludeSingle } from "@/components/FastqsExcludeSingle.tsx";
 import { FastqsExtractionSingle } from "@/components/FastqsExtractionSingle.tsx";
 import { FastqsQualityDot } from "@/components/FastqsQualityDot.tsx";
 import { FastqsQualitySingle } from "@/components/FastqsQualitySingle.tsx";
-import { FastqsRoboticPrepToggle } from "@/components/FastqsRoboticPrepToggle.tsx";
+import { FastqsLibraryPrepSingle } from "@/components/FastqsLibraryPrepSingle.tsx";
 import { FastqsSample } from "@/components/FastqsSample.tsx";
 import { FastqsTypeSingle } from "@/components/FastqsTypeSingle.tsx";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
             <TableHead className="w-24">Quality</TableHead>
             <TableHead className="w-24">Dilution</TableHead>
             <TableHead className="w-24">Extraction</TableHead>
-            <TableHead className="w-24">Robotic Prep</TableHead>
+            <TableHead className="w-24">Library Prep</TableHead>
             <TableHead className="flex-1">Sample</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
@@ -203,7 +203,25 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                 />
               </TableCell>
               <TableCell>
-                <FastqsRoboticPrepToggle fastq={fastq} />
+                <FastqsLibraryPrepSingle
+                  fastq={fastq}
+                  trigger={
+                    <div
+                      className={cn(
+                        "group relative cursor-pointer",
+                        "transition-colors hover:bg-muted/70 focus:bg-muted/70",
+                        "focus:outline-none rounded px-2 py-1 -mx-2 -my-1 min-h-8 flex items-center",
+                      )}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Edit library prep for ${getFilenameFromPath(fastq.path)}. Current library prep: ${
+                        fastq.library_prep ? fastq.library_prep : "Unset"
+                      }`}
+                    >
+                      {fastq.library_prep ? fastq.library_prep : <UnsetIcon />}
+                    </div>
+                  }
+                />
               </TableCell>
               <TableCellEditable
                 onClick={() => handleSampleClick(fastq)}

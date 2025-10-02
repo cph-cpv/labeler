@@ -3,7 +3,7 @@ import { FastqsExcludeMultiple } from "@/components/FastqsExcludeMultiple.tsx";
 import { FastqsExtractionMulti } from "@/components/FastqsExtractionMulti.tsx";
 import { FastqsInclude } from "@/components/FastqsInclude.tsx";
 import { FastqsQualityMulti } from "@/components/FastqsQualityMulti.tsx";
-import { FastqsRoboticPrepMulti } from "@/components/FastqsRoboticPrepMulti.tsx";
+import { FastqsLibraryPrepMulti } from "@/components/FastqsLibraryPrepMulti.tsx";
 import { FastqsSampleMulti } from "@/components/FastqsSampleMulti.tsx";
 import { FastqsTypeMulti } from "@/components/FastqsTypeMulti.tsx";
 import { SelectionBar } from "@/components/ui/selection-bar.tsx";
@@ -23,7 +23,7 @@ export function FastqsSelection({ category }: FastqsSelectionProps) {
           <FastqsExtractionMulti />
           <FastqsQualityMulti />
           <FastqsDilutionMulti />
-          <FastqsRoboticPrepMulti />
+          <FastqsLibraryPrepMulti />
           <FastqsSampleMulti />
           <FastqsExcludeMultiple />
         </>
