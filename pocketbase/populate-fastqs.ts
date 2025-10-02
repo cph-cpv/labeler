@@ -21,6 +21,8 @@ export async function populateFastqs(pb: Pocketbase, filePath: string) {
         path: file,
         name: fileName,
         date: date,
+        extraction: determineExtractionTypeFromDate(date),
+        library_prep: determinePrepTypeFromDate(date)
       });
     }
 
@@ -30,6 +32,34 @@ export async function populateFastqs(pb: Pocketbase, filePath: string) {
 
   return totalCreated;
 }
+
+function determinePrepTypeFromDate(date: string) {
+  const exceptions = [
+    new Date("2024-06-07").getTime(),
+    new Date("2025-02-21").getTime(),
+  ];
+  const creationTime = new Date(date).getTime();
+
+  const roboticThreshold = new Date("2024-01-10").getTime();
+  const manualThreshold = new Date("2022-04-08").getTime();
+
+  if  (creationTime > roboticThreshold && !exceptions.includes(creationTime)){
+    return "robotic"
+  }
+
+  if (creationTime < manualThreshold){
+    return "manual"
+  }
+
+  return null
+}
+
+function determineExtractionTypeFromDate(date: string) {
+  return new Date(date).getTime() < new Date("2023-11-28").getTime()
+    ? "manual"
+    : null;
+}
+
 
 function extractDateFromFilePath(filePath: string) {
   const dateString = filePath.match(
