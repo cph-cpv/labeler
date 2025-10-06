@@ -16,6 +16,7 @@ import { useFastqs } from "@/hooks/useFastqs.ts";
 import type { DateRange, FastqTypeFilter, FastqsCategory } from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { setDate } from "date-fns";
 
 export function Fastqs() {
   const navigate = useNavigate();
@@ -39,10 +40,21 @@ export function Fastqs() {
     unknown: urlTypeFilter.includes("Unset"),
   };
 
+  function onSetDateRange(dateRange: DateRange) {
+    setDateRange(dateRange);
+    navigate({
+      to: "/fastqs",
+      search: (prev) => ({
+        ...prev,
+        page: undefined
+      }),
+    });
+  }
+
   function setCategory(newCategory: FastqsCategory) {
     navigate({
       to: "/fastqs",
-      search: (prev) => ({ ...prev, category: newCategory }),
+      search: (prev) => ({ ...prev, category: newCategory, page: undefined }),
     });
   }
 
@@ -52,6 +64,7 @@ export function Fastqs() {
       search: (prev) => ({
         ...prev,
         search: newSearchQuery || undefined,
+        page: undefined
       }),
     });
   }
@@ -72,19 +85,6 @@ export function Fastqs() {
     dateRange,
     page,
   });
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    if (page !== 1) {
-      navigate({
-        to: "/fastqs",
-        search: (prev) => ({
-          ...prev,
-          page: undefined,
-        }),
-      });
-    }
-  }, [category, dateRange, typeFilter, searchQuery, navigate]);
 
   if (error) {
     return (
@@ -125,7 +125,7 @@ export function Fastqs() {
         <DateRangePicker
           placeholder="Run Date"
           value={dateRange}
-          onChange={setDateRange}
+          onChange={onSetDateRange}
         />
       </div>
 
