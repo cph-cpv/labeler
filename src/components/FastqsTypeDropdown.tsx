@@ -29,6 +29,7 @@ export function FastqsTypeDropdown() {
       search: (prev) => ({
         ...prev,
         type: newTypes.length ? newTypes : undefined,
+        page: undefined
       }),
     });
   }
