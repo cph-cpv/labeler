@@ -15,8 +15,7 @@ import {
 import { useFastqs } from "@/hooks/useFastqs.ts";
 import type { DateRange, FastqTypeFilter, FastqsCategory } from "@/types.ts";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { setDate } from "date-fns";
+import { useState } from "react";
 
 export function Fastqs() {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ export function Fastqs() {
     unknown: urlTypeFilter.includes("Unset"),
   };
 
-  function onSetDateRange(dateRange: DateRange) {
+  function onSetDateRange(dateRange: DateRange | undefined) {
     setDateRange(dateRange);
     navigate({
       to: "/fastqs",
