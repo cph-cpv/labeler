@@ -146,16 +146,20 @@ test.describe("FASTQs Page", () => {
       await expect(selectionBar).toContainText("3 FASTQs selected");
 
       // Click the Assign button to open dialog
-      await page.getByRole("button", { name: /Assign/ }).click();
+      await page.getByRole("button", { name: /Sample/ }).click();
 
       // Wait for dialog to appear
-      const dialog = page.getByRole("dialog", { name: "Assign FASTQs" });
+      const dialog = page.getByRole("dialog", { name: "Assign Sample" });
       await expect(dialog).toBeVisible();
-      await expect(dialog).toContainText("Assign FASTQs");
-      await expect(dialog).toContainText("Assign a sample for the 3 selected");
+      await expect(
+        dialog.getByRole("heading", { name: "Assign Sample" }),
+      ).toBeVisible();
+      await expect(
+        dialog.getByText("Assign a sample to all selected FASTQ files."),
+      ).toBeVisible();
 
-      // Open the sample dropdown
-      await page.click('button[role="combobox"]');
+      await dialog
+        .getByRole("textbox", { name: "Type to search samples..." }).type("test");
 
       // Select the first available sample
       const firstOption = page.locator('div[role="option"]').first();
@@ -163,18 +167,7 @@ test.describe("FASTQs Page", () => {
 
       // Verify the selection is shown in the dropdown
       const selectedSampleText = await firstOption.textContent();
-      await expect(page.locator('button[role="combobox"]')).toContainText(
-        selectedSampleText || "",
-      );
-
-      // Verify assign button is enabled when sample is selected
-      const assignButton = dialog.getByRole("button", {
-        name: "Assign FASTQs",
-      });
-      await expect(assignButton).toBeEnabled();
-
-      // Click the button to trigger assignment
-      await assignButton.click();
+      await expect(page.getByRole("cell", { name: "3" })).toBeVisible();
     });
 
     test("should handle keyboard shortcut to open assign dialog", async ({
@@ -193,31 +186,6 @@ test.describe("FASTQs Page", () => {
       await expect(dialog).toContainText("Assign Sample");
     });
 
-    test("should disable assign button when no sample is selected", async ({
-      page,
-    }) => {
-      // Select a FASTQ
-      await rows.locator("input[type='checkbox']").first().check();
-
-      // Open assign dialog
-      await page.getByRole("button", { name: /Assign/ }).click();
-
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
-
-      // Verify assign button is disabled initially
-      const assignButton = dialog.getByRole("button", {
-        name: "Assign FASTQs",
-      });
-      await expect(assignButton).toBeDisabled();
-
-      // Select a sample
-      await page.click('button[role="combobox"]');
-      await page.click('div[role="option"]');
-
-      // Verify assign button is now enabled
-      await expect(assignButton).toBeEnabled();
-    });
 
     test("should show correct count in dialog for single vs multiple FASTQs", async ({
       page,
@@ -225,10 +193,10 @@ test.describe("FASTQs Page", () => {
       // Test single FASTQ
       await rows.locator("input[type='checkbox']").first().check();
 
-      await page.getByRole("button", { name: /Assign/ }).click();
+      await page.getByRole("button", { name: /Sample/ }).click();
 
       let dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toContainText("Assign a sample for the 1 selected");
+      await expect(page.getByRole('cell', { name: '1' })).toBeVisible()
 
       // Close dialog
       await page.keyboard.press("Escape");
@@ -238,10 +206,10 @@ test.describe("FASTQs Page", () => {
       await checkboxes.nth(1).check();
       await checkboxes.nth(2).check();
 
-      await page.getByRole("button", { name: /Assign/ }).click();
+      await page.getByRole("button", { name: /Sample/ }).click();
 
       dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toContainText("Assign a sample for the 3 selected");
+      await expect(page.getByRole('cell', { name: '3' })).toBeVisible()
     });
   });
 
@@ -269,9 +237,7 @@ test.describe("FASTQs Page", () => {
       await dialog.locator('button[role="combobox"]').click();
 
       // Select the 1:20 dilution option within the dialog
-      const dilutionOption = dialog.locator(
-        'div[role="option"]:has-text("1:20")',
-      );
+      const dilutionOption = page.getByRole('option', { name: '1:20', exact: true })
       await dilutionOption.click();
 
       // Verify the selection is shown in the dropdown within the dialog

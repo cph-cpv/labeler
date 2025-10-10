@@ -54,7 +54,9 @@ export function FastqsLibraryPrepSingle({
       <PopoverContent className="w-80">
         <div className="space-y-4">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">Library Prep Assignment</h4>
+            <h4 className="font-medium leading-none">
+              Library Prep Assignment
+            </h4>
             <p className="text-sm text-muted-foreground">
               Assign a library prep to <strong>{fastq?.name}</strong>
             </p>

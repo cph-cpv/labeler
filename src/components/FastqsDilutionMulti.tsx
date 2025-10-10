@@ -15,7 +15,7 @@ import { useSelection } from "@/hooks/useSelection.tsx";
 import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 
 export function FastqsDilutionMulti() {
   const [open, setOpen] = useState(false);
@@ -24,19 +24,7 @@ export function FastqsDilutionMulti() {
 
   const currentValue = getCommonValue(selectedItems, "dilution");
 
-  useHotkeys(
-    "d",
-    () => {
-      if (selectedItems.length > 0) {
-        setOpen(true);
-      }
-    },
-    {
-      enabled: selectedItems.length > 0,
-      preventDefault: true,
-      enableOnFormTags: true,
-    },
-  );
+  useMultiSelectHotkey("d", selectedItems, setOpen);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -45,7 +45,7 @@ export function Fastqs() {
       to: "/fastqs",
       search: (prev) => ({
         ...prev,
-        page: undefined
+        page: undefined,
       }),
     });
   }
@@ -63,7 +63,7 @@ export function Fastqs() {
       search: (prev) => ({
         ...prev,
         search: newSearchQuery || undefined,
-        page: undefined
+        page: undefined,
       }),
     });
   }

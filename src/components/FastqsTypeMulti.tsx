@@ -16,26 +16,14 @@ import { useSelection } from "@/hooks/useSelection.tsx";
 import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq, FastqType } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 
 export function FastqsTypeMulti() {
   const [open, setOpen] = useState(false);
   const { selectedItems } = useSelection<Fastq>();
   const { batchUpdate } = usePocketBaseBatchUpdate<Fastq>("fastqs");
 
-  useHotkeys(
-    "t",
-    () => {
-      if (selectedItems.length > 0) {
-        setOpen(true);
-      }
-    },
-    {
-      enabled: selectedItems.length > 0,
-      enableOnFormTags: true,
-      preventDefault: true,
-    },
-  );
+  useMultiSelectHotkey("t", selectedItems, setOpen);
 
   const currentValue = getCommonValue(selectedItems, "type");
 

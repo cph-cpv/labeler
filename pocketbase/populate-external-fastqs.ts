@@ -21,7 +21,7 @@ export async function populateExternalFastqs(pb: Pocketbase, filePath: string) {
         name: fileName,
         date: `${yearString}-01-01`,
         library_prep: "external",
-        extraction: "external"
+        extraction: "external",
       });
     }
 
@@ -47,8 +47,14 @@ function getBaseName(filePath: string) {
 
 function extractYearFromFilePath(filePath: string) {
   const patterns = [
-    { prefix: "/mnt/raw/rott/grdi", regex: /^\/mnt\/raw\/rott\/grdi\/13C\/?(\d{2}).*$/ },
-    { prefix: "/mnt/raw/rott/quads", regex: /^\/mnt\/raw\/rott\/quads\/.*_(\d{4}).*$/ },
+    {
+      prefix: "/mnt/raw/rott/grdi",
+      regex: /^\/mnt\/raw\/rott\/grdi\/13C\/?(\d{2}).*$/,
+    },
+    {
+      prefix: "/mnt/raw/rott/quads",
+      regex: /^\/mnt\/raw\/rott\/quads\/.*_(\d{4}).*$/,
+    },
   ];
 
   for (const pattern of patterns) {

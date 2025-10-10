@@ -14,7 +14,7 @@ import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 
 type PocketBaseFastq = {
   id: string;
@@ -43,16 +43,7 @@ export function FastqsInclude() {
     }
   }
 
-  useHotkeys(
-    "i",
-    () => {
-      setOpen(true);
-    },
-    {
-      enableOnFormTags: true,
-      enabled: selectedFastqs.length > 0,
-    },
-  );
+  useMultiSelectHotkey("i", selectedFastqs, setOpen);
 
   return (
     <>
