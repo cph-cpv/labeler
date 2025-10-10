@@ -1,9 +1,9 @@
 import { FastqsDilutionSingle } from "@/components/FastqsDilutionSingle.tsx";
 import { FastqsExcludeSingle } from "@/components/FastqsExcludeSingle.tsx";
 import { FastqsExtractionSingle } from "@/components/FastqsExtractionSingle.tsx";
+import { FastqsLibraryPrepSingle } from "@/components/FastqsLibraryPrepSingle.tsx";
 import { FastqsQualityDot } from "@/components/FastqsQualityDot.tsx";
 import { FastqsQualitySingle } from "@/components/FastqsQualitySingle.tsx";
-import { FastqsLibraryPrepSingle } from "@/components/FastqsLibraryPrepSingle.tsx";
 import { FastqsSample } from "@/components/FastqsSample.tsx";
 import { FastqsTypeSingle } from "@/components/FastqsTypeSingle.tsx";
 import { Button } from "@/components/ui/button";

@@ -12,11 +12,11 @@ import {
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { UnsetButton } from "@/components/ui/unset.tsx";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsSampleMulti() {
   const [open, setOpen] = useState(false);
@@ -24,19 +24,7 @@ export function FastqsSampleMulti() {
   const { update } = usePocketBaseMutation<any>("fastqs");
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);
 
-  useHotkeys(
-    "s",
-    () => {
-      if (selectedItems.length > 0) {
-        setOpen(true);
-      }
-    },
-    {
-      enabled: selectedItems.length > 0,
-      preventDefault: true,
-      enableOnFormTags: true,
-    },
-  );
+  useMultiSelectHotkey("s", selectedItems, setOpen);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

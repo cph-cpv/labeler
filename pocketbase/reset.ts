@@ -1,9 +1,9 @@
 import { createAuthenticatedClient } from "./client";
 import { enableBatch } from "./enable-batch";
+import { populateExternalFastqs } from "./populate-external-fastqs.ts";
 import { populateFastqs } from "./populate-fastqs";
 import { populateViruses } from "./populate-viruses";
 import { resetCollections } from "./reset-collections";
-import { populateExternalFastqs } from "./populate-external-fastqs.ts";
 
 async function reset() {
   const pb = await createAuthenticatedClient("http://localhost:8080");
@@ -21,7 +21,10 @@ async function reset() {
 
   console.log("📁 Populating FASTQs...");
   const fastqCount = await populateFastqs(pb, "input/files.txt");
-  const externalFastqCount = await populateExternalFastqs(pb, "input/external_files.txt");
+  const externalFastqCount = await populateExternalFastqs(
+    pb,
+    "input/external_files.txt",
+  );
   console.log(`✅ Created ${fastqCount + externalFastqCount} FASTQ records`);
 
   console.log("✅ Reset complete!");

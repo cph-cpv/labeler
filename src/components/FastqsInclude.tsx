@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 type PocketBaseFastq = {
   id: string;
@@ -43,16 +43,7 @@ export function FastqsInclude() {
     }
   }
 
-  useHotkeys(
-    "i",
-    () => {
-      setOpen(true);
-    },
-    {
-      enableOnFormTags: true,
-      enabled: selectedFastqs.length > 0,
-    },
-  );
+  useMultiSelectHotkey("i", selectedFastqs, setOpen);
 
   return (
     <>

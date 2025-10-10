@@ -13,7 +13,7 @@ test.describe("Viruses Page", () => {
   });
 
   test.describe("search functionality", () => {
-    test("should filter by acronym TMV", async ({ page }) => {
+    test("should filter by acronym AYV", async ({ page }) => {
       await page.goto("/viruses");
 
       // Wait for table to load
@@ -23,16 +23,16 @@ test.describe("Viruses Page", () => {
       const initialRows = await page.locator("table tbody tr").count();
 
       // Type TMV in search input
-      await page.fill("input[placeholder='Search viruses...']", "TMV");
+      await page.fill("input[placeholder='Search viruses...']", "AYV");
 
       // Wait for results to update
       await page.waitForFunction(() => {
         const url = window.location.href;
-        return url.includes("search=TMV");
+        return url.includes("search=AYV");
       });
 
       // Verify URL contains search parameter
-      await expect(page).toHaveURL(/search=TMV/);
+      await expect(page).toHaveURL(/search=AYV/);
 
       // Verify filtered results contain TMV
       const filteredRows = page.locator("table tbody tr");
@@ -43,7 +43,7 @@ test.describe("Viruses Page", () => {
       await expect(
         page
           .locator("table tbody tr")
-          .filter({ hasText: "Tobacco mosaic virus" }),
+          .filter({ hasText: "Ageratum yellow vein Hualian virus" }),
       ).toHaveCount(1);
 
       // Check that all visible rows contain TMV in either name or acronym
@@ -57,8 +57,8 @@ test.describe("Viruses Page", () => {
         const acronymText = await acronymCell.textContent();
 
         expect(
-          (nameText && nameText.toLowerCase().includes("tmv")) ||
-            (acronymText && acronymText.toLowerCase().includes("tmv")),
+          (nameText && nameText.toLowerCase().includes("ayv")) ||
+            (acronymText && acronymText.toLowerCase().includes("ayv")),
         ).toBe(true);
       }
 
@@ -75,17 +75,17 @@ test.describe("Viruses Page", () => {
       // Type partial name in search input
       await page.fill(
         "input[placeholder='Search viruses...']",
-        "tobacco mosaic v",
+        "Ageratum yellow ve",
       );
 
       // Wait for results to update
       await page.waitForFunction(() => {
         const url = window.location.href;
-        return url.includes("search=tobacco+mosaic+v");
+        return url.includes("search=Ageratum+yellow+ve");
       });
 
       // Verify URL contains encoded search parameter
-      await expect(page).toHaveURL(/search=tobacco\+mosaic\+v/);
+      await expect(page).toHaveURL(/search=Ageratum\+yellow\+ve/);
 
       // Verify filtered results
       const filteredRows = page.locator("table tbody tr");
@@ -103,16 +103,16 @@ test.describe("Viruses Page", () => {
         const acronymText = await acronymCell.textContent();
 
         expect(
-          (nameText && nameText.toLowerCase().includes("tobacco mosaic")) ||
+          (nameText && nameText.toLowerCase().includes("ageratum yellow")) ||
             (acronymText &&
-              acronymText.toLowerCase().includes("tobacco mosaic")),
+              acronymText.toLowerCase().includes("ageratum yellow")),
         ).toBe(true);
       }
     });
 
     test("should preserve search in url parameters", async ({ page }) => {
       // Navigate directly to URL with search parameter
-      await page.goto("/viruses?search=TMV");
+      await page.goto("/viruses?search=AYV");
 
       // Wait for page to load
       await page.waitForSelector("table tbody tr");
@@ -120,7 +120,7 @@ test.describe("Viruses Page", () => {
       // Verify search input is pre-populated
       await expect(
         page.locator("input[placeholder='Search viruses...']"),
-      ).toHaveValue("TMV");
+      ).toHaveValue("AYV");
 
       // Verify filtered results are displayed immediately
       const filteredRows = page.locator("table tbody tr");
@@ -134,8 +134,8 @@ test.describe("Viruses Page", () => {
       // Verify search is still preserved
       await expect(
         page.locator("input[placeholder='Search viruses...']"),
-      ).toHaveValue("TMV");
-      await expect(page).toHaveURL(/search=TMV/);
+      ).toHaveValue("AYV");
+      await expect(page).toHaveURL(/search=AYV/);
     });
 
     test("should clear search and show all results", async ({ page }) => {

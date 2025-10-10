@@ -11,31 +11,19 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq, FastqExtraction } from "@/types.ts";
 import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 export function FastqsExtractionMulti() {
   const [open, setOpen] = useState(false);
   const { selectedItems } = useSelection<Fastq>();
   const { batchUpdate } = usePocketBaseBatchUpdate<Fastq>("fastqs");
 
-  useHotkeys(
-    "e",
-    () => {
-      if (selectedItems.length > 0) {
-        setOpen(true);
-      }
-    },
-    {
-      enabled: selectedItems.length > 0,
-      enableOnFormTags: true,
-      preventDefault: true,
-    },
-  );
+  useMultiSelectHotkey("e", selectedItems, setOpen);
 
   const currentValue = getCommonValue(selectedItems, "extraction");
 
