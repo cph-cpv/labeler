@@ -10,12 +10,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { FastqQuality } from "@/lib/quality.ts";
 import type { Fastq, FastqUpdate } from "@/types.ts";
 import { useState } from "react";
-import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 
 export function FastqsQualityMulti() {
   const [open, setOpen] = useState(false);

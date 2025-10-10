@@ -159,7 +159,8 @@ test.describe("FASTQs Page", () => {
       ).toBeVisible();
 
       await dialog
-        .getByRole("textbox", { name: "Type to search samples..." }).type("test");
+        .getByRole("textbox", { name: "Type to search samples..." })
+        .type("test");
 
       // Select the first available sample
       const firstOption = page.locator('div[role="option"]').first();
@@ -186,7 +187,6 @@ test.describe("FASTQs Page", () => {
       await expect(dialog).toContainText("Assign Sample");
     });
 
-
     test("should show correct count in dialog for single vs multiple FASTQs", async ({
       page,
     }) => {
@@ -196,7 +196,7 @@ test.describe("FASTQs Page", () => {
       await page.getByRole("button", { name: /Sample/ }).click();
 
       let dialog = page.locator('[role="dialog"]');
-      await expect(page.getByRole('cell', { name: '1' })).toBeVisible()
+      await expect(page.getByRole("cell", { name: "1" })).toBeVisible();
 
       // Close dialog
       await page.keyboard.press("Escape");
@@ -209,7 +209,7 @@ test.describe("FASTQs Page", () => {
       await page.getByRole("button", { name: /Sample/ }).click();
 
       dialog = page.locator('[role="dialog"]');
-      await expect(page.getByRole('cell', { name: '3' })).toBeVisible()
+      await expect(page.getByRole("cell", { name: "3" })).toBeVisible();
     });
   });
 
@@ -237,7 +237,10 @@ test.describe("FASTQs Page", () => {
       await dialog.locator('button[role="combobox"]').click();
 
       // Select the 1:20 dilution option within the dialog
-      const dilutionOption = page.getByRole('option', { name: '1:20', exact: true })
+      const dilutionOption = page.getByRole("option", {
+        name: "1:20",
+        exact: true,
+      });
       await dilutionOption.click();
 
       // Verify the selection is shown in the dropdown within the dialog
