@@ -194,7 +194,6 @@ test.describe("FASTQs Page", () => {
 
       await page.getByRole("button", { name: /Sample/ }).click();
 
-      let dialog = page.locator('[role="dialog"]');
       await expect(page.getByRole("cell", { name: "1" })).toBeVisible();
 
       // Close dialog
