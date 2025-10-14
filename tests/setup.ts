@@ -97,11 +97,11 @@ setup.describe("Test Environment Setup", () => {
     console.log("✔ Collections reset");
 
     console.log("⚡ Populating viruses collection...");
-    const virusCount = await populateViruses(pb, "input/viruses.csv");
+    const virusCount = await populateViruses(pb, "input/test_viruses.csv");
     console.log(`✔ Populated ${virusCount} viruses`);
 
     console.log("⚡ Populating fastqs collection...");
-    const fastqCount = await populateFastqs(pb, "input/files.txt");
+    const fastqCount = await populateFastqs(pb, "input/test_files.txt");
     console.log(`✔ Populated ${fastqCount} fastqs`);
   });
 
@@ -123,7 +123,7 @@ setup.describe("Test Environment Setup", () => {
     await expect(page.locator('input[type="email"]')).not.toBeVisible();
 
     // Should see authenticated app content (navigation)
-    await expect(page.getByRole("navigation")).toBeVisible();
+    await expect(page.getByRole("link", { name: "FASTQs" })).toBeVisible();
 
     // Wait a bit more to ensure PocketBase auth store is properly updated
     await page.waitForTimeout(1000);

@@ -6,7 +6,7 @@ test.describe("Authentication", () => {
     await page.goto("/");
 
     // Should see authenticated app content (navigation) since we're pre-authenticated
-    await expect(page.getByRole("navigation")).toBeVisible();
+    await expect(page.getByRole("link", { name: "FASTQs" })).toBeVisible();
 
     // Should not see login form since we're already authenticated
     await expect(page.locator('input[type="email"]')).not.toBeVisible();
@@ -52,7 +52,7 @@ test.describe("Authentication", () => {
       }
 
       // Should see authenticated app content (navigation)
-      await expect(page.getByRole("navigation")).toBeVisible();
+      await expect(page.getByRole("link", { name: "FASTQs" })).toBeVisible();
     });
   });
 });
