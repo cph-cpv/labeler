@@ -17,13 +17,13 @@ export const useMultiSelectHotkey = (
       enableOnFormTags: ["input"],
       enabled: selected.length > 0,
       ignoreEventWhen: (e) => {
-        const target = e.target;
+        const target = e.target as HTMLElement;
 
         // Ignore (don't trigger hotkey) for text inputs, textarea, etc.
         if (
           target.tagName === "INPUT" &&
-          target.type !== "checkbox" &&
-          target.type !== "radio"
+          (target as HTMLInputElement).type !== "checkbox" &&
+          (target as HTMLInputElement).type !== "radio"
         ) {
           return true;
         }

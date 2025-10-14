@@ -167,7 +167,6 @@ test.describe("FASTQs Page", () => {
       await firstOption.click();
 
       // Verify the selection is shown in the dropdown
-      const selectedSampleText = await firstOption.textContent();
       await expect(page.getByRole("cell", { name: "3" })).toBeVisible();
     });
 
@@ -208,7 +207,6 @@ test.describe("FASTQs Page", () => {
 
       await page.getByRole("button", { name: /Sample/ }).click();
 
-      dialog = page.locator('[role="dialog"]');
       await expect(page.getByRole("cell", { name: "3" })).toBeVisible();
     });
   });
