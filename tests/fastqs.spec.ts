@@ -12,6 +12,66 @@ test.describe("FASTQs Page", () => {
     await expect(rows).not.toHaveCount(0);
   });
 
+  test("should not open another modal when one is already open", async ({
+    page,
+  }) => {
+    const checkboxes = rows.locator("input[type='checkbox']");
+    await checkboxes.nth(0).check();
+    await checkboxes.nth(1).check();
+    await expect(page.locator("text=2 FASTQs selected")).toBeVisible();
+    // Get locators for the two dialogs we will test
+    const qualityDialog = page.getByRole("dialog", { name: "Set Quality" });
+    const dilutionDialog = page.getByRole("dialog", {
+      name: "Dilution Factor",
+    });
+
+    // Press 'q' to open the Quality dialog
+    await page.keyboard.press("q");
+
+    // Verify the Quality dialog is visible and the Dilution dialog is not
+    await expect(qualityDialog).toBeVisible();
+    await expect(dilutionDialog).not.toBeVisible();
+
+    // Press 'd' to attempt to open the Dilution dialog
+    await page.keyboard.press("d");
+
+    // Verify that the Quality dialog is STILL visible and the Dilution dialog did NOT appear
+    await expect(qualityDialog).toBeVisible();
+    await expect(dilutionDialog).not.toBeVisible();
+  });
+
+  test("should ignore hotkeys when a text input is focused", async ({
+    page,
+  }) => {
+    const checkboxes = rows.locator("input[type='checkbox']");
+    await checkboxes.nth(0).check();
+    await checkboxes.nth(1).check();
+    await expect(page.locator("text=2 FASTQs selected")).toBeVisible();
+    // Get locators for the dialogs
+    const qualityDialog = page.getByRole("dialog", { name: "Set Quality" });
+    const dilutionDialog = page.getByRole("dialog", {
+      name: "Dilution Factor",
+    });
+
+    // Find the search input and focus it
+    const searchInput = page.getByPlaceholder("Search");
+    await searchInput.focus();
+
+    // Press 'q' to attempt to open the Quality dialog
+    await page.keyboard.press("q");
+
+    // Verify that no dialog appeared
+    await expect(qualityDialog).not.toBeVisible();
+    await expect(dilutionDialog).not.toBeVisible();
+
+    // Press 'd' to attempt to open the Dilution dialog
+    await page.keyboard.press("d");
+
+    // Verify again that no dialog appeared
+    await expect(qualityDialog).not.toBeVisible();
+    await expect(dilutionDialog).not.toBeVisible();
+  });
+
   test("click-based multi selection and deselection", async ({ page }) => {
     // Select first FASTQ with click
     const firstCheckbox = rows.nth(0).locator("input[type='checkbox']");

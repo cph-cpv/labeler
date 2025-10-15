@@ -7,6 +7,7 @@ import ReactDOM from "react-dom/client";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
+import { HotkeysProvider } from "react-hotkeys-hook";
 import reportWebVitals from "./reportWebVitals.ts";
 import "./styles.css";
 
@@ -42,8 +43,10 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <HotkeysProvider initiallyActiveScopes={["app", "multiEdit"]}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </HotkeysProvider>
     </QueryClientProvider>
   );
 }
