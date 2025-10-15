@@ -12,6 +12,7 @@ import {
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { UnsetButton } from "@/components/ui/unset.tsx";
+import { useMultiEditDialogState } from "@/hooks/useMultiEditDialogState.tsx";
 import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseMutation } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
@@ -19,7 +20,7 @@ import type { Fastq } from "@/types.ts";
 import { useState } from "react";
 
 export function FastqsSampleMulti() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useMultiEditDialogState();
   const { selectedItems } = useSelection<Fastq>();
   const { update } = usePocketBaseMutation<any>("fastqs");
   const [selectedSampleId, setSelectedSampleId] = useState<string | null>(null);

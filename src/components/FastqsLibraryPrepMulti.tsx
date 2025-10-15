@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import { useMultiEditDialogState } from "@/hooks/useMultiEditDialogState.tsx";
 import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import { getCommonValue } from "@/lib/utils.ts";
 import type { Fastq, FastqLibraryPrep } from "@/types.ts";
-import { useState } from "react";
 
 export function FastqsLibraryPrepMulti() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useMultiEditDialogState();
   const { selectedItems } = useSelection<Fastq>();
   const { batchUpdate } = usePocketBaseBatchUpdate<Fastq>("fastqs");
 

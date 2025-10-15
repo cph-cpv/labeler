@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Kbd } from "@/components/ui/kbd.tsx";
+import { useMultiEditDialogState } from "@/hooks/useMultiEditDialogState.tsx";
 import { useMultiSelectHotkey } from "@/hooks/useMultiSelectHotkey.tsx";
 import { usePocketBaseBatchUpdate } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Fastq } from "@/types.ts";
-import { useState } from "react";
 
 export function FastqsExcludeMultiple() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useMultiEditDialogState();
   const { onClearSelection, selectedItems: selectedFastqs } =
     useSelection<Fastq>();
   const { batchUpdateAsync } = usePocketBaseBatchUpdate<Fastq>("fastqs");
