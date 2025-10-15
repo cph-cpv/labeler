@@ -15,17 +15,14 @@ export const useMultiSelectHotkey = (
       (target as HTMLInputElement).type !== "checkbox" &&
       (target as HTMLInputElement).type !== "radio"
     ) {
-      console.log("returning true");
       return true;
     }
 
     if (target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
-      console.log("returning true");
       return true;
     }
 
     // Don't ignore for checkboxes/radios and other elements
-    console.log("returning false");
     return false;
   }, []);
 

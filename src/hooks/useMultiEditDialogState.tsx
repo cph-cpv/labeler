@@ -12,5 +12,5 @@ export function useMultiEditDialogState() {
     },
     [setOpen, enableScope, disableScope],
   );
-  return [open, onSetOpen];
+  return [open, onSetOpen] as const;
 }
