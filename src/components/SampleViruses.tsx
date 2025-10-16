@@ -73,7 +73,7 @@ export function SampleViruses({
         />
 
         <h2>Exceptions</h2>
-        <Exceptions sampleId={sample.id} />
+        <Exceptions sampleId={sample.id} viruses={selectedViruses || []} />
 
         <div className="flex justify-end space-x-2 mt-6">
           <Button

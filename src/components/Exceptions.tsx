@@ -31,16 +31,17 @@ import {
   usePocketBaseMutation,
   usePocketBaseRecord,
 } from "@/hooks/usePocketBaseQuery.ts";
-import type { Fastq, SampleExpanded } from "@/types.ts";
+import type { Fastq, SampleExpanded, Virus } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 
 type ExceptionsProps = {
   sampleId: string;
+  viruses: Virus[];
 };
 
-export function Exceptions({ sampleId }: ExceptionsProps) {
+export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
   const { exceptions, isLoading } = useExceptions(sampleId);
 
   const { data: expandedSample, isLoading: isLoadingSample } =
@@ -105,8 +106,6 @@ export function Exceptions({ sampleId }: ExceptionsProps) {
     expandedSample === null
   )
     return null;
-
-  const viruses = expandedSample.expand.viruses || [];
 
   return (
     <>
