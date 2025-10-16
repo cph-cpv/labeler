@@ -12,7 +12,7 @@ type UseVirusesResult = {
   isLoading: boolean;
   error: Error | null;
   totalPages: number;
-  totalItems?: number;
+  totalItems: number;
   page: number;
   perPage: number;
   refetch: () => void;
