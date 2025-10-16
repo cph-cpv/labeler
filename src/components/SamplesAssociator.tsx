@@ -84,7 +84,7 @@ export function SamplesAssociator({
   blocked,
   className,
 }: SamplesAssociatorProps) {
-  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState(searchTerm);
 
   // Debounce the search query
   React.useEffect(() => {
@@ -95,12 +95,12 @@ export function SamplesAssociator({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { searchResults } = useSampleFastqs({
+  const { searchResults, isLoading } = useSampleFastqs({
     sampleId: null,
     searchTerm: debouncedSearch,
   });
 
-  const { fastqs: allMatchingFastqs, isLoading } = searchResults;
+  const { fastqs: allMatchingFastqs, totalItems } = searchResults;
 
   // Filter out already selected FASTQs
   const selectedIds = new Set(selectedFastqs.map((f) => f.id));
@@ -130,7 +130,7 @@ export function SamplesAssociator({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">Found FASTQs</Label>
-                <Badge variant="secondary">{availableFastqs.length}</Badge>
+                <Badge variant="secondary">{totalItems}</Badge>
               </div>
               <LoadingIndicator isLoading={isLoading} />
             </div>

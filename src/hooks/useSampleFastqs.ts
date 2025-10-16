@@ -15,10 +15,10 @@ type UseSampleFastqsReturn = {
   associatedFastqs: Fastq[];
   searchResults: {
     fastqs: Fastq[];
-    isLoading: boolean;
     totalPages: number;
-  };
-  isLoadingAssociated: boolean;
+    totalItems: number;
+  }
+  isLoading: boolean;
 };
 
 export function useSampleFastqs({
@@ -47,6 +47,7 @@ export function useSampleFastqs({
     data: pbSearchFastqs = [],
     isLoading: isLoadingSearch,
     totalPages,
+    totalItems
   } = usePocketBasePaginated<Fastq>("fastqs", {
     filter: searchFilter,
     sort: "name",
@@ -61,9 +62,9 @@ export function useSampleFastqs({
     associatedFastqs,
     searchResults: {
       fastqs: searchFastqs,
-      isLoading: isLoadingSearch,
       totalPages,
+      totalItems
     },
-    isLoadingAssociated,
+    isLoading: isLoadingAssociated && isLoadingSearch,
   };
 }

@@ -26,7 +26,7 @@ type PaginatedOptions = PocketBaseQueryOptions & {
 
 type PaginatedResult<T> = QueryResult<T[]> & {
   totalPages: number;
-  totalItems?: number;
+  totalItems: number;
   page: number;
   perPage: number;
 };
@@ -165,7 +165,7 @@ export function usePocketBasePaginated<T>(
     error: queryResult.error,
     refetch: queryResult.refetch,
     totalPages: result?.totalPages ?? 1, // Default to 1 when skipTotal is used
-    totalItems: result?.totalItems,
+    totalItems: result?.totalItems ?? 0,
     page,
     perPage: POCKETBASE_PER_PAGE,
   };
