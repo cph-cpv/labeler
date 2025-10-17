@@ -10,6 +10,7 @@ type UseFastqsParams = {
   searchQuery: string;
   dateRange: DateRange | undefined;
   page: number;
+  sort: string | undefined;
 };
 
 type UseFastqsReturn = {
@@ -25,6 +26,7 @@ export function useFastqs({
   searchQuery,
   dateRange,
   page,
+  sort,
 }: UseFastqsParams): UseFastqsReturn {
   const computedFilter = useMemo(() => {
     const conditions: string[] = [];
@@ -83,6 +85,7 @@ export function useFastqs({
     filter: computedFilter || undefined,
     expand: "sample",
     page,
+    sort,
   });
 
   const fastqs = pbFastqs

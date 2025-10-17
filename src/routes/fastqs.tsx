@@ -8,6 +8,7 @@ type FastqsSearch = {
   type?: string | string[];
   search?: string;
   page?: number;
+  sort?: string;
 };
 
 export const Route = createFileRoute("/fastqs")({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/fastqs")({
     type: search.type as string | string[],
     search: search.search as string,
     page: search.page ? Number(search.page) : undefined,
+    sort: search.sort as string,
   }),
 });
 
