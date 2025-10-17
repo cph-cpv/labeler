@@ -9,6 +9,7 @@ type UseSampleFastqsParams = {
   sampleId: string | null;
   searchTerm?: string;
   page?: number;
+  sort?: string;
 };
 
 type UseSampleFastqsReturn = {
@@ -17,7 +18,7 @@ type UseSampleFastqsReturn = {
     fastqs: Fastq[];
     totalPages: number;
     totalItems: number;
-  }
+  };
   isLoading: boolean;
 };
 
@@ -25,6 +26,7 @@ export function useSampleFastqs({
   sampleId,
   searchTerm = "",
   page = 1,
+  sort = "name",
 }: UseSampleFastqsParams): UseSampleFastqsReturn {
   // Fetch FASTQs associated with this sample
   const { data: pbAssociatedFastqs = [], isLoading: isLoadingAssociated } =
@@ -47,10 +49,10 @@ export function useSampleFastqs({
     data: pbSearchFastqs = [],
     isLoading: isLoadingSearch,
     totalPages,
-    totalItems
+    totalItems,
   } = usePocketBasePaginated<Fastq>("fastqs", {
     filter: searchFilter,
-    sort: "name",
+    sort,
     page,
   });
 
@@ -63,7 +65,7 @@ export function useSampleFastqs({
     searchResults: {
       fastqs: searchFastqs,
       totalPages,
-      totalItems
+      totalItems,
     },
     isLoading: isLoadingAssociated && isLoadingSearch,
   };

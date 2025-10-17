@@ -11,6 +11,7 @@ import {
   SelectAllCheckbox,
   SelectionCheckbox,
 } from "@/components/ui/selection-checkbox.tsx";
+import { SortableHeader } from "@/components/ui/SortableHeader.tsx";
 import { TableCellEditable } from "@/components/ui/table-cell-editable.tsx";
 import {
   Table,
@@ -85,7 +86,7 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
       <Table className="table" data-testid="fastqs-table">
         <TableCaption>All available FASTQs.</TableCaption>
         <TableHeader>
-          <TableRow>
+          <TableRow className="hover:bg-transparent">
             <TableHead className="w-12">
               <SelectAllCheckbox
                 items={fastqs}
@@ -93,14 +94,46 @@ export function FastqsTable({ fastqs }: FastqsTableProps) {
                 onSelectAll={onSelectAll}
               />
             </TableHead>
-            <TableHead className="flex-[2]">Name</TableHead>
-            <TableHead className="w-32">Run Date</TableHead>
-            <TableHead className="w-20">Type</TableHead>
-            <TableHead className="w-24">Quality</TableHead>
-            <TableHead className="w-24">Dilution</TableHead>
-            <TableHead className="w-24">Extraction</TableHead>
-            <TableHead className="w-24">Library Prep</TableHead>
-            <TableHead className="flex-1">Sample</TableHead>
+            <SortableHeader
+              displayName="Name"
+              fieldName="name"
+              className="flex-[2]"
+            />
+            <SortableHeader
+              displayName="Run Date"
+              fieldName="date"
+              className="w-32"
+            />
+            <SortableHeader
+              displayName="Type"
+              fieldName="type"
+              className="w-20"
+            />
+            <SortableHeader
+              displayName="Quality"
+              fieldName="quality"
+              className="w-24"
+            />
+            <SortableHeader
+              displayName="Dilution"
+              fieldName="dilution"
+              className="w-24"
+            />
+            <SortableHeader
+              displayName="Extraction"
+              fieldName="extraction"
+              className="w-24"
+            />
+            <SortableHeader
+              displayName="Library Prep"
+              fieldName="library_prep"
+              className="w-24"
+            />
+            <SortableHeader
+              displayName="Sample"
+              fieldName="sample"
+              className="flex-1"
+            />
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>

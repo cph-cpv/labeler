@@ -270,6 +270,52 @@ test.describe("FASTQs Page", () => {
     });
   });
 
+  test.describe("Sorting", () => {
+    test("should sort by name and run date", async ({ page }) => {
+      const nameHeader = page.getByRole("cell", { name: "Name" });
+      const runDateHeader = page.getByRole("cell", { name: "Run Date" });
+
+      async function getColumnValues(columnIndex: number) {
+        return await rows.evaluateAll((rows, columnIndex) => {
+          return rows.map((row) => {
+            const cell = row.children[columnIndex] as HTMLElement;
+            return cell.innerText;
+          });
+        }, columnIndex);
+      }
+
+      // Sort by Name Ascending
+      await nameHeader.click();
+      await page.waitForURL("**/fastqs?sort=name**");
+      let nameValues = await getColumnValues(1);
+      expect(nameValues).toEqual([...nameValues].sort());
+
+      // Sort by Name Descending
+      await nameHeader.click();
+      await page.waitForURL("**/fastqs?sort=-name**");
+      nameValues = await getColumnValues(1);
+      expect(nameValues).toEqual([...nameValues].sort().reverse());
+
+      // Sort by Run Date Ascending
+      await runDateHeader.click();
+      await page.waitForURL("**/fastqs?sort=date**");
+      let dateValues = await getColumnValues(2);
+      let sortedDatesAsc = [...dateValues].sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+      );
+      expect(dateValues).toEqual(sortedDatesAsc);
+
+      // Sort by Run Date Descending
+      await runDateHeader.click();
+      await page.waitForURL("**/fastqs?sort=-date**");
+      dateValues = await getColumnValues(2);
+      let sortedDatesDesc = [...dateValues].sort(
+        (a, b) => new Date(b).getTime() - new Date(a).getTime(),
+      );
+      expect(dateValues).toEqual(sortedDatesDesc);
+    });
+  });
+
   test.describe("Multi-FASTQ Dilution", () => {
     test("should select two FASTQs, click Dilution button, and set dilution to 1:20", async ({
       page,

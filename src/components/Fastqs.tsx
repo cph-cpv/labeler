@@ -29,6 +29,7 @@ export function Fastqs() {
       : [];
   const searchQuery = search.search ?? "";
   const page = search.page ?? 1;
+  const sort = search.sort ?? undefined;
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const typeFilter: FastqTypeFilter = {
@@ -83,6 +84,7 @@ export function Fastqs() {
     searchQuery,
     dateRange,
     page,
+    sort,
   });
 
   if (error) {
