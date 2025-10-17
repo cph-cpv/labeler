@@ -9,7 +9,7 @@ type UseSampleFastqsParams = {
   sampleId: string | null;
   searchTerm?: string;
   page?: number;
-  sort: string;
+  sort?: string;
 };
 
 type UseSampleFastqsReturn = {
