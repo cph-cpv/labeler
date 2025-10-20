@@ -1,4 +1,3 @@
-import { EditIcon } from "lucide-react";
 import * as React from "react";
 import { TableCell } from "./table.tsx";
 
@@ -29,7 +28,6 @@ export function TableCellEditable({
       >
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2">{children}</span>
-          <EditIcon className="size-3.5 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
         </div>
       </div>
     </TableCell>
