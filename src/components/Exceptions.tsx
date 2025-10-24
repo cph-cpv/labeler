@@ -35,6 +35,7 @@ import type { Fastq, SampleExpanded, Virus } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
+import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 
 type ExceptionsProps = {
   sampleId: string;
@@ -109,47 +110,59 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
 
   return (
     <>
-      <Table className="table-fixed">
-        <TableHeader>
-          <TableRow>
-            <TableHead>FASTQ</TableHead>
-            <TableHead>Virus</TableHead>
-            <TableHead className="w-42">Type</TableHead>
-            <TableHead className="w-20">
-              <VisuallyHidden.Root>Action</VisuallyHidden.Root>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {exceptions?.flatMap((exception) => (
-            <TableRow key={exception.id}>
-              <TableCell>{exception.fastq.name}</TableCell>
-              <TableCell>{exception.virus.name}</TableCell>
-              <TableCell>{exception.type}</TableCell>
-              <TableCell>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => deleteException(exception.id)}
-                        disabled={isRemoving}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Delete</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
+      <div className="rounded-md border">
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3">FASTQ</TableHead>
+              <TableHead className="w-1/3">Virus</TableHead>
+              <TableHead className="w-42">Type</TableHead>
+              <TableHead className="w-20">
+                <VisuallyHidden.Root>Action</VisuallyHidden.Root>
+              </TableHead>
             </TableRow>
-          ))}
+          </TableHeader>
+        </Table>
+        <ScrollArea className="h-72">
+          <Table className="table-fixed">
+            <TableBody>
+              {exceptions?.flatMap((exception) => (
+                <TableRow key={exception.id}>
+                  <TableCell className="w-1/3">
+                    {exception.fastq.name}
+                  </TableCell>
+                  <TableCell className="w-1/3">
+                    {exception.virus.name}
+                  </TableCell>
+                  <TableCell className="w-42">{exception.type}</TableCell>
+                  <TableCell className="w-20">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => deleteException(exception.id)}
+                            disabled={isRemoving}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+        <Table>
           <TableRow key="input">
-            <TableCell>
+            <TableCell className="w-1/3">
               <form.Field
                 name="fastqId"
                 validators={{
@@ -176,7 +189,7 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                 )}
               </form.Field>
             </TableCell>
-            <TableCell>
+            <TableCell className="w-1/3">
               <form.Field
                 name="virusId"
                 validators={{
@@ -203,7 +216,7 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                 )}
               </form.Field>
             </TableCell>
-            <TableCell>
+            <TableCell className="w-42">
               <form.Field
                 name="type"
                 validators={{
@@ -247,8 +260,9 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
               </form.Subscribe>
             </TableCell>
           </TableRow>
-        </TableBody>
-      </Table>
+        </Table>
+      </div>
+
       <form.Subscribe selector={(state) => state.errors}>
         {(errors) => (
           <>
