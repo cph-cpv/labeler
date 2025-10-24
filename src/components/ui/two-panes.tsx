@@ -218,6 +218,7 @@ type TwoPaneRemovableScrollAreaProps<T> = {
   className?: string;
   getItemId?: (item: T, index: number) => string;
   ariaLabel?: string;
+  bottomMessage?: ReactNode;
 };
 
 export function TwoPaneRemovableScrollArea<T>({
@@ -228,6 +229,7 @@ export function TwoPaneRemovableScrollArea<T>({
   className = "h-72",
   getItemId,
   ariaLabel,
+  bottomMessage,
 }: TwoPaneRemovableScrollAreaProps<T>) {
   const listboxRef = useRef<HTMLDivElement>(null);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
@@ -287,52 +289,58 @@ export function TwoPaneRemovableScrollArea<T>({
   }, [focusedIndex, items, getItemId, listboxId]);
 
   return (
-    <ScrollArea className={`border w-full rounded-md ${className}`}>
-      <div
-        ref={listboxRef}
-        role="listbox"
-        id={listboxId}
-        aria-label={ariaLabel || "Selected options"}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        aria-activedescendant={getActiveDescendant()}
-        className="outline-none"
-      >
-        {items.map((item, index) => {
-          const itemId = getItemId
-            ? getItemId(item, index)
-            : `${listboxId}-option-${index}`;
-          const isFocused = index === focusedIndex;
+    <div className={`border w-full rounded-md ${className} flex flex-col`}>
+      <ScrollArea className="min-h-0">
+        <div
+          ref={listboxRef}
+          role="listbox"
+          id={listboxId}
+          aria-label={ariaLabel || "Selected options"}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          aria-activedescendant={getActiveDescendant()}
+          className="outline-none"
+        >
+          {items.map((item, index) => {
+            const itemId = getItemId
+              ? getItemId(item, index)
+              : `${listboxId}-option-${index}`;
+            const isFocused = index === focusedIndex;
 
-          return (
+            return (
+              <div
+                key={itemId}
+                id={itemId}
+                role="option"
+                aria-selected={true}
+                aria-label="Click to remove from selection"
+                className={`p-2 text-sm border-b last:border-b-0 cursor-pointer ${
+                  isFocused
+                    ? "bg-blue-100 dark:bg-blue-900 outline outline-2 outline-blue-500"
+                    : "hover:bg-red-50 dark:hover:bg-red-900/20"
+                }`}
+                onClick={() => handleItemRemove(item)}
+                onMouseEnter={() => setFocusedIndex(index)}
+              >
+                {renderItem(item)}
+              </div>
+            );
+          })}
+          {items.length === 0 && (
             <div
-              key={itemId}
-              id={itemId}
-              role="option"
-              aria-selected={true}
-              aria-label="Click to remove from selection"
-              className={`p-2 text-sm border-b last:border-b-0 cursor-pointer ${
-                isFocused
-                  ? "bg-blue-100 dark:bg-blue-900 outline outline-2 outline-blue-500"
-                  : "hover:bg-red-50 dark:hover:bg-red-900/20"
-              }`}
-              onClick={() => handleItemRemove(item)}
-              onMouseEnter={() => setFocusedIndex(index)}
+              className="p-2 text-sm text-muted-foreground text-center"
+              role="status"
             >
-              {renderItem(item)}
+              {emptyStateText}
             </div>
-          );
-        })}
-        {items.length === 0 && (
-          <div
-            className="p-2 text-sm text-muted-foreground text-center"
-            role="status"
-          >
-            {emptyStateText}
-          </div>
-        )}
-      </div>
-      <ScrollBar />
-    </ScrollArea>
+          )}
+        </div>
+      </ScrollArea>
+      {bottomMessage && (
+        <div className="text-sm text-muted-foreground text-center mt-auto flex items-start">
+          {bottomMessage}
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,12 +1,46 @@
+import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {
   TwoPaneRemovableScrollArea,
   TwoPanes,
   TwoPaneScrollArea,
 } from "@/components/ui/two-panes.tsx";
+import { useVirusByAcronym } from "@/hooks/useVirusByAcronym.ts";
 import { useViruses } from "@/hooks/useViruses.ts";
 import type { Virus } from "@/types.ts";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+
+function AddPVEV1Button({
+  selectedViruses,
+  onVirusSelect,
+}: {
+  selectedViruses: Virus[];
+  onVirusSelect: (virus: Virus) => void;
+}) {
+  const hasPVEV1 = selectedViruses.some((virus) => virus.acronym === "PvEV-1");
+
+  if (hasPVEV1) {
+    return null;
+  }
+
+  const { virus, isLoading } = useVirusByAcronym("PvEV-1");
+
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="flex-grow flex align-start"
+      disabled={isLoading}
+      onClick={() => {
+        if (virus) onVirusSelect(virus);
+      }}
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      Add PvEV-1
+    </Button>
+  );
+}
 
 type SamplesLabelerProps = {
   onVirusSelect: (virus: Virus) => void;
@@ -22,7 +56,7 @@ export function SamplesLabeler({
 }: SamplesLabelerProps) {
   const [searchValue, setSearchValue] = useState("");
 
-  const { viruses, isLoading, error } = useViruses({
+  const { viruses, isLoading, error, totalItems } = useViruses({
     search: searchValue,
   });
 
@@ -73,7 +107,7 @@ export function SamplesLabeler({
       <TwoPanes
         leftTitle="Available Viruses"
         rightTitle="Selected Viruses"
-        leftCount={availableViruses.length}
+        leftCount={totalItems}
         rightCount={selectedViruses.length}
         isLoading={isLoading}
         leftContent={
@@ -98,6 +132,12 @@ export function SamplesLabeler({
             renderItem={renderSelectedVirusItem}
             getItemId={(virus) => `selected-virus-${virus.id}`}
             ariaLabel="Selected viruses for association"
+            bottomMessage={
+              <AddPVEV1Button
+                selectedViruses={selectedViruses}
+                onVirusSelect={onVirusSelect}
+              />
+            }
           />
         }
       />
