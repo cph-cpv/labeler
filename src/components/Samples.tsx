@@ -1,5 +1,5 @@
 import { SampleFastqs } from "@/components/SampleFastqs.tsx";
-import { SampleName } from "@/components/SampleName.tsx";
+import { SampleRow } from "@/components/SampleRow.tsx";
 import { SamplesSelection } from "@/components/SamplesSelection.tsx";
 import { SampleViruses } from "@/components/SampleViruses.tsx";
 import { Header } from "@/components/ui/header.tsx";
@@ -12,26 +12,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination.tsx";
-import {
-  SelectAllCheckbox,
-  SelectionCheckbox,
-} from "@/components/ui/selection-checkbox.tsx";
+import { SelectAllCheckbox } from "@/components/ui/selection-checkbox.tsx";
 import {
   Table,
   TableBody,
   TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
 import type { Sample, SampleExpanded } from "@/types.ts";
 import { formatSamples } from "@/utils/samples.ts";
 import { Outlet } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 
 export function Samples() {
@@ -71,30 +65,8 @@ export function Samples() {
     }
   }, [samples, onSetItems]);
 
-  function handleVirusesClick(sample: Sample) {
-    setEditingVirusesSample(sample);
-  }
-
-  function handleVirusesKeyDown(event: React.KeyboardEvent, sample: Sample) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setEditingVirusesSample(sample);
-    }
-  }
-
   function handleVirusesDialogClose() {
     setEditingVirusesSample(null);
-  }
-
-  function handleFastqsClick(sample: Sample) {
-    setEditingFastqsSample(sample);
-  }
-
-  function handleFastqsKeyDown(event: React.KeyboardEvent, sample: Sample) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setEditingFastqsSample(sample);
-    }
   }
 
   function handleFastqsDialogClose() {
@@ -156,79 +128,14 @@ export function Samples() {
         </TableHeader>
         <TableBody>
           {samples.map((sample) => (
-            <TableRow key={sample.id}>
-              <TableCell>
-                <SelectionCheckbox
-                  item={sample}
-                  selectedItems={selectedIds}
-                  onItemSelect={(item, event) => onToggle(item.id, event)}
-                  getItemLabel={(item) => item.name}
-                />
-              </TableCell>
-              <TableCell>
-                <SampleName
-                  sample={sample}
-                  trigger={
-                    <div
-                      className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`Edit name for sample: ${sample.name}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{sample.name}</span>
-                        <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                      </div>
-                    </div>
-                  }
-                />
-              </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit FASTQs for ${sample.name}. Currently has ${sample.fastqs.length} FASTQs assigned`}
-                  onClick={() => handleFastqsClick(sample)}
-                  onKeyDown={(e) => handleFastqsKeyDown(e, sample)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {(() => {
-                        const count = sample.fastqs.length;
-                        return count ? (
-                          `${count} FASTQ${count === 1 ? "" : "s"}`
-                        ) : (
-                          <UnsetIcon />
-                        );
-                      })()}
-                    </span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div
-                  className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Edit virus labels for ${sample.name}. Currently has ${sample.viruses?.length || 0} viruses assigned`}
-                  onClick={() => handleVirusesClick(sample)}
-                  onKeyDown={(e) => handleVirusesKeyDown(e, sample)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {sample.viruses?.length ? (
-                        `${sample.viruses.length} virus${sample.viruses.length === 1 ? "" : "es"}`
-                      ) : (
-                        <UnsetIcon />
-                      )}
-                    </span>
-                    <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
-                  </div>
-                </div>
-              </TableCell>
-            </TableRow>
+            <SampleRow
+              key={sample.id}
+              sample={sample}
+              selectedIds={selectedIds}
+              onToggle={onToggle}
+              setEditingFastqsSample={setEditingFastqsSample}
+              setEditingVirusesSample={setEditingVirusesSample}
+            />
           ))}
         </TableBody>
       </Table>
