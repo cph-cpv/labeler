@@ -124,6 +124,7 @@ export function Samples() {
             <TableHead>Name</TableHead>
             <TableHead>FASTQs</TableHead>
             <TableHead>Viruses</TableHead>
+            <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>

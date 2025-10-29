@@ -1,9 +1,22 @@
 
 import { SampleName } from "@/components/SampleName.tsx";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { TableCell, TableRow } from "@/components/ui/table.tsx";
+import { useDeleteSample } from "@/hooks/useDeleteSample.ts";
 import type { Sample } from "@/types.ts";
 import { SelectionCheckbox } from "@/components/ui/selection-checkbox.tsx";
-import { EditIcon } from "lucide-react";
+import { EditIcon, Trash2 } from "lucide-react";
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import React from "react";
 
@@ -22,6 +35,9 @@ export function SampleRow({
   setEditingFastqsSample,
   setEditingVirusesSample,
 }: SampleRowProps) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const { deleteSample, isDeleting } = useDeleteSample();
+
   function handleFastqsClick() {
     setEditingFastqsSample(sample);
   }
@@ -42,6 +58,14 @@ export function SampleRow({
       event.preventDefault();
       setEditingVirusesSample(sample);
     }
+  }
+
+  function handleDelete() {
+    deleteSample(sample.id, {
+      onSuccess: () => {
+        setIsDeleteDialogOpen(false);
+      },
+    });
   }
 
   return (
@@ -116,6 +140,41 @@ export function SampleRow({
             <EditIcon className="h-3 w-3 opacity-0 group-hover:opacity-70 group-focus:opacity-70 transition-opacity ml-2 flex-shrink-0" />
           </div>
         </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                sample{" "}
+                <span className="font-semibold text-foreground">
+                  {sample.name}
+                </span>{" "}
+                and all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </TableCell>
     </TableRow>
   );
