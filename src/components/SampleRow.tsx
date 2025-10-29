@@ -22,7 +22,7 @@ import React from "react";
 interface SampleRowProps {
   sample: Sample;
   selectedIds: Set<string>;
-  onToggle: (id: string, event: React.MouseEvent | React.KeyboardEvent) => void;
+  onToggle: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
   setEditingFastqsSample: (sample: Sample) => void;
   setEditingVirusesSample: (sample: Sample) => void;
 }
