@@ -1,3 +1,4 @@
+import { ExceptionsVirusSelector } from "@/components/ExceptionsVirusSelector.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Select,
@@ -115,8 +116,8 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-1/3">FASTQ</TableHead>
-              <TableHead className="w-1/3">Virus</TableHead>
               <TableHead className="w-42">Type</TableHead>
+              <TableHead className="w-1/3">Virus</TableHead>
               <TableHead className="w-20">
                 <VisuallyHidden.Root>Action</VisuallyHidden.Root>
               </TableHead>
@@ -131,10 +132,10 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                   <TableCell className="w-1/3">
                     {exception.fastq.name}
                   </TableCell>
+                  <TableCell className="w-42">{exception.type}</TableCell>
                   <TableCell className="w-1/3">
                     {exception.virus.name}
                   </TableCell>
-                  <TableCell className="w-42">{exception.type}</TableCell>
                   <TableCell className="w-20">
                     <TooltipProvider>
                       <Tooltip>
@@ -189,33 +190,6 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                 )}
               </form.Field>
             </TableCell>
-            <TableCell className="w-1/3">
-              <form.Field
-                name="virusId"
-                validators={{
-                  onChange: ({ value }) =>
-                    !value ? "Virus is required" : undefined,
-                }}
-              >
-                {(field) => (
-                  <Select
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Virus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {viruses.map((virus) => (
-                        <SelectItem key={virus.id} value={virus.id}>
-                          {virus.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </form.Field>
-            </TableCell>
             <TableCell className="w-42">
               <form.Field
                 name="type"
@@ -239,6 +213,30 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                       <SelectItem value="Missing">Missing</SelectItem>
                     </SelectContent>
                   </Select>
+                )}
+              </form.Field>
+            </TableCell>
+            <TableCell className="w-1/3">
+              <form.Field
+                name="virusId"
+                validators={{
+                  onChange: ({ value }) =>
+                    !value ? "Virus is required" : undefined,
+                }}
+              >
+                {(field) => (
+                  <form.Subscribe
+                    selector={(state) => [state.values.type]}
+                  >
+                    {([type]) => (
+                      <ExceptionsVirusSelector
+                        sampleViruses={viruses}
+                        type={type}
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                      />
+                    )}
+                  </form.Subscribe>
                 )}
               </form.Field>
             </TableCell>
