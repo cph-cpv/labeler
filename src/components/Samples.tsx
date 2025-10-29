@@ -101,7 +101,6 @@ export function Samples() {
     setEditingFastqsSample(null);
   }
 
-
   if (isLoading) {
     return (
       <>

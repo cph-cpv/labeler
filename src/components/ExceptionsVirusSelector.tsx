@@ -12,11 +12,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useViruses } from "@/hooks/useViruses";
 import { cn } from "@/lib/utils";
 import type { Virus } from "@/types";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
-import { useViruses } from "@/hooks/useViruses";
 
 type ExceptionsVirusSelectorProps = {
   sampleViruses: Virus[];
@@ -41,14 +41,14 @@ export function ExceptionsVirusSelector({
         return sampleViruses;
       }
       return sampleViruses.filter((virus) =>
-        virus.name.toLowerCase().includes(searchValue.toLowerCase())
+        virus.name.toLowerCase().includes(searchValue.toLowerCase()),
       );
     } else {
       const sampleVirusIds = new Set(sampleViruses.map((v) => v.id));
       return allViruses.filter((virus) => !sampleVirusIds.has(virus.id));
     }
   }, [allViruses, sampleViruses, type, searchValue]);
-  console.log(sampleViruses)
+  console.log(sampleViruses);
   const nameToId = new Map(viruses.map((v) => [v.name, v.id]));
 
   return (
@@ -66,14 +66,24 @@ export function ExceptionsVirusSelector({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" avoidCollisions={false} align="center" side="bottom">
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        avoidCollisions={false}
+        align="center"
+        side="bottom"
+      >
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search virus..."
             value={searchValue}
             onValueChange={setSearchValue}
           />
-          <CommandList style={{ maxHeight: "calc(var(--radix-popover-content-available-height) - 3rem)" }}>
+          <CommandList
+            style={{
+              maxHeight:
+                "calc(var(--radix-popover-content-available-height) - 3rem)",
+            }}
+          >
             <CommandEmpty>No virus found.</CommandEmpty>
             <CommandGroup key={viruses.length}>
               {viruses.map((virus) => (
@@ -83,7 +93,7 @@ export function ExceptionsVirusSelector({
                   onSelect={(currentValue) => {
                     const id = nameToId.get(currentValue);
                     if (id) {
-                        onChange(id === value ? "" : id);
+                      onChange(id === value ? "" : id);
                     }
                     setOpen(false);
                   }}
@@ -91,7 +101,7 @@ export function ExceptionsVirusSelector({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === virus.id ? "opacity-100" : "opacity-0"
+                      value === virus.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {virus.name}
