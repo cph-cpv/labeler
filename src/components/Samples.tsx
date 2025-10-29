@@ -28,7 +28,7 @@ import {
 import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { usePocketBasePaginated } from "@/hooks/usePocketBaseQuery.ts";
 import { useSelection } from "@/hooks/useSelection.tsx";
-import type { Fastq, Sample, SampleExpanded } from "@/types.ts";
+import type { Sample, SampleExpanded } from "@/types.ts";
 import { formatSamples } from "@/utils/samples.ts";
 import { Outlet } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";

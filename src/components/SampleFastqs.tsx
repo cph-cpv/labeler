@@ -114,7 +114,6 @@ export function SampleFastqs({
 
           <SamplesAssociator
             searchTerm={searchTerm}
-            sampleId={sample.id}
             selectedFastqs={selectedFastqs}
             onSelectFastq={handleAddAssociation}
             onDeselectFastq={handleDeselectFastq}
