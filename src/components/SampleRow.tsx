@@ -1,16 +1,15 @@
 import { SampleName } from "@/components/SampleName.tsx";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
 import { SelectionCheckbox } from "@/components/ui/selection-checkbox.tsx";
 import { TableCell, TableRow } from "@/components/ui/table.tsx";
 import { UnsetIcon } from "@/components/ui/unset.tsx";
@@ -22,7 +21,10 @@ import React from "react";
 interface SampleRowProps {
   sample: Sample;
   selectedIds: Set<string>;
-  onToggle: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
+  onToggle: (
+    id: string,
+    event?: React.MouseEvent | React.KeyboardEvent,
+  ) => void;
   setEditingFastqsSample: (sample: Sample) => void;
   setEditingVirusesSample: (sample: Sample) => void;
 }
@@ -141,11 +143,8 @@ export function SampleRow({
         </div>
       </TableCell>
       <TableCell className="text-right">
-        <AlertDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-        >
-          <AlertDialogTrigger asChild>
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -153,27 +152,29 @@ export function SampleRow({
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure?</DialogTitle>
+              <DialogDescription>
                 This action cannot be undone. This will permanently delete the
                 sample{" "}
                 <span className="font-semibold text-foreground">
                   {sample.name}
                 </span>{" "}
                 and all associated data.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleDelete} disabled={isDeleting}>
                 {isDeleting ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </TableCell>
     </TableRow>
   );
