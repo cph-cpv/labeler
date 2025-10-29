@@ -28,9 +28,10 @@ export function SampleFastqs({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFastqs, setSelectedFastqs] = useState<Fastq[]>([]);
 
-  const { associatedFastqs: serverAssociatedFastqs } = useSampleFastqs({
-    sampleId: sample?.id || null,
-  });
+  const { associatedFastqs: serverAssociatedFastqs, isLoading } =
+    useSampleFastqs({
+      sampleId: sample?.id || null,
+    });
 
   const fastqMutation = usePocketBaseMutation<Fastq>("fastqs");
 
@@ -88,7 +89,7 @@ export function SampleFastqs({
     setSelectedFastqs((prev) => prev.filter((f) => f.id !== fastqId));
   }
 
-  if (!sample) return null;
+  if (!sample || isLoading) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

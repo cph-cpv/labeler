@@ -1,5 +1,6 @@
 import { ExceptionsVirusSelector } from "@/components/ExceptionsVirusSelector.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 import {
   Select,
   SelectContent,
@@ -36,7 +37,6 @@ import type { Fastq, SampleExpanded, Virus } from "@/types.ts";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
-import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 
 type ExceptionsProps = {
   sampleId: string;
@@ -225,9 +225,7 @@ export function Exceptions({ sampleId, viruses }: ExceptionsProps) {
                 }}
               >
                 {(field) => (
-                  <form.Subscribe
-                    selector={(state) => [state.values.type]}
-                  >
+                  <form.Subscribe selector={(state) => [state.values.type]}>
                     {([type]) => (
                       <ExceptionsVirusSelector
                         sampleViruses={viruses}
