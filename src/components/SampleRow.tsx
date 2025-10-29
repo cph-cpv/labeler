@@ -1,4 +1,3 @@
-
 import { SampleName } from "@/components/SampleName.tsx";
 import {
   AlertDialog,
@@ -12,12 +11,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { SelectionCheckbox } from "@/components/ui/selection-checkbox.tsx";
 import { TableCell, TableRow } from "@/components/ui/table.tsx";
+import { UnsetIcon } from "@/components/ui/unset.tsx";
 import { useDeleteSample } from "@/hooks/useDeleteSample.ts";
 import type { Sample } from "@/types.ts";
-import { SelectionCheckbox } from "@/components/ui/selection-checkbox.tsx";
 import { EditIcon, Trash2 } from "lucide-react";
-import { UnsetIcon } from "@/components/ui/unset.tsx";
 import React from "react";
 
 interface SampleRowProps {
