@@ -46,15 +46,11 @@ export function Samples() {
   } = usePocketBasePaginated<SampleExpanded>("samples", {
     page: currentPage,
     filter: searchValue ? `name ~ "${searchValue}"` : undefined,
-    expand: "viruses",
+    expand: "viruses, fastqs_via_sample",
   });
 
   const samples = useMemo(() => formatSamples(baseSamples), [baseSamples]);
 
-  // Fetch all FASTQs to calculate counts
-  const { data: allFastqs = [] } = usePocketBasePaginated<Fastq>("fastqs", {
-    skipTotal: true,
-  });
   const [editingVirusesSample, setEditingVirusesSample] =
     React.useState<Sample | null>(null);
   const [editingFastqsSample, setEditingFastqsSample] =
@@ -105,9 +101,6 @@ export function Samples() {
     setEditingFastqsSample(null);
   }
 
-  function getFastqCount(sampleId: string): number {
-    return allFastqs.filter((fastq) => fastq.sample === sampleId).length;
-  }
 
   if (isLoading) {
     return (
@@ -196,14 +189,14 @@ export function Samples() {
                   className="group relative cursor-pointer transition-colors hover:bg-muted/70 focus:bg-muted/70 focus:outline-none rounded px-2 py-1 -mx-2 -my-1"
                   tabIndex={0}
                   role="button"
-                  aria-label={`Edit FASTQs for ${sample.name}. Currently has ${getFastqCount(sample.id)} FASTQs assigned`}
+                  aria-label={`Edit FASTQs for ${sample.name}. Currently has ${sample.fastqs.length} FASTQs assigned`}
                   onClick={() => handleFastqsClick(sample)}
                   onKeyDown={(e) => handleFastqsKeyDown(e, sample)}
                 >
                   <div className="flex items-center justify-between">
                     <span>
                       {(() => {
-                        const count = getFastqCount(sample.id);
+                        const count = sample.fastqs.length;
                         return count ? (
                           `${count} FASTQ${count === 1 ? "" : "s"}`
                         ) : (

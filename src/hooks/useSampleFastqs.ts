@@ -67,6 +67,6 @@ export function useSampleFastqs({
       totalPages,
       totalItems,
     },
-    isLoading: isLoadingAssociated && isLoadingSearch,
+    isLoading: isLoadingAssociated || isLoadingSearch,
   };
 }

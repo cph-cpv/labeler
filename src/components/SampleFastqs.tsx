@@ -28,7 +28,7 @@ export function SampleFastqs({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFastqs, setSelectedFastqs] = useState<Fastq[]>([]);
 
-  const { associatedFastqs: serverAssociatedFastqs } = useSampleFastqs({
+  const { associatedFastqs: serverAssociatedFastqs, isLoading } = useSampleFastqs({
     sampleId: sample?.id || null,
   });
 
@@ -88,7 +88,7 @@ export function SampleFastqs({
     setSelectedFastqs((prev) => prev.filter((f) => f.id !== fastqId));
   }
 
-  if (!sample) return null;
+  if (!sample || isLoading) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -114,6 +114,7 @@ export function SampleFastqs({
 
           <SamplesAssociator
             searchTerm={searchTerm}
+            sampleId={sample.id}
             selectedFastqs={selectedFastqs}
             onSelectFastq={handleAddAssociation}
             onDeselectFastq={handleDeselectFastq}

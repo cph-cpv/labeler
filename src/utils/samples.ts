@@ -5,6 +5,7 @@ export function formatSamples(samples: SampleExpanded[]): Sample[] {
     return {
       ...sample,
       viruses: sample.expand?.viruses ? sample.expand.viruses : [],
+      fastqs: sample.expand?.fastqs_via_sample ? sample.expand.fastqs_via_sample : [],
     };
   });
 }

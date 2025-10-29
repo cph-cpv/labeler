@@ -60,6 +60,7 @@ export type Sample = Omit<BaseSample, "viruses"> & {
 export type SampleExpanded = BaseSample & {
   expand: {
     viruses?: Virus[];
+    fastqs_via_sample?: Fastq[];
   };
 };
 
