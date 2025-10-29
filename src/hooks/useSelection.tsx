@@ -87,7 +87,7 @@ export function useSelection<T extends SelectableItem>() {
   );
 
   const onToggle = useCallback(
-    (itemId: string, event?: React.MouseEvent) => {
+    (itemId: string, event?: React.MouseEvent | React.KeyboardEvent) => {
       const itemIndex = itemIndexMap.get(itemId) ?? -1;
 
       setSelectedIds((prev) => {
