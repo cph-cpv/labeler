@@ -85,6 +85,7 @@ function formatLabelerOutput(
   annotation = "",
 ) {
   return {
+    fileName: formatFastqFileName(fastq),
     fastqName: fastq.name,
     type: fastq.type,
     quality: fastq.quality,
@@ -114,6 +115,7 @@ async function main() {
   const resultMap = new Map<
     string,
     {
+      fileName: string
       fastqName: string;
       type: string;
       quality: string;
@@ -195,6 +197,7 @@ async function main() {
 
   const csv = papa.unparse(result, {
     columns: [
+      "fileName",
       "fastqName",
       "type",
       "quality",
@@ -212,7 +215,7 @@ async function main() {
   fs.writeFileSync("viruses.csv", csv);
 
   const paths = annotatedFastqs.map(
-    (fastq) => `${fastq.path} ${formatFastqFileName(fastq)}`,
+    (fastq) => `${fastq.path},${formatFastqFileName(fastq)}`,
   );
   fs.writeFileSync("files.txt", paths.join("\n"));
 
